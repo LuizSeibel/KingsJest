@@ -7,22 +7,26 @@
 
 import SwiftUI
 
-struct CustomUIButton: View {
-    
-    var body: some View {
-        VStack{
-            Text("Hello, World!")
-            
-            Button(action: {
-                
-            }, label: {
-                Text("fONTS")
-                
-            })
-        }
+
+struct CustomUIButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(8)
+            .font(.custom("STSongti-TC-Bold", size: 20))
+            .frame(maxWidth: 180)
+            .background(configuration.isPressed ? Color(.systemGray6).opacity(0.7) : Color(.systemGray6))
+            .foregroundColor(Color("BackgroundColor"))
+            .cornerRadius(12)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
     }
 }
 
 #Preview {
-    CustomUIButton()
+    Button(action: {
+        print("Botão clicado")
+    }, label: {
+        Text("Join Room")
+    })
+    .buttonStyle(CustomUIButtonStyle())
 }

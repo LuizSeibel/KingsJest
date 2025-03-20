@@ -19,6 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         
+        
+        registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
+        
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIHostingController(rootView: ContentView())
         self.window = window
