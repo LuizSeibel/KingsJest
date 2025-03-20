@@ -16,7 +16,7 @@ struct Nickname: View {
         HStack {
             RoundedRectangle(cornerRadius: 8)
                 .foregroundStyle(Color(.systemGray6))
-                .frame(width: 30, height: 30)
+                .frame(width: 25, height: 25)
                 .overlay(
                     Image("touca")
                         .resizable()
@@ -25,17 +25,17 @@ struct Nickname: View {
                 )
             
             CustomUITextField(placeholder: placeholder, text: $text)
-                .padding(5)
+                .padding(0)
                 .font(.system(size: 24, weight: .bold))
                 .foregroundStyle(Color(.systemGray4))
         }
-        .padding(.horizontal)
-        .padding(.vertical, 12)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 8)
         .background(
-            RoundedRectangle(cornerRadius: 18)
+            RoundedRectangle(cornerRadius: 12)
                 .fill(Color("UIBackground1"))
         )
-        .frame(maxWidth: 200, maxHeight: 5)
+        .frame(maxWidth: 260, maxHeight: 5)
     }
 }
 
