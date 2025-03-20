@@ -35,7 +35,7 @@ struct Nickname: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(Color("UIBackground1"))
         )
-        .frame(maxWidth: 260, maxHeight: 5)
+        .frame(maxWidth: .infinity, maxHeight: 5)
     }
 }
 
