@@ -1,9 +1,9 @@
-//
+
 //  AppDelegate.swift
 //  KingsJest
 //
 //  Created by Luiz Seibel on 19/03/25.
-//
+
 
 import UIKit
 import SwiftUI
