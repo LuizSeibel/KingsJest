@@ -8,22 +8,27 @@
 import SpriteKit
 import SwiftUI
 
-@MainActor var spriteView : PhaseOne?
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            GeometryReader { geo in
-                SpriteView(scene: scene(size: geo.size))
-                    .ignoresSafeArea()
-            }
+        NavigationStack {
+            teste()
         }
     }
+}
+
+struct teste: View {
+    @State var buttonPressed: Bool = false
     
-    func scene(size: CGSize) -> SKScene {
-        spriteView = PhaseOne(size: size)
-        spriteView?.size = size
-        
-        return spriteView!
+    var body: some View {
+        VStack{
+            Button("vai para a fase", action: {
+                buttonPressed.toggle()
+            })
+        }
+        .navigationDestination(isPresented: $buttonPressed, destination: {
+            PhaseOneViewControllerRepresentable()
+                    .edgesIgnoringSafeArea(.all)
+        })
     }
 }

@@ -6,30 +6,55 @@
 //
 
 import SpriteKit
+import SwiftUI
 
-class PhaseOne: SKScene {
+struct PhaseOneViewControllerRepresentable: UIViewControllerRepresentable {
+    func makeUIViewController(context: Context) -> UIViewController {
+        let viewController = UIViewController()
+        let skView = SKView(frame: UIScreen.main.bounds)
+        viewController.view = skView
+        
+        if let scene = SKScene(fileNamed: "PhaseOne") {
+            scene.scaleMode = .resizeFill
+            skView.presentScene(scene)
+        }
+        
+        skView.ignoresSiblingOrder = false
+        skView.showsFPS = true
+        skView.showsNodeCount = true
+        
+        return viewController
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
+        // Atualizações futuras, se necessário
+    }
+}
+
+class PhaseOneController: SKScene {
+    
+    var player: SKSpriteNode!
         
     override func didMove(to view: SKView) {
-        setupScene()
         applyNearestFiltering(node: self)
+        
+        player = self.childNode(withName: "player") as? SKSpriteNode
+        
+        let spriteSheet = [
+            SKTexture(imageNamed: "RUN000"),
+            SKTexture(imageNamed: "RUN001"),
+            SKTexture(imageNamed: "RUN002"),
+            SKTexture(imageNamed: "RUN003"),
+            SKTexture(imageNamed: "RUN004"),
+            SKTexture(imageNamed: "RUN005"),
+            SKTexture(imageNamed: "RUN006"),
+            SKTexture(imageNamed: "RUN007")
+        ]
+                
+        player.run(.repeatForever(SKAction.animate(with: spriteSheet, timePerFrame: 0.1)))
+        
     }
     
-    func setupScene() {
-        if let view = self.view {
-            // Load the SKScene from 'GameScene.sks'
-            if let scene = SKScene(fileNamed: "PhaseOne") {
-                // Set the scale mode to scale to fit the window
-                scene.scaleMode = .resizeFill
-                
-                // Present the scene
-                view.presentScene(scene)
-            }
-            
-            view.ignoresSiblingOrder = false
-            view.showsFPS = true
-            view.showsNodeCount = true
-        }
-    }
     
     func applyNearestFiltering(node: SKNode) {
         if let sprite = node as? SKSpriteNode {
