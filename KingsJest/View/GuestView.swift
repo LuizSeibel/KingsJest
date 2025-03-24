@@ -86,6 +86,7 @@ extension GuestView {
         List(viewModel.availableRooms, id: \.self){ peer in
             CustomListIndexView(label: "\(peer.displayName)'s Room", labelButton1: "Join", labelButton2: "0/8", button1Closure: {viewModel.sendInvite(peer: peer)}, button2Disable: true, isSmallStyle: true)
                 .padding(.horizontal, 144)
+                .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
         }
         .listStyle(PlainListStyle())

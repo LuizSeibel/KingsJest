@@ -18,15 +18,19 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .topLeading) {
-                background
-                
-                Nickname(text: $name)
-                    .padding(.top, 50)
-                    .padding(.leading, 50)
-                    .frame(width: 200)
-                
-                hud
+            VStack{
+                ZStack(alignment: .topLeading) {
+                    background
+                        .hideKeyboardWhenTapped()
+                    
+                    Nickname(text: $name)
+                        .padding(.top, 50)
+                        .padding(.leading, 50)
+                        .frame(width: 200)
+                    
+                    hud
+                        .hideKeyboardWhenTapped()
+                }
             }
             .alert("Don’t Stay Anonymous!", isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
@@ -52,6 +56,7 @@ struct ContentView: View {
                 }
             }
         }
+        
     }
 }
 

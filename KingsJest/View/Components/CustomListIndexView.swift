@@ -23,6 +23,7 @@ struct CustomListIndexView: View {
     var body: some View {
         HStack{
             Text(label)
+                .foregroundStyle(.black)
                 .fontWeight(.semibold)
             
             Spacer()

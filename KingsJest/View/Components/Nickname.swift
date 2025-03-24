@@ -57,6 +57,9 @@ struct CustomUITextField: UIViewRepresentable {
         textField.font = font
         textField.textColor = UIColor.gray1
         textField.autocorrectionType = .no
+        textField.adjustsFontForContentSizeCategory = false
+        textField.returnKeyType = .done
+        textField.addTarget(context.coordinator, action: #selector(Coordinator.dismissKeyboard), for: .editingDidEndOnExit)
         textField.attributedPlaceholder = NSAttributedString(
             string: placeholder,
             attributes: [NSAttributedString.Key.foregroundColor: placeholderColor]
@@ -81,6 +84,10 @@ struct CustomUITextField: UIViewRepresentable {
 
         func textFieldDidChangeSelection(_ textField: UITextField) {
             parent.text = textField.text ?? ""
+        }
+        
+        @objc func dismissKeyboard(_ sender: UITextField) {
+            sender.resignFirstResponder()
         }
     }
 }

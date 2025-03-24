@@ -27,6 +27,9 @@ struct HostView: View {
                         if viewModel.isConnected{
                             PlayersGridView(players: $playerNames)
                                 .frame(width: geometry.size.width * 0.8)
+                            
+                            startButton
+                                .padding()
                         }
                         else {
                             hud
@@ -40,8 +43,7 @@ struct HostView: View {
                     .padding(.top, 40)
                     .padding(.leading, 50)
                 
-                startButton
-                    .padding()
+                
             }
             
             // MARK: View States
