@@ -79,7 +79,7 @@ extension GuestView {
     var title: some View {
         Text("Join Room")
             .font(.custom("STSongti-TC-Bold", size: 32))
-            .foregroundStyle(Color(.systemGray6))
+            .foregroundStyle(Color(.gray1))
     }
     
     var list: some View{

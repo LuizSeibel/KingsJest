@@ -15,7 +15,7 @@ struct Nickname: View {
     var body: some View {
         HStack {
             RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color(.systemGray6))
+                .foregroundStyle(Color(.gray1))
                 .frame(width: 25, height: 25)
                 .overlay(
                     Image("touca")
@@ -55,7 +55,7 @@ struct CustomUITextField: UIViewRepresentable {
         textField.delegate = context.coordinator
         textField.text = text
         textField.font = font
-        textField.textColor = UIColor.systemGray6
+        textField.textColor = UIColor.gray1
         textField.autocorrectionType = .no
         textField.attributedPlaceholder = NSAttributedString(
             string: placeholder,

@@ -13,7 +13,7 @@ struct CustomSelectButton2: ButtonStyle {
             .padding(8)
             .fontWeight(.semibold)
             .frame(maxWidth: 90)
-            .background(configuration.isPressed ? Color(.systemGray6).opacity(0.7) : Color(.systemGray6))
+            .background(configuration.isPressed ? Color(.gray1).opacity(0.7) : Color(.gray1))
             .foregroundColor(Color(.darkGray).opacity(0.8))
             .cornerRadius(12)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
