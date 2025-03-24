@@ -28,17 +28,28 @@ struct ContentView: View {
                 
                 hud
             }
-            
             .alert("Don’t Stay Anonymous!", isPresented: $showAlert) {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text("Please enter a nickname to continue.")
             }
+            
+            // MARK: Navigation
             .navigationDestination(isPresented: $navigateToHost){
-                HostView()
+                if navigateToHost{
+                    HostView(connectionManager: MPCManager(yourName: name))
+                }
+                else{
+                    EmptyView()
+                }
             }
             .navigationDestination(isPresented: $navigateToGuest){
-                GuestView()
+                if navigateToGuest{
+                    GuestView(connectionManager: MPCManager(yourName: name))
+                }
+                else{
+                    EmptyView()
+                }
             }
         }
     }

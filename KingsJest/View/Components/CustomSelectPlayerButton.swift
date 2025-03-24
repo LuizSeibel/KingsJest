@@ -1,20 +1,20 @@
 //
-//  CustomUIButton.swift
+//  CustomJoinButton.swift
 //  KingsJest
 //
-//  Created by Luiz Seibel on 20/03/25.
+//  Created by Luiz Seibel on 21/03/25.
 //
 
 import SwiftUI
 
-struct CustomUIButtonStyle: ButtonStyle {
+struct CustomSelectPlayerButton: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(8)
-            .font(.custom("STSongti-TC-Bold", size: 20))
-            .frame(maxWidth: 180)
-            .background(configuration.isPressed ? Color(.systemGray6).opacity(0.7) : Color(.systemGray6))
-            .foregroundColor(Color("BackgroundColor"))
+            .fontWeight(.semibold)
+            .frame(maxWidth: 90)
+            .background(configuration.isPressed ? Color(.background).opacity(0.7) : Color(.background))
+            .foregroundColor(.white)
             .cornerRadius(12)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
@@ -25,7 +25,7 @@ struct CustomUIButtonStyle: ButtonStyle {
     Button(action: {
         print("Botão clicado")
     }, label: {
-        Text("Join Room")
+        Text("Join")
     })
-    .buttonStyle(CustomUIButtonStyle())
+    .buttonStyle(CustomSelectPlayerButton())
 }
