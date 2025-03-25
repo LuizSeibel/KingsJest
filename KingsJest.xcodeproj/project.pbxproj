@@ -10,9 +10,22 @@
 		632FAC712D8B46D200237AC4 /* KingsJest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KingsJest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		632FADBA2D8CC80500237AC4 /* Exceptions for "KingsJest" folder in "KingsJest" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 632FAC702D8B46D200237AC4 /* KingsJest */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		632FAC732D8B46D200237AC4 /* KingsJest */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				632FADBA2D8CC80500237AC4 /* Exceptions for "KingsJest" folder in "KingsJest" target */,
+			);
 			path = KingsJest;
 			sourceTree = "<group>";
 		};
@@ -253,6 +266,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 67AYPRFZH8;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KingsJest/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app needs access to the local network to discover and connect to nearby devices.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
@@ -284,6 +299,8 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 67AYPRFZH8;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = KingsJest/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app needs access to the local network to discover and connect to nearby devices.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;

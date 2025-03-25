@@ -18,6 +18,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+
+        registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIHostingController(rootView: ContentView())
@@ -46,4 +48,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
-
