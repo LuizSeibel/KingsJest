@@ -19,6 +19,7 @@ class GuestViewModel: ObservableObject {
 
     init(connectionManager: MPCManager){
         self.connectionManager = connectionManager
+        self.connectionManager.onRecieveData = onReceiveMessage
         setupBindings()
     }
 }
