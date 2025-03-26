@@ -31,3 +31,9 @@ extension GameViewModel: P2PMessaging {
         //
     }
 }
+
+extension GameViewModel {
+    func disconnectRoom() {
+        connectionManager.disconnect()
+    }
+}

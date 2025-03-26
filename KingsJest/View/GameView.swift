@@ -19,12 +19,15 @@ struct GameView: View {
         VStack{
             Text("GameView")
         }
+        
+        // TODO: Antes de ir para a EndView, ele tem que parar o serviço do MPC
+        // TODO: Passar a variável de ganhador se ele ganhou
         .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
-            EndView()
+            EndView(winBool: true)
         })
     }
 }
 
 #Preview {
-    GameView(connectionManager: MPCManager(yourName: "Hi"))
+    GameView(connectionManager: MPCManager(yourName: ""))
 }

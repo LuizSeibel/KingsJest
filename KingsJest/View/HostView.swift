@@ -43,11 +43,9 @@ struct HostView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
-                
                 CustomBackButton()
                     .padding(.top, 40)
                     .padding(.leading, 50)
-                
                 
             }
             
