@@ -8,22 +8,33 @@
 import SpriteKit
 import GameplayKit
 
-class Player: SKSpriteNode {
+class Player {
+    
+    let node: SKSpriteNode!
     
     var stateMachine: GKStateMachine!
     
-    var idleFrames: [SKTexture] = []
-    var runFrames: [SKTexture] = []
-    var jumpFrames: [SKTexture] = []
-    var deathFrames: [SKTexture] = []
+    lazy var idleFrames: [SKTexture] = {
+        return loadFrames(prefix: "idle00", count: 7)
+    }()
+    lazy var runFrames: [SKTexture] = {
+        loadFrames(prefix: "RUN00", count: 8)
+    }()
+    lazy var jumpFrames: [SKTexture] = {
+        loadFrames(prefix: "jump00", count: 5)
+    }()
+    lazy var deathFrames: [SKTexture] = {
+        loadFrames(prefix: "dead00", count: 12)
+    }()
     
     var isJumping: Bool = false
     
-    init(texture: SKTexture) {
-        super.init(texture: texture, color: .clear, size: texture.size())
+    init(texture: SKTexture, position: CGPoint) {
+        
+        node = SKSpriteNode(texture: texture)
+        node.position = position
         
         setupPhysics()
-        loadAnimations()
         
         stateMachine = GKStateMachine(states: [
             IdleState(player: self),
@@ -32,56 +43,51 @@ class Player: SKSpriteNode {
             DeadState(player: self)
         ])
         stateMachine.enter(IdleState.self)
+        
     }
     
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
     
     //MARK: Fisicas do Player
     func setupPhysics() {
-        self.physicsBody = SKPhysicsBody(texture: self.texture!, size: self.size)
-        self.physicsBody?.affectedByGravity = true
-        self.physicsBody?.isDynamic = true
-        self.physicsBody?.allowsRotation = false
-        self.physicsBody?.categoryBitMask = 1
-        self.physicsBody?.collisionBitMask = 2
-        self.physicsBody?.contactTestBitMask = 4
+        self.node.physicsBody = SKPhysicsBody(texture: self.node.texture!, size: self.node.size)
+        self.node.physicsBody?.affectedByGravity = true
+        self.node.physicsBody?.isDynamic = true
+        self.node.physicsBody?.allowsRotation = false
+        self.node.physicsBody?.categoryBitMask = 1
+        self.node.physicsBody?.collisionBitMask = 2
+        self.node.physicsBody?.contactTestBitMask = 4
     }
     
     //MARK: Animações do Player
-    func loadAnimations() {
-        idleFrames = loadFrames(prefix: "idle00", count: 7)
-        runFrames = loadFrames(prefix: "run00", count: 8)
-        jumpFrames = loadFrames(prefix: "jump00", count: 12)
-        deathFrames = loadFrames(prefix: "dead00", count: 7)
-    }
-    
     func loadFrames(prefix: String, count: Int) -> [SKTexture] {
         var frames: [SKTexture] = []
         
-        for i in 1...count {
-            frames.append(SKTexture(imageNamed: "\(prefix)\(i))"))
+        for i in 0..<count {
+            let texture = SKTexture(imageNamed: "\(prefix)\(i)")
+            texture.filteringMode = .nearest
+            
+            frames.append(texture)
         }
+        
         return frames
     }
     
     //MARK: Animações de cada Estado do Player
     func startIdleAnimation() {
-        self.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.1)), withKey: "idle")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.1)), withKey: "idle")
     }
     
     func startRunAnimation() {
-        self.run(SKAction.repeatForever(SKAction.animate(with: runFrames, timePerFrame: 0.1)), withKey: "run")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: runFrames, timePerFrame: 0.1)), withKey: "run")
     }
     
     func startJumpAnimation() {
-        self.run(SKAction.animate(with: jumpFrames, timePerFrame: 0.1), withKey: "jump")
+        self.node.run(SKAction.animate(with: jumpFrames, timePerFrame: 0.1), withKey: "jump")
     }
     
     func startDeadAnimation() {
-        self.run(SKAction.animate(with: deathFrames, timePerFrame: 0.1), withKey: "dead")
-        self.physicsBody = nil
+        self.node.run(SKAction.animate(with: deathFrames, timePerFrame: 0.1), withKey: "dead")
+        self.node.physicsBody = nil
     }
     
     //MARK: Movimentação do Player com CoreMotion
@@ -89,26 +95,37 @@ class Player: SKSpriteNode {
         let maxSpeed: CGFloat = 300
         let sensitivity: CGFloat = 600
         let newVelocity = xAcceleration * sensitivity
-        self.physicsBody?.velocity.dx = max(min(newVelocity, maxSpeed), -maxSpeed)
+        self.node.physicsBody?.velocity.dx = max(min(newVelocity, maxSpeed), -maxSpeed)
         
-        if abs(newVelocity) > 50 {
-            stateMachine.enter(RunState.self)
-        } else {
-            stateMachine.enter(IdleState.self)
+        // Verifica a direção do movimento e espelha o sprite
+        if newVelocity < 0 {
+            self.node.xScale = -1.0 // Inverte a imagem do personagem (para a esquerda)
+        } else if newVelocity > 0 {
+            self.node.xScale = 1.0 // Restaura a imagem do personagem (para a direita)
+        }
+
+        if !isJumping{
+            if abs(newVelocity) > 50 {
+                stateMachine.enter(RunState.self)
+            } else {
+                stateMachine.enter(IdleState.self)
+            }
         }
     }
     
     //MARK: Pulo do Player
     func jump() {
+        
         if !isJumping {
             isJumping = true
-            self.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 50))
+            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 8))
             stateMachine.enter(JumpState.self)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.isJumping = false
-                self.stateMachine.enter(IdleState.self)
-            }
+        }
+    }
+    
+    func endJump() {
+        if self.isJumping {
+            self.isJumping = false
         }
     }
     
@@ -120,7 +137,6 @@ class Player: SKSpriteNode {
 
 
 //MARK: - PlayerStates
-
 class IdleState: GKState {
     unowned let player: Player
     
@@ -186,7 +202,7 @@ class DeadState: GKState {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             if let scene = SKScene(fileNamed: "PhaseOne") {
                 scene.scaleMode = .resizeFill
-                self.player.scene?.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 2))
+                self.player.node.scene?.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 2))
             }
         }
     }
