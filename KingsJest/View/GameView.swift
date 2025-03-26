@@ -9,17 +9,17 @@ import SwiftUI
 
 struct GameView: View {
     
-    @StateObject private var viewModel: HostViewModel
+    @StateObject private var viewModel: GameViewModel
     
     init(connectionManager: MPCManager){
-        _viewModel = StateObject(wrappedValue: HostViewModel(connectionManager: connectionManager))
+        _viewModel = StateObject(wrappedValue: GameViewModel(connectionManager: connectionManager))
     }
     
     var body: some View {
         VStack{
             Text("GameView")
         }
-        .navigationDestination(isPresented: $viewModel.goToGame, destination: {
+        .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
             EndView()
         })
     }
