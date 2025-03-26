@@ -9,10 +9,12 @@ import SwiftUI
 
 struct GameView: View {
     var body: some View {
-        Text("GameView")
+        GameScenesViewControllerRepresentable(sceneType: .phaseOne)
+            .edgesIgnoringSafeArea(.all)
+        }
     }
-}
 
-#Preview {
-    GameView()
-}
+//#Preview {
+//    GameView()
+//}
+
