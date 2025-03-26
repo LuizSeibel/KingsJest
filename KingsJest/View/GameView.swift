@@ -19,9 +19,9 @@ struct GameView: View {
         GameScenesViewControllerRepresentable(sceneType: .phaseOne)
             .edgesIgnoringSafeArea(.all)
         }
-        .navigationDestination(isPresented: $viewModel.goToGame, destination: {
-            EndView()
-        })
+//        .navigationDestination(isPresented: $viewModel.goToGame, destination: {
+//            EndView()
+//        })
     }
 
 //#Preview {
