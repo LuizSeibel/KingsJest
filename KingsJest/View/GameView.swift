@@ -24,7 +24,7 @@ struct GameView: View {
 //        })
     }
 
-//#Preview {
-//    GameView()
-//}
+#Preview {
+    GameView(connectionManager: MPCManager(yourName: "Hi"))
+}
 
