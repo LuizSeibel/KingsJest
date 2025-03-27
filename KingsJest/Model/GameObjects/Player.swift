@@ -118,7 +118,7 @@ class Player {
         
         if !isJumping {
             isJumping = true
-            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 8))
+            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 10))
             stateMachine.enter(JumpState.self)
         }
     }
