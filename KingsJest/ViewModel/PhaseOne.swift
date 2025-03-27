@@ -50,7 +50,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         // 4️⃣ Atualiza a câmera para seguir o personagem
 //        updateCamera()
         
-        cameraNode.position.x = player.node.position.x
+        cameraNode.position = player.node.position
 
         
         if player.isJumping && isOnGround() {
@@ -125,8 +125,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 //    }
     
     func setupWorldBounds() {
-        let worldWidth: CGFloat = 5000
-        let worldHeight: CGFloat = 420
+        let worldWidth: CGFloat = 10000
+        let worldHeight: CGFloat = 2160
         
         let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(
             x: -worldWidth / 2,  // Ajuste para considerar o novo ponto de origem
