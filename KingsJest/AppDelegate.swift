@@ -1,9 +1,9 @@
-//
+
 //  AppDelegate.swift
 //  KingsJest
 //
 //  Created by Luiz Seibel on 19/03/25.
-//
+
 
 import UIKit
 import SwiftUI
@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = UIHostingController(rootView: ContentView())
+        window.rootViewController = UIHostingController(rootView: GameView(connectionManager: MPCManager(yourName: "Hi")))
         self.window = window
         window.makeKeyAndVisible()
         

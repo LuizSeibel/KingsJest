@@ -5,8 +5,9 @@
 //  Created by Luiz Seibel on 19/03/25.
 //
 
-import Foundation
+import SpriteKit
 import SwiftUI
+
 
 struct ContentView: View {
     
@@ -118,3 +119,6 @@ extension ContentView{
 #Preview {
     ContentView()
 }
+
+
+
