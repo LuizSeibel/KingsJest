@@ -16,9 +16,11 @@ struct GameView: View {
     }
     
     var body: some View {
-        GameScenesViewControllerRepresentable(sceneType: .phaseOne)
-            .edgesIgnoringSafeArea(.all)
+        VStack{
+            GameScenesViewControllerRepresentable(sceneType: .phaseOne)
+                .edgesIgnoringSafeArea(.all)
         }
+        
         
         // TODO: Antes de ir para a EndView, ele tem que parar o serviço do MPC
         // TODO: Passar a variável de ganhador se ele ganhou
@@ -26,6 +28,7 @@ struct GameView: View {
             EndView(winBool: true)
         })
     }
+}
 
 #Preview {
     GameView(connectionManager: MPCManager(yourName: ""))

@@ -15,6 +15,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     let cameraNode = SKCameraNode()
     let motionManager = CMMotionManager() // Gerenciador de movimento
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
+    var lastUpdateTime: TimeInterval = 0
     
     override func didMove(to view: SKView) {
         
@@ -36,9 +37,16 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        player.bufferJump()
+        
         if isOnGround() {  // Verifica se o personagem está no chão antes de pular
             player.jump()
+            player.jumpBufferCounter = 0
         }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        player.endJump()
     }
     
     func isOnGround() -> Bool {
@@ -47,17 +55,23 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        // 4️⃣ Atualiza a câmera para seguir o personagem
-//        updateCamera()
-        
         cameraNode.position = player.node.position
 
+        let deltaTime = currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
+
+        // Atualiza a movimentação horizontal
+        player.move(xAcceleration: xAcceleration, deltaTime: CGFloat(deltaTime))
         
-        if player.isJumping && isOnGround() {
-            player.endJump()
-        }
+        // Continua o pulo se o botão estiver pressionado
+        player.continueJump(deltaTime: CGFloat(deltaTime))
         
-        player.move(xAcceleration: xAcceleration)
+        player.updateCoyoteTime(deltaTime: deltaTime)
+        
+        player.updateJumpBuffer(deltaTime: deltaTime)
+        
+        player.updateJumpState()
+        
         player.stateMachine.update(deltaTime: currentTime)
     }
     
@@ -86,7 +100,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                     let rawY = accelerometerData.acceleration.y
                     
                     // Se o jogo estiver em landscape, o eixo X do acelerômetro é, na verdade, o eixo Y
-                    let rawAcceleration = CGFloat(-rawY) * 10  //
+                    let adjusted = pow(abs(rawY), 1.2) * (rawY < 0 ? -1 : 1) // suaviza o controle
+                    let rawAcceleration = CGFloat(-adjusted) * 8
                     
                     let deadZone: CGFloat = 0.5  // Limite para a "dead zone"
                     

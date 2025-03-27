@@ -14,6 +14,9 @@ class Player {
     
     var stateMachine: GKStateMachine!
     
+    // Movement Var
+    var currentVelocityX: CGFloat = 0.0
+    
     lazy var idleFrames: [SKTexture] = {
         return loadFrames(prefix: "idle00", count: 7)
     }()
@@ -27,7 +30,21 @@ class Player {
         loadFrames(prefix: "dead00", count: 12)
     }()
     
+    
+    // Jump vars
     var isJumping: Bool = false
+    var isJumpButtonHeld = false
+    var jumpTime: CGFloat = 0
+    let maxJumpTime: CGFloat = 0.3  // segundos até atingir altura máxima
+    let jumpForcePerFrame: CGFloat = 10
+    
+    // Jump Buffer
+    var jumpBufferCounter: CGFloat = 0
+    let jumpBufferDuration: CGFloat = 0.1
+    
+    // Coyote Time Properties
+    var coyoteTimeCounter: CGFloat = 0
+    let coyoteTimeDuration: CGFloat = 0.1
     
     init(texture: SKTexture, position: CGPoint) {
         
@@ -56,6 +73,8 @@ class Player {
         self.node.physicsBody?.categoryBitMask = 1
         self.node.physicsBody?.collisionBitMask = 2
         self.node.physicsBody?.contactTestBitMask = 4
+        
+        self.node.physicsBody?.restitution = 0
     }
     
     //MARK: Animações do Player
@@ -90,22 +109,50 @@ class Player {
         self.node.physicsBody = nil
     }
     
-    //MARK: Movimentação do Player com CoreMotion
-    func move(xAcceleration: CGFloat) {
-        let maxSpeed: CGFloat = 300
-        let sensitivity: CGFloat = 600
-        let newVelocity = xAcceleration * sensitivity
-        self.node.physicsBody?.velocity.dx = max(min(newVelocity, maxSpeed), -maxSpeed)
+    func die() {
+        stateMachine.enter(DeadState.self)
+    }
+}
+
+// MARK: - Movement Mechanics
+extension Player {
+    // Movimentação do Player com CoreMotion
+    func move(xAcceleration: CGFloat, deltaTime: CGFloat) {
+        let maxSpeed: CGFloat = 100
+        
+        let accelerationRate: CGFloat = 600
+        let decelerationRate: CGFloat = 1600
+        
+        if xAcceleration != 0 {
+            // Aceleração suave
+            let targetVelocity = xAcceleration * maxSpeed
+            let velocityDiff = targetVelocity - currentVelocityX
+            let accelerationStep = accelerationRate * deltaTime
+            currentVelocityX += min(max(velocityDiff, -accelerationStep), accelerationStep)
+        }
+        else {
+            // Desaceleração suave
+            let deceletarationStep = decelerationRate * deltaTime
+            
+            if currentVelocityX > 0 {
+                currentVelocityX = max(0, currentVelocityX - deceletarationStep)
+            }
+            else if currentVelocityX < 0{
+                currentVelocityX = min(0, currentVelocityX + deceletarationStep)
+            }
+        }
+        
+        self.node.physicsBody?.velocity.dx = currentVelocityX
         
         // Verifica a direção do movimento e espelha o sprite
-        if newVelocity < 0 {
-            self.node.xScale = -1.0 // Inverte a imagem do personagem (para a esquerda)
-        } else if newVelocity > 0 {
-            self.node.xScale = 1.0 // Restaura a imagem do personagem (para a direita)
+        if currentVelocityX < -10 {
+            self.node.xScale = -1.0
+        } else if currentVelocityX > 10 {
+            self.node.xScale = 1.0
         }
 
         if !isJumping{
-            if abs(newVelocity) > 50 {
+            if abs(currentVelocityX) > 50 {
                 stateMachine.enter(RunState.self)
             } else {
                 stateMachine.enter(IdleState.self)
@@ -115,25 +162,71 @@ class Player {
     
     //MARK: Pulo do Player
     func jump() {
-        
+        // Certifique-se de que só inicia o pulo se estiver no chão.
         if !isJumping {
             isJumping = true
+            isJumpButtonHeld = true
+            jumpTime = 0
+            // Zera a velocidade vertical para um início consistente.
+            self.node.physicsBody?.velocity.dy = 0
+            // Impulso inicial (pode ajustar o valor para seu "feeling")
             self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 10))
             stateMachine.enter(JumpState.self)
         }
     }
     
     func endJump() {
-        if self.isJumping {
-            self.isJumping = false
+        // Quando o jogador solta o botão, encerra a extensão do pulo
+        isJumpButtonHeld = false
+    }
+    
+    func continueJump(deltaTime: CGFloat) {
+        // Só aplica força se o botão ainda estiver pressionado e o tempo de pulo não tiver ultrapassado o máximo
+        if isJumping && isJumpButtonHeld && jumpTime < maxJumpTime {
+            self.node.physicsBody?.applyForce(CGVector(dx: 0, dy: jumpForcePerFrame))
+            jumpTime += deltaTime
         }
     }
     
-    func die() {
-        stateMachine.enter(DeadState.self)
+    func bufferJump() {
+        jumpBufferCounter = jumpBufferDuration
+    }
+    
+    func updateJumpState() {
+        // Verifica se a velocidade vertical está próxima de zero (ou seja, está no chão)
+        if let dy = node.physicsBody?.velocity.dy, abs(dy) < 0.1 {
+            isJumping = false
+            isJumpButtonHeld = false
+            jumpTime = 0
+        }
+    }
+    
+    
+    func updateCoyoteTime(deltaTime: CGFloat) {
+        // Defina um threshold para considerar que o personagem está no chão
+        let verticalThreshold: CGFloat = 1.0
+        if let body = self.node.physicsBody, abs(body.velocity.dy) < verticalThreshold {
+            // Personagem no chão: reseta o contador
+            coyoteTimeCounter = coyoteTimeDuration
+        } else {
+            // Personagem no ar: decai o contador
+            coyoteTimeCounter = max(0, coyoteTimeCounter - deltaTime)
+        }
+    }
+    
+    func updateJumpBuffer(deltaTime: CGFloat) {
+        // Diminui o contador do buffer, se estiver ativo
+        if jumpBufferCounter > 0 {
+            jumpBufferCounter = max(0, jumpBufferCounter - deltaTime)
+        }
+        
+        // Se houver um input armazenado e o personagem estiver no chão ou dentro do coyote time, dispara o pulo
+        if jumpBufferCounter > 0 && coyoteTimeCounter > 0 && !isJumping {
+            jump()
+            jumpBufferCounter = 0  // reseta o buffer após pular
+        }
     }
 }
-
 
 
 //MARK: - PlayerStates
