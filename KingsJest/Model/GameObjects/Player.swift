@@ -120,8 +120,8 @@ extension Player {
     func move(xAcceleration: CGFloat, deltaTime: CGFloat) {
         let maxSpeed: CGFloat = 100
         
-        let accelerationRate: CGFloat = 600
-        let decelerationRate: CGFloat = 1600
+        let accelerationRate: CGFloat = 800
+        let decelerationRate: CGFloat = 2200
         
         if xAcceleration != 0 {
             // Aceleração suave
