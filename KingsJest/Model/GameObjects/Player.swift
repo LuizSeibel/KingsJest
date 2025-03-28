@@ -86,7 +86,7 @@ class Player {
         self.node.run(SKAction.animate(with: jumpFrames, timePerFrame: 0.1), withKey: "jump")
     }
     
-    func startDeadAnimation() {        
+    func startDeadAnimation() {
             self.node.removeAllActions() // Remove todas as animações anteriores
 
             let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.2)
