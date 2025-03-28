@@ -34,7 +34,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         self.physicsWorld.contactDelegate = self
         applyNearestFiltering(node: self)
-        setupWorldBounds()
+//        setupWorldBounds()
         startMotionUpdates()
     }
     
@@ -51,9 +51,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
-        cameraNode.position = player.node.position
-
+        updateCamera()
         
+//        cameraNode.position = player.node.position
+
         if player.isJumping && isOnGround() {
             player.endJump()
         }
@@ -62,6 +63,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         player.stateMachine.update(deltaTime: currentTime)
     }
     
+    //TODO: Ajustar os calculos de limite da camera.
     func updateCamera() {
         
         let cameraBounds = self.frame.width/6
@@ -116,7 +118,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-        
+    //TODO: Ajustar os calculos de limite da cena inteira.
     func setupWorldBounds() {
         let worldWidth: CGFloat = 10000
         let worldHeight: CGFloat = 2160
