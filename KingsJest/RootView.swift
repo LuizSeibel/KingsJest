@@ -12,8 +12,8 @@ struct RootView: View{
     var body: some View{
         NavigationStack{
             //EndView(winBool: true)
-            //GameView(connectionManager: MPCManager(yourName: "OI"))
-            ContentView()
+            GameView(connectionManager: MPCManager(yourName: "OI"))
+//            ContentView()
         }
     }
 }

@@ -70,7 +70,7 @@ class Player {
         self.node.physicsBody?.affectedByGravity = true
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
-        self.node.physicsBody?.categoryBitMask = 1
+        self.node.physicsBody?.categoryBitMask = .player
         self.node.physicsBody?.contactTestBitMask = 2
         self.node.physicsBody?.collisionBitMask = 4
     }
@@ -313,4 +313,15 @@ class DeadState: GKState {
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
         return false
     }
+}
+
+
+
+extension UInt32 {
+    
+    
+    static var player:UInt32 { 0x1 >> 0 }
+    static var flag:UInt32 { 0x1 >> 1 }
+    static var ground:UInt32 { 0x1 >> 2 }
+    
 }

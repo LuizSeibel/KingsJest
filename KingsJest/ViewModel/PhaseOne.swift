@@ -21,6 +21,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
+//        player.node.position.x = 3100
+        
         if let scenePlayerNode = self.childNode(withName: "player") {
             let texture = SKTexture(imageNamed: "RUN000")
             player = Player(texture: texture, position: scenePlayerNode.position)
