@@ -22,9 +22,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
     lazy var backgroundLimits:CGRect = {
-        let backgroundLeft = self.childNode(withName: "pilastra0") as! SKSpriteNode
+        let backgroundLeft = self.childNode(withName: "pilastra") as! SKSpriteNode
         let backgroundRight = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
-        let backgroundTop = self.childNode(withName: "backgroundCena7") as! SKSpriteNode
+        let backgroundTop = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
         return CGRect(x: backgroundLeft.frame.minX + (self.view?.frame.width ?? 0) / 2,
                       y: backgroundRight.frame.minY,
                       width: backgroundRight.frame.minX - backgroundLeft.frame.minX,
