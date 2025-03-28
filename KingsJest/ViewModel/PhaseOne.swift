@@ -12,6 +12,7 @@ import CoreMotion
 class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     var player: Player!
+    var lava: Lava!
     let cameraNode = SKCameraNode()
     let motionManager = CMMotionManager() // Gerenciador de movimento
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
@@ -26,13 +27,15 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             player.node.zPosition = 5
             addChild(player.node)
         }
+        
+        lava = Lava(scene: self)
 
         camera = cameraNode
         addChild(cameraNode)
         
-        physicsWorld.contactDelegate = self
+        self.physicsWorld.contactDelegate = self
         applyNearestFiltering(node: self)
-        setupWorldBounds()
+//        setupWorldBounds()
         startMotionUpdates()
     }
     
@@ -55,7 +58,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        cameraNode.position = player.node.position
+        
+        updateCamera()
+        
+//        cameraNode.position = player.node.position
 
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
@@ -75,6 +81,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         player.stateMachine.update(deltaTime: currentTime)
     }
     
+    //TODO: Ajustar os calculos de limite da camera.
     func updateCamera() {
         
         let cameraBounds = self.frame.width/6
@@ -86,6 +93,19 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                 positionPlayer.x > -bounds {
                 cameraNode.run(.moveTo(x: player.node.position.x, duration: 0.2))
             }
+        }
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        let bodyA = contact.bodyA
+        let bodyB = contact.bodyB
+        
+        let playerBody = (bodyA.categoryBitMask == 1) ? bodyA : bodyB
+        let lavaBody = (bodyA.categoryBitMask == 2) ? bodyA : bodyB
+
+        if playerBody.categoryBitMask == 1 && lavaBody.categoryBitMask == 2 {
+            print("🔥 Player caiu na Lava! Chamando die()...")
+            player.die()
         }
     }
     
@@ -117,28 +137,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-    
-//    func updatePlayerMovement() {
-//        guard let player = player else { return }
-//        
-//        let maxSpeed: CGFloat = 300
-//        let sensitivity: CGFloat = 600 // Sensibilidade da inclinação
-//        
-//        // Aplica a velocidade diretamente, evitando deslizes
-//        let newVelocity = xAcceleration * sensitivity
-//        
-//        // Limita a velocidade máxima do personagem
-//        player.physicsBody?.velocity.dx = max(min(newVelocity, maxSpeed), -maxSpeed)
-//        
-//        
-//        // Verifica a direção do movimento e espelha o sprite
-//        if newVelocity < 0 {
-//            player.xScale = -1.0 // Inverte a imagem do personagem (para a esquerda)
-//        } else if newVelocity > 0 {
-//            player.xScale = 1.0 // Restaura a imagem do personagem (para a direita)
-//        }
-//    }
-    
+    //TODO: Ajustar os calculos de limite da cena inteira.
     func setupWorldBounds() {
         let worldWidth: CGFloat = 10000
         let worldHeight: CGFloat = 2160
