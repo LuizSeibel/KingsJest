@@ -20,3 +20,7 @@ extension MPCEncoder {
 struct StartGameEncoder: MPCEncoder {
     var peerName: String
 }
+
+struct StopGameEncoder: MPCEncoder {
+    var peerName: String
+}

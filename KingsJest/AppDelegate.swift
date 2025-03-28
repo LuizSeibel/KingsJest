@@ -13,7 +13,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -22,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = UIHostingController(rootView: GameView(connectionManager: MPCManager(yourName: "Hi")))
+        window.rootViewController = UIHostingController(rootView: RootView())
         self.window = window
         window.makeKeyAndVisible()
         
@@ -45,6 +44,4 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     }
-
-
 }

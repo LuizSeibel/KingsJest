@@ -16,6 +16,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     let cameraNode = SKCameraNode()
     let motionManager = CMMotionManager() // Gerenciador de movimento
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
+    var lastUpdateTime: TimeInterval = 0
+    var finishGame: (() -> Void)?
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
@@ -42,6 +44,38 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             addChild(player.node)
         }
         
+        if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
+                
+            let position = sceneTrigger.position
+            let size = sceneTrigger.size
+            let lavaTrigger = Trigger(
+                position: position,
+                size: size,
+                categoryBitMask: 3,
+                contactTestBitMask: 1
+            )
+            
+            sceneTrigger.removeFromParent()
+            addChild(lavaTrigger.node)
+        }
+        
+        if let sceneTrigger = self.childNode(withName: "bandeira") as? SKSpriteNode {
+            let position = sceneTrigger.position
+            let size = sceneTrigger.size
+            let texture = sceneTrigger.texture!
+            
+            let flagTrigger = Trigger(
+                position: position,
+                size: size,
+                categoryBitMask: 5,
+                contactTestBitMask: 1,
+                texture: texture
+            )
+            
+            sceneTrigger.removeFromParent()
+            addChild(flagTrigger.node)
+        }
+        
         lava = Lava(scene: self)
 
         camera = cameraNode
@@ -55,9 +89,16 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        player.bufferJump()
+        
         if isOnGround() {  // Verifica se o personagem está no chão antes de pular
             player.jump()
+            player.jumpBufferCounter = 0
         }
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        player.endJump()
     }
     
     func isOnGround() -> Bool {
@@ -66,15 +107,22 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        
-        
-//        cameraNode.position = player.node.position
+                
+        let deltaTime = currentTime - lastUpdateTime
+        lastUpdateTime = currentTime
 
-        if player.isJumping && isOnGround() {
-            player.endJump()
-        }
+        // Atualiza a movimentação horizontal
+        player.move(xAcceleration: xAcceleration, deltaTime: CGFloat(deltaTime))
         
-        player.move(xAcceleration: xAcceleration)
+        // Continua o pulo se o botão estiver pressionado
+        player.continueJump(deltaTime: CGFloat(deltaTime))
+        
+        player.updateCoyoteTime(deltaTime: deltaTime)
+        
+        player.updateJumpBuffer(deltaTime: deltaTime)
+        
+        player.updateJumpState()
+        
         player.stateMachine.update(deltaTime: currentTime)
         
         
@@ -99,13 +147,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             self.cameraNode.run(.moveTo(y: 0, duration: 0.3))
         }
         
-//        if player.node.position.y > cameraNode.position.y * 0.8 {
-//            cameraNode.position.y += cameraNode.position.y * 0.8
-//        }
-//        else if player.node.position.y < cameraNode.position.y * 1.2 {
-//            cameraNode.position.y = cameraNode.position.y
-//        }
-        
         
         guard self.cameraNode.position.x >= backgroundLimits.minX,
               self.cameraNode.position.x <= backgroundLimits.maxX else { return }
@@ -126,11 +167,31 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         let playerBody = (bodyA.categoryBitMask == 1) ? bodyA : bodyB
         let lavaBody = (bodyA.categoryBitMask == 2) ? bodyA : bodyB
+        let trigger = (bodyA.categoryBitMask == 3) ? bodyA : bodyB
+        let flag = (bodyA.categoryBitMask == 5) ? bodyA : bodyB
 
         if playerBody.categoryBitMask == 1 && lavaBody.categoryBitMask == 2 {
             print("🔥 Player caiu na Lava! Chamando die()...")
             player.die()
         }
+        
+        // Lava Trigger
+        if playerBody.categoryBitMask == 1 && trigger.categoryBitMask == 3 {
+            print("🎉 Player ativou o Trigger!")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                print("🔥 Lava Subindo...")
+                self.lava.move()
+            }
+        }
+        
+        // Flag Trigger
+        if playerBody.categoryBitMask == 1 && flag.categoryBitMask == 5 {
+            print("🎉 Terminou a Fase!")
+            if let finishGame{
+                finishGame()
+            }
+        }
+        
     }
     
     
@@ -144,7 +205,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                     let rawY = accelerometerData.acceleration.y
                     
                     // Se o jogo estiver em landscape, o eixo X do acelerômetro é, na verdade, o eixo Y
-                    let rawAcceleration = CGFloat(-rawY) * 10  //
+                    let adjusted = pow(abs(rawY), 1.2) * (rawY < 0 ? -1 : 1) // suaviza o controle
+                    let rawAcceleration = CGFloat(-adjusted) * 8
                     
                     let deadZone: CGFloat = 0.5  // Limite para a "dead zone"
                     

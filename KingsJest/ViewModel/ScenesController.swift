@@ -15,14 +15,18 @@ enum GameSceneType: String {
 struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
     
     let sceneType: GameSceneType
+    let finishGame: () -> Void
     
     func makeUIViewController(context: Context) -> UIViewController {
         let viewController = UIViewController()
         let skView = SKView(frame: UIScreen.main.bounds)
         viewController.view = skView
         
-        if let scene = SKScene(fileNamed: sceneType.rawValue) {
+        if let scene = SKScene(fileNamed: sceneType.rawValue) as? PhaseOneController {
             scene.scaleMode = .resizeFill
+
+            scene.finishGame = finishGame
+
             skView.presentScene(scene)
         }
         

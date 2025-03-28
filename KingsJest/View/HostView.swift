@@ -13,6 +13,11 @@ struct HostView: View {
     
     @State private var playerNames: [String] = []
     
+    // Animation vars
+    @State private var dotCount: Int = 0
+    let maxDots = 3
+    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    
     init(connectionManager: MPCManager){
         _viewModel = StateObject(wrappedValue: HostViewModel(connectionManager: connectionManager))
     }
@@ -38,11 +43,9 @@ struct HostView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
-                
                 CustomBackButton()
                     .padding(.top, 40)
                     .padding(.leading, 50)
-                
                 
             }
             
@@ -115,9 +118,12 @@ extension HostView{
     var hud: some View {
         VStack(alignment: .center){
             Image("coroa")
-            Text("Waiting for players...")
+            Text("Waiting for players \(String(repeating: ".", count: dotCount))")
                 .foregroundStyle(.gray)
                 .font(.custom("STSongti-TC-Bold", size: 26))
+        }
+        .onReceive(timer) { _ in
+            dotCount = (dotCount + 1) % (maxDots + 1)
         }
     }
 }
