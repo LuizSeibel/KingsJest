@@ -112,7 +112,6 @@ class Player {
             
             let sequence = SKAction.sequence([deathAnimation, holdLastFrame])
             self.node.run(sequence, withKey: "dead")
-
     }
     
     func die() {

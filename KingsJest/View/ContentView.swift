@@ -18,45 +18,45 @@ struct ContentView: View {
     @State private var navigateToGuest = false
     
     var body: some View {
-        NavigationStack {
-            VStack{
-                ZStack(alignment: .topLeading) {
-                    background
-                        .hideKeyboardWhenTapped()
-                    
-                    Nickname(text: $name)
-                        .padding(.top, 50)
-                        .padding(.leading, 50)
-                        .frame(width: 200)
-                    
-                    hud
-                        .hideKeyboardWhenTapped()
-                }
-            }
-            .alert("Don’t Stay Anonymous!", isPresented: $showAlert) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text("Please enter a nickname to continue.")
-            }
-            
-            // MARK: Navigation
-            .navigationDestination(isPresented: $navigateToHost){
-                if navigateToHost{
-                    HostView(connectionManager: MPCManager(yourName: name))
-                }
-                else{
-                    EmptyView()
-                }
-            }
-            .navigationDestination(isPresented: $navigateToGuest){
-                if navigateToGuest{
-                    GuestView(connectionManager: MPCManager(yourName: name))
-                }
-                else{
-                    EmptyView()
-                }
+        VStack{
+            ZStack(alignment: .topLeading) {
+                background
+                    .hideKeyboardWhenTapped()
+                
+                Nickname(text: $name)
+                    .padding(.top, 50)
+                    .padding(.leading, 50)
+                    .frame(width: 200)
+                
+                hud
+                    .hideKeyboardWhenTapped()
             }
         }
+        .alert("Don’t Stay Anonymous!", isPresented: $showAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Please enter a nickname to continue.")
+        }
+        
+        // MARK: Navigation
+        .navigationDestination(isPresented: $navigateToHost){
+            if navigateToHost{
+                HostView(connectionManager: MPCManager(yourName: name))
+            }
+            else{
+                EmptyView()
+            }
+        }
+        .navigationDestination(isPresented: $navigateToGuest){
+            if navigateToGuest{
+                GuestView(connectionManager: MPCManager(yourName: name))
+            }
+            else{
+                EmptyView()
+            }
+        }
+        .navigationBarBackButtonHidden(true)
+    
         
     }
 }

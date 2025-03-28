@@ -17,6 +17,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     let motionManager = CMMotionManager() // Gerenciador de movimento
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
     var lastUpdateTime: TimeInterval = 0
+    var finishGame: (() -> Void)?
     
     override func didMove(to view: SKView) {
         
@@ -26,6 +27,38 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             scenePlayerNode.removeFromParent()
             player.node.zPosition = 5
             addChild(player.node)
+        }
+        
+        if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
+                
+            let position = sceneTrigger.position
+            let size = sceneTrigger.size
+            let lavaTrigger = Trigger(
+                position: position,
+                size: size,
+                categoryBitMask: 3,
+                contactTestBitMask: 1
+            )
+            
+            sceneTrigger.removeFromParent()
+            addChild(lavaTrigger.node)
+        }
+        
+        if let sceneTrigger = self.childNode(withName: "bandeira") as? SKSpriteNode {
+            let position = sceneTrigger.position
+            let size = sceneTrigger.size
+            let texture = sceneTrigger.texture!
+            
+            let flagTrigger = Trigger(
+                position: position,
+                size: size,
+                categoryBitMask: 5,
+                contactTestBitMask: 1,
+                texture: texture
+            )
+            
+            sceneTrigger.removeFromParent()
+            addChild(flagTrigger.node)
         }
         
         lava = Lava(scene: self)
@@ -59,9 +92,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
-        updateCamera()
+//        updateCamera()
         
-//        cameraNode.position = player.node.position
+        cameraNode.position = player.node.position
 
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
@@ -102,11 +135,31 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         let playerBody = (bodyA.categoryBitMask == 1) ? bodyA : bodyB
         let lavaBody = (bodyA.categoryBitMask == 2) ? bodyA : bodyB
+        let trigger = (bodyA.categoryBitMask == 3) ? bodyA : bodyB
+        let flag = (bodyA.categoryBitMask == 5) ? bodyA : bodyB
 
         if playerBody.categoryBitMask == 1 && lavaBody.categoryBitMask == 2 {
             print("🔥 Player caiu na Lava! Chamando die()...")
             player.die()
         }
+        
+        // Lava Trigger
+        if playerBody.categoryBitMask == 1 && trigger.categoryBitMask == 3 {
+            print("🎉 Player ativou o Trigger!")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                print("🔥 Lava Subindo...")
+                self.lava.move()
+            }
+        }
+        
+        // Flag Trigger
+        if playerBody.categoryBitMask == 1 && flag.categoryBitMask == 5 {
+            print("🎉 Terminou a Fase!")
+            if let finishGame{
+                finishGame()
+            }
+        }
+        
     }
     
     

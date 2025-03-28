@@ -11,21 +11,34 @@ struct GameView: View {
     
     @StateObject private var viewModel: GameViewModel
     
+    @State private var showBlackout = false
+    
     init(connectionManager: MPCManager){
         _viewModel = StateObject(wrappedValue: GameViewModel(connectionManager: connectionManager))
     }
     
     var body: some View {
-        VStack{
-            GameScenesViewControllerRepresentable(sceneType: .phaseOne)
+        ZStack{
+            GameScenesViewControllerRepresentable(sceneType: .phaseOne, finishGame: {
+                withAnimation(.easeIn(duration: 0.5)) {
+                    showBlackout = true
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                    viewModel.finishGame()
+                    viewModel.disconnectRoom()
+                }
+            })
                 .edgesIgnoringSafeArea(.all)
+            if showBlackout {
+                Color.black
+                    .ignoresSafeArea()
+                    .transition(.opacity) // animação de fade-in
+            }
         }
         
-        
-        // TODO: Antes de ir para a EndView, ele tem que parar o serviço do MPC
-        // TODO: Passar a variável de ganhador se ele ganhou
         .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
-            EndView(winBool: true)
+            EndView(winBool: viewModel.winGame)
         })
     }
 }

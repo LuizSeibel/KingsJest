@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = UIHostingController(rootView: GameView(connectionManager: MPCManager(yourName: "Hi")))
+        window.rootViewController = UIHostingController(rootView: RootView())
         self.window = window
         window.makeKeyAndVisible()
         

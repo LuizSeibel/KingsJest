@@ -9,7 +9,11 @@ import SwiftUI
 
 struct EndView: View {
     
+    @Environment(\.openURL) var openURL
+    
     @StateObject private var viewModel: EndViewModel
+    
+    let formsUrl: String = "https://docs.google.com/forms/d/1wqncvx2zmH0rpddkwzWfHkshKFU_ATlrkAJVVFp82aY/edit"
     
     var winBool: Bool = false
     
@@ -24,6 +28,7 @@ struct EndView: View {
             
             hud
         }
+        .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $viewModel.goToMainMenu, destination: {
             ContentView()
         })
@@ -55,7 +60,8 @@ extension EndView {
     var buttons: some View {
         VStack(spacing: 12){
             Button(action: {
-                print("Send Review")
+                guard let url = URL(string: formsUrl) else { return }
+                openURL(url)
             }, label: {
                 Text("Send Review")
             })
@@ -90,11 +96,6 @@ extension EndView {
                 .ignoresSafeArea()
         }
     }
-}
-
-// MARK: - WIN/LOSE MESSAGE
-extension EndView {
-    
 }
 
 #Preview {
