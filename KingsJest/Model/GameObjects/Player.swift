@@ -24,10 +24,11 @@ class Player {
         loadFrames(prefix: "jump00", count: 5)
     }()
     lazy var deathFrames: [SKTexture] = {
-        loadFrames(prefix: "dead00", count: 12)
+        loadFrames(prefix: "death00", count: 12)
     }()
     
     var isJumping: Bool = false
+
     
     init(texture: SKTexture, position: CGPoint) {
         
@@ -54,8 +55,8 @@ class Player {
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
         self.node.physicsBody?.categoryBitMask = 1
-        self.node.physicsBody?.collisionBitMask = 2
-        self.node.physicsBody?.contactTestBitMask = 4
+        self.node.physicsBody?.contactTestBitMask = 2
+        self.node.physicsBody?.collisionBitMask = 4
     }
     
     //MARK: Animações do Player
@@ -85,9 +86,17 @@ class Player {
         self.node.run(SKAction.animate(with: jumpFrames, timePerFrame: 0.1), withKey: "jump")
     }
     
-    func startDeadAnimation() {
-        self.node.run(SKAction.animate(with: deathFrames, timePerFrame: 0.1), withKey: "dead")
-        self.node.physicsBody = nil
+    func startDeadAnimation() {        
+            self.node.removeAllActions() // Remove todas as animações anteriores
+
+            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.2)
+            let holdLastFrame = SKAction.run {
+                self.node.texture = self.deathFrames.last // Mantém o último frame
+            }
+            
+            let sequence = SKAction.sequence([deathAnimation, holdLastFrame])
+            self.node.run(sequence, withKey: "dead")
+
     }
     
     //MARK: Movimentação do Player com CoreMotion
@@ -129,7 +138,9 @@ class Player {
         }
     }
     
-    func die() {
+    func die() {        
+        
+        self.node.physicsBody = nil
         stateMachine.enter(DeadState.self)
     }
 }
@@ -150,7 +161,7 @@ class IdleState: GKState {
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
-        return stateClass == RunState.self || stateClass == JumpState.self
+        return stateClass == RunState.self || stateClass == JumpState.self || stateClass == DeadState.self
     }
 }
 
@@ -167,7 +178,8 @@ class RunState: GKState {
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
-        return stateClass == IdleState.self || stateClass == JumpState.self
+        return stateClass == IdleState.self || stateClass == JumpState.self || stateClass == DeadState.self
+
     }
 }
 
@@ -184,11 +196,13 @@ class JumpState: GKState {
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
-        return stateClass == IdleState.self || stateClass == RunState.self
+        return stateClass == IdleState.self || stateClass == RunState.self || stateClass == DeadState.self
+
     }
 }
 
 class DeadState: GKState {
+
     unowned let player: Player
     
     init(player: Player) {
@@ -197,10 +211,12 @@ class DeadState: GKState {
     }
     
     override func didEnter(from previousState: GKState?) {
+        print("☠️ DeadState ativado!")
         player.startDeadAnimation()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             if let scene = SKScene(fileNamed: "PhaseOne") {
+                print("🔄 Reiniciando a fase...")
                 scene.scaleMode = .resizeFill
                 self.player.node.scene?.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 2))
             }
