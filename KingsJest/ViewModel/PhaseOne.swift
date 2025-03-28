@@ -19,9 +19,22 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
     
+    lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
+    
+    lazy var backgroundLimits:CGRect = {
+        let backgroundLeft = self.childNode(withName: "pilastra") as! SKSpriteNode
+        let backgroundRight = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
+        let backgroundTop = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
+        return CGRect(x: backgroundLeft.frame.minX + (self.view?.frame.width ?? 0) / 2,
+                      y: backgroundRight.frame.minY,
+                      width: backgroundRight.frame.minX - backgroundLeft.frame.minX,
+                      height: backgroundTop.frame.maxY - backgroundRight.frame.minY - (self.view?.frame.width ?? 0) / 2)
+    }()
+    
     override func didMove(to view: SKView) {
         
-//        player.node.position.x = 3100
+        print("backgroundLimits", backgroundLimits, backgroundLimits.midX)
+        
         
         if let scenePlayerNode = self.childNode(withName: "player") {
             let texture = SKTexture(imageNamed: "RUN000")
@@ -67,11 +80,12 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
         camera = cameraNode
         addChild(cameraNode)
+        print("cameraNode", cameraNode)
         
         self.physicsWorld.contactDelegate = self
         applyNearestFiltering(node: self)
-//        setupWorldBounds()
         startMotionUpdates()
+        updateCamera()
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -93,11 +107,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        
-//        updateCamera()
-        
-        cameraNode.position = player.node.position
-
+                
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
 
@@ -114,26 +124,46 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         player.updateJumpState()
         
         player.stateMachine.update(deltaTime: currentTime)
+        
+        
+        // O que eu quero atualizar num framerate menor
+        
+        guard Int(currentTime*60) % 10 == 0 else { return }
+        updateCamera()
+        
     }
     
     //TODO: Ajustar os calculos de limite da camera.
     func updateCamera() {
         
-        let cameraBounds = self.frame.width/6
-        let bounds = calculateAccumulatedFrame().width/2 - cameraBounds
+        print("Y player: ", player.node.position.y)
+        print("Y cam: ", cameraNode.frame.height)
         
         
-        if let positionPlayer = self.player.node?.position {
-            if positionPlayer.x < bounds &&
-                positionPlayer.x > -bounds {
-                cameraNode.run(.moveTo(x: player.node.position.x, duration: 0.2))
-            }
+        if player.node.position.y >= 90 {
+            self.cameraNode.run(.moveTo(y: player.node.position.y - 30, duration: 0.3))
         }
+        else{
+            self.cameraNode.run(.moveTo(y: 0, duration: 0.3))
+        }
+        
+        
+        guard self.cameraNode.position.x >= backgroundLimits.minX,
+              self.cameraNode.position.x <= backgroundLimits.maxX else { return }
+
+        //print(self.cameraNode.position.x,  backgroundLimits.minX)
+        self.cameraNode.run(.moveTo(x: min(max(player.node.position.x, backgroundLimits.minX),backgroundLimits.maxX), duration: 0.3))
+                                    
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
         let bodyA = contact.bodyA
         let bodyB = contact.bodyB
+        
+        if let blocoArmadilha = [bodyA.node, bodyB.node].filter({$0?.name == "blocoArmadilha"}).first as? SKSpriteNode {
+            blocoArmadilha.physicsBody?.affectedByGravity = true
+            blocoArmadilha.physicsBody?.collisionBitMask = 0
+        }
         
         let playerBody = (bodyA.categoryBitMask == 1) ? bodyA : bodyB
         let lavaBody = (bodyA.categoryBitMask == 2) ? bodyA : bodyB
@@ -192,21 +222,22 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
+    
     //TODO: Ajustar os calculos de limite da cena inteira.
     func setupWorldBounds() {
-        let worldWidth: CGFloat = 10000
-        let worldHeight: CGFloat = 2160
-        
-        let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(
-            x: -worldWidth / 2,  // Ajuste para considerar o novo ponto de origem
-            y: -worldHeight / 2, // Ajuste para o eixo Y centralizado
-            width: worldWidth,
-            height: worldHeight
-        ))
-        
-        borderBody.friction = 0
-        borderBody.restitution = 0 // Evita que o personagem quique ao bater na parede
-        self.physicsBody = borderBody
+//        let worldWidth: CGFloat = 10000
+//        let worldHeight: CGFloat = 2160
+//        
+//        let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(
+//            x: -worldWidth / 2,  // Ajuste para considerar o novo ponto de origem
+//            y: -worldHeight / 2, // Ajuste para o eixo Y centralizado
+//            width: worldWidth,
+//            height: worldHeight
+//        ))
+//        
+//        borderBody.friction = 0
+//        borderBody.restitution = 0 // Evita que o personagem quique ao bater na parede
+//        self.physicsBody = borderBody
     }
     
     func applyNearestFiltering(node: SKNode) {
