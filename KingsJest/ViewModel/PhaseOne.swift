@@ -19,12 +19,14 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
     
+    var lastLava: Bool = false
+    
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
     lazy var backgroundLimits:CGRect = {
-        let backgroundLeft = self.childNode(withName: "pilastra") as! SKSpriteNode
+        let backgroundLeft = self.childNode(withName: "pilastra0") as! SKSpriteNode
         let backgroundRight = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
-        let backgroundTop = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
+        let backgroundTop = self.childNode(withName: "backgroundCena7") as! SKSpriteNode
         return CGRect(x: backgroundLeft.frame.minX + (self.view?.frame.width ?? 0) / 2,
                       y: backgroundRight.frame.minY,
                       width: backgroundRight.frame.minX - backgroundLeft.frame.minX,
@@ -33,7 +35,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
-        print("backgroundLimits", backgroundLimits, backgroundLimits.midX)
+        //print("backgroundLimits", backgroundLimits, backgroundLimits.midX)
         
         
         if let scenePlayerNode = self.childNode(withName: "player") {
@@ -132,28 +134,37 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         updateCamera()
         
     }
-    
-    //TODO: Ajustar os calculos de limite da camera.
-    func updateCamera() {
-        
-        print("Y player: ", player.node.position.y)
-        print("Y cam: ", cameraNode.frame.height)
-        
-        
-        if player.node.position.y >= 90 {
-            self.cameraNode.run(.moveTo(y: player.node.position.y - 30, duration: 0.3))
-        }
-        else{
-            self.cameraNode.run(.moveTo(y: 0, duration: 0.3))
-        }
-        
-        
-        guard self.cameraNode.position.x >= backgroundLimits.minX,
-              self.cameraNode.position.x <= backgroundLimits.maxX else { return }
 
-        //print(self.cameraNode.position.x,  backgroundLimits.minX)
-        self.cameraNode.run(.moveTo(x: min(max(player.node.position.x, backgroundLimits.minX),backgroundLimits.maxX), duration: 0.3))
-                                    
+    func updateCamera() {
+        let playerY = player.node.position.y
+        let cameraMoveDuration = 0.3
+        
+        // =============================
+        // MOVIMENTAÇÃO VERTICAL
+        // =============================
+        if lastLava && playerY >= 90 {
+            let targetY = (playerY >= 720) ? 720 : (playerY - 30)
+            cameraNode.run(.moveTo(y: targetY, duration: cameraMoveDuration))
+        } else {
+            cameraNode.run(.moveTo(y: 0, duration: cameraMoveDuration))
+        }
+        
+        // =============================
+        // MOVIMENTAÇÃO HORIZONTAL
+        // =============================
+        if lastLava {
+            cameraNode.run(.moveTo(x: backgroundLimits.maxX, duration: cameraMoveDuration))
+        } else {
+            // Verifica se a câmera está dentro dos limites
+            let currentX = cameraNode.position.x
+            guard currentX >= backgroundLimits.minX,
+                  currentX <= backgroundLimits.maxX else { return }
+
+            // Limita a posição da câmera ao mínimo e máximo permitido
+            let playerX = player.node.position.x
+            let clampedX = min(max(playerX, backgroundLimits.minX), backgroundLimits.maxX)
+            cameraNode.run(.moveTo(x: clampedX, duration: cameraMoveDuration))
+        }
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -177,13 +188,15 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         // Lava Trigger
         if playerBody.categoryBitMask == 1 && trigger.categoryBitMask == 3 {
-            print("🎉 Player ativou o Trigger!")
+            //print("🎉 Player ativou o Trigger!")
+            print("Tava a camera")
+            lastLava = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 print("🔥 Lava Subindo...")
                 self.lava.move()
             }
         }
-        
+    
         // Flag Trigger
         if playerBody.categoryBitMask == 1 && flag.categoryBitMask == 5 {
             print("🎉 Terminou a Fase!")
