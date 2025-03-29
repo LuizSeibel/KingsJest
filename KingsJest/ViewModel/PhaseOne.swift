@@ -35,9 +35,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
-        //print("backgroundLimits", backgroundLimits, backgroundLimits.midX)
-        
-        
         if let scenePlayerNode = self.childNode(withName: "player") {
             let texture = SKTexture(imageNamed: "RUN000")
             player = Player(texture: texture, position: scenePlayerNode.position)
@@ -82,7 +79,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
         camera = cameraNode
         addChild(cameraNode)
-        print("cameraNode", cameraNode)
         
         self.physicsWorld.contactDelegate = self
         applyNearestFiltering(node: self)
@@ -189,7 +185,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         // Lava Trigger
         if playerBody.categoryBitMask == 1 && trigger.categoryBitMask == 3 {
             //print("🎉 Player ativou o Trigger!")
-            print("Tava a camera")
             lastLava = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 print("🔥 Lava Subindo...")
@@ -200,7 +195,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         // Flag Trigger
         if playerBody.categoryBitMask == 1 && flag.categoryBitMask == 5 {
             print("🎉 Terminou a Fase!")
-            if let finishGame{
+            if let finishGame {
                 finishGame()
             }
         }

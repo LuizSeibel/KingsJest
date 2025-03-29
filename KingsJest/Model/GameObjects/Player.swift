@@ -103,6 +103,7 @@ class Player {
     }
     
     func startDeadAnimation() {
+            self.node.physicsBody = nil
             self.node.removeAllActions() // Remove todas as animações anteriores
 
             let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.2)
@@ -316,12 +317,8 @@ class DeadState: GKState {
 }
 
 
-
 extension UInt32 {
-    
-    
     static var player:UInt32 { 0x1 >> 0 }
     static var flag:UInt32 { 0x1 >> 1 }
     static var ground:UInt32 { 0x1 >> 2 }
-    
 }
