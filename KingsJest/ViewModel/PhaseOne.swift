@@ -19,6 +19,11 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
     
+    
+    private var sendTimer: TimeInterval = 0
+    var onPlayerMove: ((_ x: Float, _ y: Float) -> Void)?
+    
+    
     var lastLava: Bool = false
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
@@ -124,11 +129,18 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         player.stateMachine.update(deltaTime: currentTime)
         
         
-        // O que eu quero atualizar num framerate menor
         
+        sendTimer += deltaTime
+        // Envia a posição a cada 50ms
+        if sendTimer >= 0.05 {
+            sendTimer = 0
+            let (x, y) = player.getPosition()
+            onPlayerMove?(x, y)
+        }
+        
+        // O que eu quero atualizar num framerate menor
         guard Int(currentTime*60) % 10 == 0 else { return }
         updateCamera()
-        
     }
 
     func updateCamera() {

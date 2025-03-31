@@ -28,6 +28,7 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
     
     let sceneType: GameSceneType
     let finishGame: () -> Void
+    let onPlayerMove: (_ x: Float, _ y: Float) -> Void
     
     func makeUIViewController(context: Context) -> UIViewController {
         let viewController = UIViewController()
@@ -38,19 +39,11 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
             scene.scaleMode = .resizeFill
             
             (scene as? PhaseOneController)?.finishGame = finishGame
+            (scene as? PhaseOneController)?.onPlayerMove = onPlayerMove
             
             skView.presentScene(scene)
         }
 
-        
-//        if let scene = SKScene(fileNamed: sceneType.rawValue) as? PhaseOneController {
-//            scene.scaleMode = .resizeFill
-//
-//            scene.finishGame = finishGame
-//
-//            skView.presentScene(scene)
-//        }
-        
         skView.ignoresSiblingOrder = false
         skView.showsFPS = true
         skView.showsNodeCount = true

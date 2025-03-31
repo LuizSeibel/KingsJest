@@ -135,6 +135,26 @@ extension MPCManager {
             }
         }
     }
+    
+    func send(data: Data) {
+        if !session.connectedPeers.isEmpty {
+            do {
+                try session.send(data, toPeers: session.connectedPeers, with: .reliable)
+            } catch {
+                print("Error sending data: \(error.localizedDescription)")
+            }
+        }
+    }
+    
+    func sendPlayerPosition(x: Float, y: Float) {
+        let position = PlayerPositionEncoder(peerName: myPeerId.displayName, x: x, y: y)
+        do {
+            let data = try JSONEncoder().encode(position)
+            try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
+        } catch {
+            print("Erro ao enviar posição: \(error)")
+        }
+    }
 }
 
 extension MPCManager{

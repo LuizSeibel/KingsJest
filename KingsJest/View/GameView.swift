@@ -18,25 +18,31 @@ struct GameView: View {
     }
     
     var body: some View {
-        ZStack{
+        gameViewBody()
+    }
+    
+    private func gameViewBody() -> some View {
+        ZStack {
             GameScenesViewControllerRepresentable(sceneType: .phaseOne, finishGame: {
                 withAnimation(.easeIn(duration: 0.5)) {
                     showBlackout = true
                 }
-                
+
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                     viewModel.finishGame()
                     viewModel.disconnectRoom()
                 }
+            }, onPlayerMove: { x, y in
+                viewModel.sendPosition(x: x, y: y)
             })
-                .edgesIgnoringSafeArea(.all)
+            .edgesIgnoringSafeArea(.all)
+
             if showBlackout {
                 Color.black
                     .ignoresSafeArea()
-                    .transition(.opacity) // animação de fade-in
+                    .transition(.opacity)
             }
         }
-        
         .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
             EndView(winBool: viewModel.winGame)
         })
@@ -46,4 +52,3 @@ struct GameView: View {
 #Preview {
     GameView(connectionManager: MPCManager(yourName: ""))
 }
-

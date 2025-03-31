@@ -24,3 +24,9 @@ struct StartGameEncoder: MPCEncoder {
 struct StopGameEncoder: MPCEncoder {
     var peerName: String
 }
+
+struct PlayerPositionEncoder: MPCEncoder {
+    var peerName: String
+    var x: Float
+    var y: Float
+}
