@@ -8,6 +8,16 @@
 import SpriteKit
 import GameplayKit
 
+extension UInt32 {
+    static let player: UInt32 = 0x1 << 0
+    static let plataform: UInt32 = 0x1 << 1
+    static let lava: UInt32 = 0x1 << 2
+    static let trigger: UInt32 = 0x1 << 3
+    static let flag: UInt32 = 0x1 << 4
+    static let ground: UInt32 = 0x1 << 5
+}
+
+
 class Player {
     
     let node: SKSpriteNode!
@@ -318,12 +328,4 @@ class DeadState: GKState {
 }
 
 
-extension UInt32 {
-    static let player: UInt32 = 0x1 << 0
-    static let plataform: UInt32 = 0x1 << 1
-    static let lava: UInt32 = 0x1 << 2
-    static let trigger: UInt32 = 0x1 << 3
-    static let flag: UInt32 = 0x1 << 4
-    static let ground: UInt32 = 0x1 << 5
-}
 
