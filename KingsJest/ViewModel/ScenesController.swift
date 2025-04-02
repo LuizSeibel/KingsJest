@@ -37,6 +37,10 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
         if let scene = sceneType.getScene() {
             scene.scaleMode = .resizeFill
             
+            //TODO: Retirar do codigo
+            skView.showsPhysics = true
+
+            
             (scene as? PhaseOneController)?.finishGame = finishGame
             
             skView.presentScene(scene)
