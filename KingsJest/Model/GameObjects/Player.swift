@@ -71,8 +71,8 @@ class Player {
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
         self.node.physicsBody?.categoryBitMask = .player
-        self.node.physicsBody?.contactTestBitMask = 2
-        self.node.physicsBody?.collisionBitMask = 4
+        self.node.physicsBody?.contactTestBitMask = .lava
+        self.node.physicsBody?.collisionBitMask = 4 | .plataform
     }
     
     //MARK: Animações do Player
@@ -318,7 +318,12 @@ class DeadState: GKState {
 
 
 extension UInt32 {
-    static var player:UInt32 { 0x1 >> 0 }
-    static var flag:UInt32 { 0x1 >> 1 }
-    static var ground:UInt32 { 0x1 >> 2 }
+    static let player: UInt32 = 0x1 << 0
+    static let plataform: UInt32 = 0x1 << 1
+    static let lava: UInt32 = 0x1 << 2
+    static let trigger: UInt32 = 0x1 << 3
+    static let flag: UInt32 = 0x1 << 4
+
+    
 }
+

@@ -46,8 +46,8 @@ class Lava {
     private func setupPhysics(for lavaNode: SKSpriteNode) {
         lavaNode.physicsBody = SKPhysicsBody(texture: lavaNode.texture!, size: lavaNode.size)
         lavaNode.physicsBody?.isDynamic = false
-        lavaNode.physicsBody?.categoryBitMask = 2
-        lavaNode.physicsBody?.contactTestBitMask = 1
+        lavaNode.physicsBody?.categoryBitMask = .lava
+        lavaNode.physicsBody?.contactTestBitMask = .player
         lavaNode.physicsBody?.collisionBitMask = 0
     }
     
