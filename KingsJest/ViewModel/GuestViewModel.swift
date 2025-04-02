@@ -25,17 +25,26 @@ class GuestViewModel: ObservableObject {
 }
 
 extension GuestViewModel: P2PMessaging {
+    
+    func send<T>(_ message: T, type: MessageType) where T : Decodable, T : Encodable {
+        
+    }
+    
     func onReceiveMessage(data: Data, peerID: MCPeerID) {
-        if (try? JSONDecoder().decode(StartGameEncoder.self, from: data)) != nil {
-            DispatchQueue.main.async {
-                self.startGame = true
+        guard let envelope = try? JSONDecoder().decode(MessageEnvelope.self, from: data) else { return }
+
+        switch envelope.type {
+        case .startGame:
+            if (try? JSONDecoder().decode(StartGameEncoder.self, from: envelope.payload)) != nil {
+                DispatchQueue.main.async {
+                    self.startGame = true
+                }
             }
+        default:
+            break
         }
     }
     
-    func sendMessage() {
-        
-    }
 }
 
 extension GuestViewModel {
@@ -56,4 +65,3 @@ extension GuestViewModel {
         connectionManager.disconnect()
     }
 }
-

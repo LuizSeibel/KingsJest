@@ -8,26 +8,9 @@
 import Foundation
 import MultipeerConnectivity
 
-enum MessageType: String, Codable {
-    case stopGame
-    case position
-}
-
-struct MessageEnvelope: Codable {
-    let type: MessageType
-    let payload: Data
-}
-
-struct PlayerSnapshot: Codable {
-    let time: TimeInterval
-    let position: CGPoint
-    let velocity: CGVector
-}
-
 // Singleton: Instanciar na GameView
 class AttGameViewModel: ObservableObject {
     static var shared = AttGameViewModel()
-    // @Published var playerPositions: [String: [CGPoint]] = [:]
     @Published var snapshots: [String: [PlayerSnapshot]] = [:]
     @Published var players: [MCPeerID] = []
 }
@@ -69,30 +52,20 @@ extension GameViewModel: P2PMessaging {
             if let data = try? JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload) {
                 updatePosition(peerID: peerID, position: data.position, time: data.time, velocity: data.velocity)
             }
+            
+        default:
+            break
         }
     }
     
-    func sendMessage() {
-        let message = StopGameEncoder(peerName: connectionManager.myPeerId.displayName)
+    func send<T: Codable>(_ message: T, type: MessageType) {
         do {
             let payload = try JSONEncoder().encode(message)
-            let envelope = MessageEnvelope(type: .stopGame, payload: payload)
+            let envelope = MessageEnvelope(type: type, payload: payload)
             let finalData = try JSONEncoder().encode(envelope)
             connectionManager.send(data: finalData)
         } catch {
-            print("Erro ao enviar mensagem de fim de jogo: \(error)")
-        }
-    }
-    
-    func sendPosition(snapshot: PlayerSnapshot) {
-        let message = PlayerPositionEncoder(peerName: connectionManager.myPeerId.displayName, position: snapshot.position, time: snapshot.time, velocity: snapshot.velocity)
-        do {
-            let payload = try JSONEncoder().encode(message)
-            let envelope = MessageEnvelope(type: .position, payload: payload)
-            let finalData = try JSONEncoder().encode(envelope)
-            connectionManager.send(data: finalData)
-        } catch {
-            print("Erro ao enviar mensagem de fim de jogo: \(error)")
+            print("Erro ao enviar mensagem do tipo \(type): \(error)")
         }
     }
 }
@@ -105,7 +78,8 @@ extension GameViewModel {
             self.winnerName = self.connectionManager.myPeerId.displayName
             self.winGame = true
             self.isFinishedGame = true
-            self.sendMessage()
+            let message = StopGameEncoder(peerName: self.connectionManager.myPeerId.displayName)
+            self.send(message, type: .stopGame)
         }
     }
     
@@ -118,23 +92,15 @@ extension GameViewModel {
             let shared = AttGameViewModel.shared
             
             let key = peerID.displayName
-            
-            // if shared.playerPositions[key] == nil {
-            //     shared.playerPositions[key] = []
-            // }
-            
-            // if let last = shared.playerPositions[key]?.last {
-            //     if last.distance(to: position) < 1 { return } // ignora pontos muito próximos
-            // }
-            // shared.playerPositions[key]?.append(position)
-            
             let snap = PlayerSnapshot(time: time, position: position, velocity: velocity)
             if shared.snapshots[key] == nil {
                 shared.snapshots[key] = []
             }
             shared.snapshots[key]?.append(snap)
+            
             // Ordena por tempo (caso mensagens cheguem fora de ordem)
             shared.snapshots[key]?.sort { $0.time < $1.time }
+            
             // Limita tamanho do buffer
             if shared.snapshots[key]!.count > 20 {
                 shared.snapshots[key]!.removeFirst()

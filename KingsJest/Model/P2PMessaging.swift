@@ -7,7 +7,7 @@
 
 import MultipeerConnectivity
 
-protocol P2PMessaging{
+protocol P2PMessaging {
     func onReceiveMessage(data: Data, peerID: MCPeerID)
-    func sendMessage()
+    func send<T: Codable>(_ message: T, type: MessageType)
 }

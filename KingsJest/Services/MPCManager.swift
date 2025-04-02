@@ -123,25 +123,9 @@ extension MPCManager: MCSessionDelegate{
 }
 
 extension MPCManager {
-    
-    // TODO: Tirar esse send
-    func send(message: MPCEncoder) {
-        if !session.connectedPeers.isEmpty {
-            do {
-                if let data = message.data() {
-                    try session.send(data, toPeers: session.connectedPeers, with: .reliable)
-                }
-            }
-            catch{
-                print("Error sending message: \(error.localizedDescription)")
-            }
-        }
-    }
-    
     func send(data: Data) {
         if !session.connectedPeers.isEmpty {
             do {
-                print(data)
                 try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
             } catch {
                 print("Error sending data: \(error.localizedDescription)")

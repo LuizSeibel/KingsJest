@@ -15,6 +15,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var ghostNodes: [String: SKShapeNode] = [:]
     var ghostInterpolationProgress: [String: CGFloat] = [:]
     
+    var ghostManager: GhostManager!
     var player: Player!
     var lava: Lava!
     let cameraNode = SKCameraNode()
@@ -93,18 +94,16 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         applyNearestFiltering(node: self)
         startMotionUpdates()
         updateCamera()
+        
+        
+        ghostManager = GhostManager(scene: self, playerName: player.node.name!)
+        ghostManager.onPlayerMove = { [weak self] snapshot in
+            self?.onPlayerMove?(snapshot)
+        }
 
         for peerID in AttGameViewModel.shared.players {
-            if peerID.displayName == player.node.name { continue }
-            let square = SKShapeNode(rectOf: CGSize(width: 40, height: 40))
-            square.fillColor = .green
-            square.strokeColor = .clear
-            square.position = CGPoint(x: player.node.position.x , y: player.node.position.y)
-            square.zPosition = 4
-            addChild(square)
-            ghostNodes[peerID.displayName] = square
+            ghostManager.createGhost(for: peerID.displayName, at: player.node.position)
         }
-        print(ghostNodes)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -146,79 +145,90 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         player.stateMachine.update(deltaTime: currentTime)
         
-        sendTimer += deltaTime
-
-        // Envia Posição + Velocidade + Timestamp
-        if sendTimer >= 0.03 {
-            let now = CACurrentMediaTime()
-            let velocity = player.node.physicsBody?.velocity ?? .zero
-            
-            let snapshot = PlayerSnapshot(
-                time: now,
-                position: player.getPosition(),
-                velocity: velocity
-            )
-            sendTimer = 0
-            onPlayerMove?(snapshot)
-        }
+        ghostManager.update(
+            currentTime: currentTime,
+            lastUpdateTime: lastUpdateTime,
+            playerPosition: player.getPosition(),
+            playerVelocity: player.node.physicsBody?.velocity ?? .zero
+        )
         
-        let renderDelay: TimeInterval = 0.15
-        let renderTime = currentTime - renderDelay
-
-        for (peerID, snapshots) in AttGameViewModel.shared.snapshots {
-            if peerID == player.node.name { continue }
-            guard let ghostNode = ghostNodes[peerID] else { continue }
-
-            if let interpolatedPos = interpolatedPosition(for: snapshots, at: renderTime) {
-                ghostNode.position = interpolatedPos
-            }
-        }
+        //updateRemoteGhosts(currentTime: currentTime)
         
         // O que eu quero atualizar num framerate menor
         guard Int(currentTime*60) % 10 == 0 else { return }
         updateCamera()
     }
     
+    // Função para dar update nos fantasmas remotos
+//    private func updateRemoteGhosts(currentTime: TimeInterval) {
+//        sendTimer += currentTime - lastUpdateTime
+//
+//        if sendTimer >= 0.03 {
+//            let now = CACurrentMediaTime()
+//            let velocity = player.node.physicsBody?.velocity ?? .zero
+//
+//            let snapshot = PlayerSnapshot(
+//                time: now,
+//                position: player.getPosition(),
+//                velocity: velocity
+//            )
+//            sendTimer = 0
+//            onPlayerMove?(snapshot)
+//        }
+//
+//        let renderDelay: TimeInterval = 0.15
+//        let renderTime = currentTime - renderDelay
+//
+//        for (peerID, snapshots) in AttGameViewModel.shared.snapshots {
+//            if peerID == player.node.name { continue }
+//            guard let ghostNode = ghostNodes[peerID] else { continue }
+//
+//            if let interpolatedPos = interpolatedPosition(for: snapshots, at: renderTime) {
+//                ghostNode.position = interpolatedPos
+//            }
+//        }
+//    }
+    
     // Snapshot-based interpolation.
     // Podemos ainda melhorar usando Extrapolação usando velocidade, trocar a interpolação linear por Catmull-Rom splines,
     // SmoothDamp, ou outras abordagens, gerando movimentos mais suaves e utilizar predição quando os snapshots chegarem Dead Reckoning.
-    private func interpolatedPosition(for snapshots: [PlayerSnapshot], at renderTime: TimeInterval) -> CGPoint? {
-        guard !snapshots.isEmpty else { return nil }
-
-        var s0: PlayerSnapshot?
-        var s1: PlayerSnapshot?
-
-        for i in 0 ..< snapshots.count {
-            if snapshots[i].time >= renderTime {
-                s1 = snapshots[i]
-                if i > 0 {
-                    s0 = snapshots[i - 1]
-                }
-                break
-            }
-        }
-
-        // Se não encontrou um par válido, usa fallback
-        if s0 == nil && s1 == nil {
-            // Nenhum snapshot está depois do renderTime, então usamos o último
-            return snapshots.last?.position
-        }
-
-        // Se achou s0 e s1, interpola
-        if let start = s0, let end = s1 {
-            let totalTime = end.time - start.time
-            let elapsed = renderTime - start.time
-            let t = (totalTime == 0) ? 1 : CGFloat(elapsed / totalTime)
-
-            let x = start.position.x + (end.position.x - start.position.x) * t
-            let y = start.position.y + (end.position.y - start.position.y) * t
-            return CGPoint(x: x, y: y)
-        } else if let only = s1 {
-            return only.position
-        }
-
-        return nil
-    }
+//    private func interpolatedPosition(for snapshots: [PlayerSnapshot], at renderTime: TimeInterval) -> CGPoint? {
+//        guard !snapshots.isEmpty else { return nil }
+//
+//        var s0: PlayerSnapshot?
+//        var s1: PlayerSnapshot?
+//
+//        for i in 0 ..< snapshots.count {
+//            if snapshots[i].time >= renderTime {
+//                s1 = snapshots[i]
+//                if i > 0 {
+//                    s0 = snapshots[i - 1]
+//                }
+//                break
+//            }
+//        }
+//
+//        // Se não encontrou um par válido, usa fallback
+//        if s0 == nil && s1 == nil {
+//            // Nenhum snapshot está depois do renderTime, então usamos o último
+//            return snapshots.last?.position
+//        }
+//
+//        // Se achou s0 e s1, interpola
+//        if let start = s0, let end = s1 {
+//            let totalTime = end.time - start.time
+//            let elapsed = renderTime - start.time
+//            let t = (totalTime == 0) ? 1 : CGFloat(elapsed / totalTime)
+//
+//            let x = start.position.x + (end.position.x - start.position.x) * t
+//            let y = start.position.y + (end.position.y - start.position.y) * t
+//            return CGPoint(x: x, y: y)
+//        } else if let only = s1 {
+//            return only.position
+//        }
+//
+//        return nil
+//    }
     
     func updateCamera() {
         let playerY = player.node.position.y

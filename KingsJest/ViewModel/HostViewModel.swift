@@ -34,13 +34,24 @@ class HostViewModel: ObservableObject {
 }
 
 extension HostViewModel: P2PMessaging {
-    func onReceiveMessage(data: Data, peerID: MCPeerID) {
-        
+    func send<T: Codable>(_ message: T, type: MessageType) {
+        do {
+            let payload = try JSONEncoder().encode(message)
+            let envelope = MessageEnvelope(type: type, payload: payload)
+            let finalData = try JSONEncoder().encode(envelope)
+            connectionManager.send(data: finalData)
+        } catch {
+            print("Erro ao enviar mensagem do tipo \(type): \(error)")
+        }
     }
-    
+
+    func onReceiveMessage(data: Data, peerID: MCPeerID) {
+        // Implementar lógica de recebimento, se necessário
+    }
+
     func sendMessage() {
         let message = StartGameEncoder(peerName: connectionManager.myPeerId.displayName)
-        connectionManager.send(message: message)
+        send(message, type: .startGame)
         self.startGame = true
     }
 }
