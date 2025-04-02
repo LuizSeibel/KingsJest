@@ -8,10 +8,6 @@
 import SwiftUI
 import SpriteKit
 
-//enum GameSceneType: String {
-//    case phaseOne = "PhaseOne"
-//}
-
 enum GameSceneType: String {
     case phaseOne = "PhaseOne"
 
@@ -38,7 +34,7 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
             scene.scaleMode = .resizeFill
             
             //TODO: Retirar do codigo
-            skView.showsPhysics = true
+//            skView.showsPhysics = true
 
             
             (scene as? PhaseOneController)?.finishGame = finishGame
@@ -46,15 +42,6 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
             skView.presentScene(scene)
         }
 
-        
-//        if let scene = SKScene(fileNamed: sceneType.rawValue) as? PhaseOneController {
-//            scene.scaleMode = .resizeFill
-//
-//            scene.finishGame = finishGame
-//
-//            skView.presentScene(scene)
-//        }
-        
         skView.ignoresSiblingOrder = false
         skView.showsFPS = true
         skView.showsNodeCount = true
