@@ -13,6 +13,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     var player: Player!
     var lava: Lava!
+    var plataform: Plataform!
     let cameraNode = SKCameraNode()
     let motionManager = CMMotionManager() // Gerenciador de movimento
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
@@ -50,8 +51,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             let lavaTrigger = Trigger(
                 position: position,
                 size: size,
-                categoryBitMask: 3,
-                contactTestBitMask: 1
+                categoryBitMask: .trigger,
+                contactTestBitMask: .player
             )
             
             sceneTrigger.removeFromParent()
@@ -66,8 +67,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             let flagTrigger = Trigger(
                 position: position,
                 size: size,
-                categoryBitMask: 5,
-                contactTestBitMask: 1,
+                categoryBitMask: .flag,
+                contactTestBitMask: .player,
                 texture: texture
             )
             
@@ -76,6 +77,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
         
         lava = Lava(scene: self)
+        plataform = Plataform(scene: self)
 
         camera = cameraNode
         addChild(cameraNode)
@@ -166,41 +168,52 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let bodyA = contact.bodyA
         let bodyB = contact.bodyB
-        
-        if let blocoArmadilha = [bodyA.node, bodyB.node].filter({$0?.name == "blocoArmadilha"}).first as? SKSpriteNode {
-            blocoArmadilha.physicsBody?.affectedByGravity = true
-            blocoArmadilha.physicsBody?.collisionBitMask = 0
-        }
-        
-        let playerBody = (bodyA.categoryBitMask == 1) ? bodyA : bodyB
-        let lavaBody = (bodyA.categoryBitMask == 2) ? bodyA : bodyB
-        let trigger = (bodyA.categoryBitMask == 3) ? bodyA : bodyB
-        let flag = (bodyA.categoryBitMask == 5) ? bodyA : bodyB
 
-        if playerBody.categoryBitMask == 1 && lavaBody.categoryBitMask == 2 {
-            print("🔥 Player caiu na Lava! Chamando die()...")
-            player.die()
+        let (body1, body2) = bodyA.categoryBitMask < bodyB.categoryBitMask ? (bodyA, bodyB) : (bodyB, bodyA)
+
+        if let node = [body1.node, body2.node].compactMap({ $0 }).first {
+            handleBlocoArmadilha(node)
         }
-        
-        // Lava Trigger
-        if playerBody.categoryBitMask == 1 && trigger.categoryBitMask == 3 {
-            //print("🎉 Player ativou o Trigger!")
-            lastLava = true
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                print("🔥 Lava Subindo...")
-                self.lava.move()
-            }
+
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .lava {
+            handlePlayerLavaCollision()
         }
-    
-        // Flag Trigger
-        if playerBody.categoryBitMask == 1 && flag.categoryBitMask == 5 {
-            print("🎉 Terminou a Fase!")
-            if let finishGame {
-                finishGame()
-            }
+
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .trigger {
+            handleLavaTrigger()
         }
-        
+
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .flag {
+            handleFlagTrigger()
+        }
     }
+
+    private func handleBlocoArmadilha(_ node: SKNode) {
+        if node.name == "blocoArmadilha", let spriteNode = node as? SKSpriteNode {
+            spriteNode.physicsBody?.affectedByGravity = true
+            spriteNode.physicsBody?.collisionBitMask = 0
+        }
+    }
+
+    private func handlePlayerLavaCollision() {
+        print("🔥 Player caiu na Lava! Chamando die()...")
+        player.die()
+    }
+
+    private func handleLavaTrigger() {
+        print("🎉 Player ativou o Trigger!")
+        lastLava = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            print("🔥 Lava Subindo...")
+            self.lava.move()
+        }
+    }
+
+    private func handleFlagTrigger() {
+        print("🎉 Terminou a Fase!")
+        finishGame?()
+    }
+
     
     
     func startMotionUpdates() {
