@@ -20,7 +20,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
-    
+    var isFinishedGame: Bool = false
     var lastLava: Bool = false
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
@@ -46,7 +46,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
         
         if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
-                
+            
             let position = sceneTrigger.position
             let size = sceneTrigger.size
             let lavaTrigger = Trigger(
@@ -81,7 +81,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         plataform = Plataform(scene: self)
         ground = Ground(scene: self)
         
-
         camera = cameraNode
         addChild(cameraNode)
         
@@ -110,10 +109,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-                
+        
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
-
+        
         // Atualiza a movimentação horizontal
         player.move(xAcceleration: xAcceleration, deltaTime: CGFloat(deltaTime))
         
@@ -130,12 +129,11 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         
         // O que eu quero atualizar num framerate menor
-        
         guard Int(currentTime*60) % 10 == 0 else { return }
         updateCamera()
         
     }
-
+    
     func updateCamera() {
         let playerY = player.node.position.y
         let cameraMoveDuration = 0.3
@@ -160,7 +158,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             let currentX = cameraNode.position.x
             guard currentX >= backgroundLimits.minX,
                   currentX <= backgroundLimits.maxX else { return }
-
+            
             // Limita a posição da câmera ao mínimo e máximo permitido
             let playerX = player.node.position.x
             let clampedX = min(max(playerX, backgroundLimits.minX), backgroundLimits.maxX)
@@ -171,38 +169,38 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     func didBegin(_ contact: SKPhysicsContact) {
         let bodyA = contact.bodyA
         let bodyB = contact.bodyB
-
+        
         let (body1, body2) = bodyA.categoryBitMask < bodyB.categoryBitMask ? (bodyA, bodyB) : (bodyB, bodyA)
-
+        
         if let node = [body1.node, body2.node].compactMap({ $0 }).first {
             handleBlocoArmadilha(node)
         }
-
+        
         if body1.categoryBitMask == .player && body2.categoryBitMask == .lava {
             handlePlayerLavaCollision()
         }
-
+        
         if body1.categoryBitMask == .player && body2.categoryBitMask == .trigger {
             handleLavaTrigger()
         }
-
+        
         if body1.categoryBitMask == .player && body2.categoryBitMask == .flag {
             handleFlagTrigger()
         }
     }
-
+    
     private func handleBlocoArmadilha(_ node: SKNode) {
         if node.name == "blocoArmadilha", let spriteNode = node as? SKSpriteNode {
             spriteNode.physicsBody?.affectedByGravity = true
             spriteNode.physicsBody?.collisionBitMask = 0
         }
     }
-
+    
     private func handlePlayerLavaCollision() {
         print("🔥 Player caiu na Lava! Chamando die()...")
         player.die()
     }
-
+    
     private func handleLavaTrigger() {
         print("🎉 Player ativou o Trigger!")
         lastLava = true
@@ -211,13 +209,24 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             self.lava.move()
         }
     }
-
-    private func handleFlagTrigger() {
-        print("🎉 Terminou a Fase!")
-        finishGame?()
-    }
-
     
+    private func handleFlagTrigger() {
+        
+        guard !isFinishedGame else { return }
+        isFinishedGame = true
+        
+        print("🎉 Terminou a Fase!")
+        
+        finishGame?()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            if let skView = self.view {
+                print("🎉 Matei a cena!")
+                
+                skView.presentScene(nil) // Remove a cena do SKView
+            }
+        }
+    }
     
     func startMotionUpdates() {
         if motionManager.isAccelerometerAvailable {
@@ -241,37 +250,18 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                         self.xAcceleration = rawAcceleration  // Movimenta o personagem normalmente
                     }
                 }
-                
-                
             }
         }
     }
-    
-    //TODO: Ajustar os calculos de limite da cena inteira.
-    func setupWorldBounds() {
-//        let worldWidth: CGFloat = 10000
-//        let worldHeight: CGFloat = 2160
-//        
-//        let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(
-//            x: -worldWidth / 2,  // Ajuste para considerar o novo ponto de origem
-//            y: -worldHeight / 2, // Ajuste para o eixo Y centralizado
-//            width: worldWidth,
-//            height: worldHeight
-//        ))
-//        
-//        borderBody.friction = 0
-//        borderBody.restitution = 0 // Evita que o personagem quique ao bater na parede
-//        self.physicsBody = borderBody
-    }
-    
-    func applyNearestFiltering(node: SKNode) {
-        if let sprite = node as? SKSpriteNode {
-            sprite.texture?.filteringMode = .nearest
-        }
-        
-        for child in node.children {
-            applyNearestFiltering(node: child) // Aplica recursivamente para todos os filhos
-        }
-    }
-
 }
+
+func applyNearestFiltering(node: SKNode) {
+    if let sprite = node as? SKSpriteNode {
+        sprite.texture?.filteringMode = .nearest
+    }
+    
+    for child in node.children {
+        applyNearestFiltering(node: child) // Aplica recursivamente para todos os filhos
+    }
+}
+
