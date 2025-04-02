@@ -70,6 +70,7 @@ class Player {
         self.node.physicsBody?.affectedByGravity = true
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
+        self.node.physicsBody?.restitution = 0
         self.node.physicsBody?.categoryBitMask = .player
         self.node.physicsBody?.contactTestBitMask = .lava
         self.node.physicsBody?.collisionBitMask = .plataform | .ground

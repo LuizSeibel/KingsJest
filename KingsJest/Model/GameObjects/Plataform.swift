@@ -25,6 +25,7 @@ class Plataform {
     private func setupPhysics(for plataformNode: SKSpriteNode) {
         plataformNode.physicsBody = SKPhysicsBody(texture: plataformNode.texture!, size: plataformNode.size)
         plataformNode.physicsBody?.isDynamic = false
+        plataformNode.physicsBody?.restitution = 0
         plataformNode.physicsBody?.friction = 0
         plataformNode.physicsBody?.categoryBitMask = .plataform
         plataformNode.physicsBody?.contactTestBitMask = 0
