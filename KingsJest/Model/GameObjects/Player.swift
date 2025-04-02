@@ -72,7 +72,7 @@ class Player {
         self.node.physicsBody?.allowsRotation = false
         self.node.physicsBody?.categoryBitMask = .player
         self.node.physicsBody?.contactTestBitMask = .lava
-        self.node.physicsBody?.collisionBitMask = 4 | .plataform
+        self.node.physicsBody?.collisionBitMask = .plataform | .ground
     }
     
     //MARK: Animações do Player
@@ -323,7 +323,6 @@ extension UInt32 {
     static let lava: UInt32 = 0x1 << 2
     static let trigger: UInt32 = 0x1 << 3
     static let flag: UInt32 = 0x1 << 4
-
-    
+    static let ground: UInt32 = 0x1 << 5
 }
 

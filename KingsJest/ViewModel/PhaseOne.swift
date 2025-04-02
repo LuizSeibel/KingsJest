@@ -14,6 +14,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var player: Player!
     var lava: Lava!
     var plataform: Plataform!
+    var ground: Ground!
     let cameraNode = SKCameraNode()
     let motionManager = CMMotionManager() // Gerenciador de movimento
     var xAcceleration: CGFloat = 0 // Variável para armazenar a aceleração
@@ -78,6 +79,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         lava = Lava(scene: self)
         plataform = Plataform(scene: self)
+        ground = Ground(scene: self)
+        
 
         camera = cameraNode
         addChild(cameraNode)
