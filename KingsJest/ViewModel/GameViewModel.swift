@@ -18,10 +18,18 @@ struct MessageEnvelope: Codable {
     let payload: Data
 }
 
+struct PlayerSnapshot: Codable {
+    let time: TimeInterval
+    let position: CGPoint
+    let velocity: CGVector
+}
 
+// Singleton: Instanciar na GameView
 class AttGameViewModel: ObservableObject {
-    @Published var playerPositions: [String: CGPoint] = [:]
-    
+    static var shared = AttGameViewModel()
+    // @Published var playerPositions: [String: [CGPoint]] = [:]
+    @Published var snapshots: [String: [PlayerSnapshot]] = [:]
+    @Published var players: [MCPeerID] = []
 }
 
 class GameViewModel: ObservableObject {
@@ -30,13 +38,12 @@ class GameViewModel: ObservableObject {
     @Published var winnerName: String?
     @Published var winGame: Bool = false
     
-    
-    
     var connectionManager: MPCManager
 
     init(connectionManager: MPCManager){
         self.connectionManager = connectionManager
         self.connectionManager.onRecieveData = onReceiveMessage
+        AttGameViewModel.shared.players = connectionManager.session.connectedPeers
     }
     
 }
@@ -59,8 +66,8 @@ extension GameViewModel: P2PMessaging {
             }
 
         case .position:
-            if let position = try? JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload) {
-                updatePosition(peerID: peerID, x: position.x, y: position.y)
+            if let data = try? JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload) {
+                updatePosition(peerID: peerID, position: data.position, time: data.time, velocity: data.velocity)
             }
         }
     }
@@ -77,8 +84,8 @@ extension GameViewModel: P2PMessaging {
         }
     }
     
-    func sendPosition(x: Float, y: Float) {
-        let message = PlayerPositionEncoder(peerName: connectionManager.myPeerId.displayName, x: x, y: y)
+    func sendPosition(snapshot: PlayerSnapshot) {
+        let message = PlayerPositionEncoder(peerName: connectionManager.myPeerId.displayName, position: snapshot.position, time: snapshot.time, velocity: snapshot.velocity)
         do {
             let payload = try JSONEncoder().encode(message)
             let envelope = MessageEnvelope(type: .position, payload: payload)
@@ -106,9 +113,32 @@ extension GameViewModel {
         connectionManager.disconnect()
     }
     
-    func updatePosition(peerID: MCPeerID, x: Float, y: Float) {
+    func updatePosition(peerID: MCPeerID, position: CGPoint, time: TimeInterval, velocity: CGVector) {
         DispatchQueue.main.async {
-            self.playerPositions[peerID.displayName] = CGPoint(x: CGFloat(x), y: CGFloat(y))
+            let shared = AttGameViewModel.shared
+            
+            let key = peerID.displayName
+            
+            // if shared.playerPositions[key] == nil {
+            //     shared.playerPositions[key] = []
+            // }
+            
+            // if let last = shared.playerPositions[key]?.last {
+            //     if last.distance(to: position) < 1 { return } // ignora pontos muito próximos
+            // }
+            // shared.playerPositions[key]?.append(position)
+            
+            let snap = PlayerSnapshot(time: time, position: position, velocity: velocity)
+            if shared.snapshots[key] == nil {
+                shared.snapshots[key] = []
+            }
+            shared.snapshots[key]?.append(snap)
+            // Ordena por tempo (caso mensagens cheguem fora de ordem)
+            shared.snapshots[key]?.sort { $0.time < $1.time }
+            // Limita tamanho do buffer
+            if shared.snapshots[key]!.count > 20 {
+                shared.snapshots[key]!.removeFirst()
+            }
         }
     }
 }

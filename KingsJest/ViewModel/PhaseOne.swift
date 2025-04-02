@@ -11,6 +11,10 @@ import CoreMotion
 
 class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
+    // Chama o singleton
+    var ghostNodes: [String: SKShapeNode] = [:]
+    var ghostInterpolationProgress: [String: CGFloat] = [:]
+    
     var player: Player!
     var lava: Lava!
     let cameraNode = SKCameraNode()
@@ -21,7 +25,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     
     private var sendTimer: TimeInterval = 0
-    var onPlayerMove: ((_ x: Float, _ y: Float) -> Void)?
+    var onPlayerMove: ((PlayerSnapshot) -> Void)?
     
     
     var lastLava: Bool = false
@@ -89,6 +93,18 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         applyNearestFiltering(node: self)
         startMotionUpdates()
         updateCamera()
+
+        for peerID in AttGameViewModel.shared.players {
+            if peerID.displayName == player.node.name { continue }
+            let square = SKShapeNode(rectOf: CGSize(width: 40, height: 40))
+            square.fillColor = .green
+            square.strokeColor = .clear
+            square.position = CGPoint(x: player.node.position.x , y: player.node.position.y)
+            square.zPosition = 4
+            addChild(square)
+            ghostNodes[peerID.displayName] = square
+        }
+        print(ghostNodes)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -109,11 +125,13 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         return playerPhysicsBody.velocity.dy == 0 // Se a velocidade vertical for 0, significa que ele está no chão
     }
     
+    var playerlastPosition: [CGPoint] = []
+    
     override func update(_ currentTime: TimeInterval) {
-                
+
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
-
+        
         // Atualiza a movimentação horizontal
         player.move(xAcceleration: xAcceleration, deltaTime: CGFloat(deltaTime))
         
@@ -128,21 +146,80 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         player.stateMachine.update(deltaTime: currentTime)
         
-        
-        
         sendTimer += deltaTime
-        // Envia a posição a cada 50ms
-        if sendTimer >= 0.05 {
+
+        // Envia Posição + Velocidade + Timestamp
+        if sendTimer >= 0.03 {
+            let now = CACurrentMediaTime()
+            let velocity = player.node.physicsBody?.velocity ?? .zero
+            
+            let snapshot = PlayerSnapshot(
+                time: now,
+                position: player.getPosition(),
+                velocity: velocity
+            )
             sendTimer = 0
-            let (x, y) = player.getPosition()
-            onPlayerMove?(x, y)
+            onPlayerMove?(snapshot)
+        }
+        
+        let renderDelay: TimeInterval = 0.15
+        let renderTime = currentTime - renderDelay
+
+        for (peerID, snapshots) in AttGameViewModel.shared.snapshots {
+            if peerID == player.node.name { continue }
+            guard let ghostNode = ghostNodes[peerID] else { continue }
+
+            if let interpolatedPos = interpolatedPosition(for: snapshots, at: renderTime) {
+                ghostNode.position = interpolatedPos
+            }
         }
         
         // O que eu quero atualizar num framerate menor
         guard Int(currentTime*60) % 10 == 0 else { return }
         updateCamera()
     }
+    
+    // Snapshot-based interpolation.
+    // Podemos ainda melhorar usando Extrapolação usando velocidade, trocar a interpolação linear por Catmull-Rom splines,
+    // SmoothDamp, ou outras abordagens, gerando movimentos mais suaves e utilizar predição quando os snapshots chegarem Dead Reckoning.
+    private func interpolatedPosition(for snapshots: [PlayerSnapshot], at renderTime: TimeInterval) -> CGPoint? {
+        guard !snapshots.isEmpty else { return nil }
 
+        var s0: PlayerSnapshot?
+        var s1: PlayerSnapshot?
+
+        for i in 0 ..< snapshots.count {
+            if snapshots[i].time >= renderTime {
+                s1 = snapshots[i]
+                if i > 0 {
+                    s0 = snapshots[i - 1]
+                }
+                break
+            }
+        }
+
+        // Se não encontrou um par válido, usa fallback
+        if s0 == nil && s1 == nil {
+            // Nenhum snapshot está depois do renderTime, então usamos o último
+            return snapshots.last?.position
+        }
+
+        // Se achou s0 e s1, interpola
+        if let start = s0, let end = s1 {
+            let totalTime = end.time - start.time
+            let elapsed = renderTime - start.time
+            let t = (totalTime == 0) ? 1 : CGFloat(elapsed / totalTime)
+
+            let x = start.position.x + (end.position.x - start.position.x) * t
+            let y = start.position.y + (end.position.y - start.position.y) * t
+            return CGPoint(x: x, y: y)
+        } else if let only = s1 {
+            return only.position
+        }
+
+        return nil
+    }
+    
     func updateCamera() {
         let playerY = player.node.position.y
         let cameraMoveDuration = 0.3
@@ -247,14 +324,14 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     func setupWorldBounds() {
 //        let worldWidth: CGFloat = 10000
 //        let worldHeight: CGFloat = 2160
-//        
+//
 //        let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(
 //            x: -worldWidth / 2,  // Ajuste para considerar o novo ponto de origem
 //            y: -worldHeight / 2, // Ajuste para o eixo Y centralizado
 //            width: worldWidth,
 //            height: worldHeight
 //        ))
-//        
+//
 //        borderBody.friction = 0
 //        borderBody.restitution = 0 // Evita que o personagem quique ao bater na parede
 //        self.physicsBody = borderBody
@@ -270,4 +347,18 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
     }
 
+}
+
+extension CGPoint {
+    func distance(to point: CGPoint) -> CGFloat {
+        let dx = point.x - self.x
+        let dy = point.y - self.y
+        return sqrt(dx * dx + dy * dy)
+    }
+}
+
+extension CGPoint {
+    func isNear(to point: CGPoint, threshold: CGFloat = 1.0) -> Bool {
+        return self.distance(to: point) < threshold
+    }
 }

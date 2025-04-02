@@ -123,9 +123,13 @@ class Player {
 // MARK: - Movement Mechanics
 extension Player {
     
-    func getPosition() -> (Float, Float) {
-        return (Float(self.node.position.x), Float(self.node.position.y))
+    func getPosition() -> CGPoint {
+        return self.node.position
     }
+    
+//    func getPosition() -> (Float, Float) {
+//        return (Float(self.node.position.x), Float(self.node.position.y))
+//    }
     
     // Movimentação do Player com CoreMotion
     func move(xAcceleration: CGFloat, deltaTime: CGFloat) {

@@ -10,7 +10,7 @@ import MultipeerConnectivity
 
 struct inviteModel{
     var peerID: MCPeerID
-    
+
 }
 
 class HostViewModel: ObservableObject {

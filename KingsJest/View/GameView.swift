@@ -32,8 +32,8 @@ struct GameView: View {
                     viewModel.finishGame()
                     viewModel.disconnectRoom()
                 }
-            }, onPlayerMove: { x, y in
-                viewModel.sendPosition(x: x, y: y)
+            }, onPlayerMove: { snapshot in
+                viewModel.sendPosition(snapshot: snapshot)
             })
             .edgesIgnoringSafeArea(.all)
 
