@@ -8,6 +8,7 @@
 import SpriteKit
 import SwiftUI
 import CoreMotion
+import UIKit
 
 class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
@@ -198,6 +199,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     private func handlePlayerLavaCollision() {
         print("🔥 Player caiu na Lava! Chamando die()...")
+        vibrate(.heavy) // Vibração forte
         player.die()
     }
     
@@ -239,7 +241,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                     
                     // Se o jogo estiver em landscape, o eixo X do acelerômetro é, na verdade, o eixo Y
                     let adjusted = pow(abs(rawY), 1.2) * (rawY < 0 ? -1 : 1) // suaviza o controle
-                    let rawAcceleration = CGFloat(-adjusted) * 8
+                    let rawAcceleration = CGFloat(-adjusted) * 10
                     
                     let deadZone: CGFloat = 0.5  // Limite para a "dead zone"
                     
@@ -253,15 +255,23 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
+    
+    func applyNearestFiltering(node: SKNode) {
+        if let sprite = node as? SKSpriteNode {
+            sprite.texture?.filteringMode = .nearest
+        }
+        
+        for child in node.children {
+            applyNearestFiltering(node: child) // Aplica recursivamente para todos os filhos
+        }
+    }
+
+    
+    func vibrate(_ style: UIImpactFeedbackGenerator.FeedbackStyle = .medium) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.prepare()
+        generator.impactOccurred()
+    }
 }
 
-func applyNearestFiltering(node: SKNode) {
-    if let sprite = node as? SKSpriteNode {
-        sprite.texture?.filteringMode = .nearest
-    }
-    
-    for child in node.children {
-        applyNearestFiltering(node: child) // Aplica recursivamente para todos os filhos
-    }
-}
 
