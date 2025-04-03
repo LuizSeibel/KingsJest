@@ -23,6 +23,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
     
+    var isFinishedGame: Bool = false
+    
     private var sendTimer: TimeInterval = 0
     var onPlayerMove: ((MPCEncoder) -> Void)?
     
