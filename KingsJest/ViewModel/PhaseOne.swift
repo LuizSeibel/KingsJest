@@ -101,10 +101,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         ghostManager.onPlayerMove = { [weak self] snapshot in
             self?.onPlayerMove?(snapshot)
         }
-
+        
         for peerID in AttGameViewModel.shared.players {
             ghostManager.createGhost(for: peerID.displayName, at: player.node.position)
-            print(peerID.displayName)
+            //print(peerID.displayName)
         }
     }
     
