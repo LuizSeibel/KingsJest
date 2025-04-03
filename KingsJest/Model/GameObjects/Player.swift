@@ -323,12 +323,20 @@ class DeadState: GKState {
     override func didEnter(from previousState: GKState?) {
         print("☠️ DeadState ativado!")
         player.startDeadAnimation()
-        
+
+        guard let currentScene = player.node.scene as? PhaseOneController else { return }
+
+        let oldFinishGame = currentScene.finishGame
+        let oldOnPlayerMove = currentScene.onPlayerMove
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            if let scene = SKScene(fileNamed: "PhaseOne") {
+            if let newScene = PhaseOneController(fileNamed: "PhaseOne") {
                 print("🔄 Reiniciando a fase...")
-                scene.scaleMode = .resizeFill
-                self.player.node.scene?.view?.presentScene(scene, transition: SKTransition.fade(withDuration: 2))
+                newScene.scaleMode = .resizeFill
+                newScene.finishGame = oldFinishGame
+                newScene.onPlayerMove = oldOnPlayerMove
+
+                currentScene.view?.presentScene(newScene, transition: .fade(withDuration: 2))
             }
         }
     }
