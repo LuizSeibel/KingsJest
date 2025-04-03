@@ -40,7 +40,6 @@ class GhostManager {
             let snapshot = PlayerSnapshot(time: CACurrentMediaTime(), position: playerPosition, velocity: playerVelocity)
             let encoder = PlayerPositionEncoder(peerName: playerName, snapshot: snapshot)
             onPlayerMove?(encoder)
-            print("Mandei snapshot")
         }
 
         // Atualização dos ghosts remotos

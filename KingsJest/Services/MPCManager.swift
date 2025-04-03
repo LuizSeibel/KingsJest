@@ -137,7 +137,7 @@ extension MPCManager {
 
         do {
             try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
-            print("✅ Enviado \(data.count) bytes para \(session.connectedPeers.map(\.displayName))")
+            //print("✅ Enviado \(data.count) bytes para \(session.connectedPeers.map(\.displayName))")
         } catch {
             print("❌ Falha ao enviar dados: \(error)")
         }
