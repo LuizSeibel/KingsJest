@@ -11,8 +11,6 @@ struct GuestView: View {
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: GuestViewModel
     
-    @State var goToGame: Bool = false
-    
     // Animation vars
     @State private var dotCount: Int = 0
     let maxDots = 3
@@ -45,7 +43,8 @@ struct GuestView: View {
             
             // MARK: View States
             .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
-                if !isPresented && !goToGame{
+                if !isPresented && !viewModel.startGame{
+                    print("FOI AQUI O ERRO!!!!!! | GuestView.swift")
                     viewModel.disconnect()
                 }
             }
@@ -57,6 +56,7 @@ struct GuestView: View {
             // MARK: Navigation
             .navigationDestination(isPresented: $viewModel.startGame, destination: {
                 GameView(connectionManager: viewModel.connectionManager)
+                    .id(viewModel.gameSessionID)
             })
             
         }

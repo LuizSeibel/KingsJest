@@ -19,10 +19,11 @@ class HostViewModel: ObservableObject {
     @Published var recievedInviteFrom: MCPeerID?
     @Published var isConnected: Bool = false
     
-    @Published var goToGame: Bool = false
     @Published var connectedPlayers: [MCPeerID] = []
     
     @Published var startGame: Bool = false
+    
+    @Published var gameSessionID: UUID?
     
     var connectionManager: MPCManager
     
@@ -30,6 +31,7 @@ class HostViewModel: ObservableObject {
         self.connectionManager = connectionManager
         connectionManager.onDisconnectPeer = disconnectedPeer
         setupBindings()
+        self.gameSessionID = UUID()
     }
 }
 
@@ -50,9 +52,10 @@ extension HostViewModel: P2PMessaging {
     }
 
     func sendMessage() {
+        self.startGame = true
         let message = StartGameEncoder(peerName: connectionManager.myPeerId.displayName)
         send(message, type: .startGame)
-        self.startGame = true
+        
     }
 }
 

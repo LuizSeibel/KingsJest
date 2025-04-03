@@ -238,20 +238,28 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     private func handleFlagTrigger() {
         
-        guard !isFinishedGame else { return }
-        isFinishedGame = true
+//        guard !isFinishedGame else { return }
+//        isFinishedGame = true
+        
+        
+        guard let finishGame else {
+            print("Error: finishGame not defined!")
+            return
+        }
         
         print("🎉 Terminou a Fase!")
         
-        finishGame?()
+        finishGame()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            if let skView = self.view {
-                print("🎉 Matei a cena!")
-                
-                skView.presentScene(nil) // Remove a cena do SKView
-            }
-        }
+        ghostManager.stop()
+        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            if let skView = self.view {
+//                print("🎉 Matei a cena!")
+//                
+//                skView.presentScene(nil) // Remove a cena do SKView
+//            }
+//        }
     }
     
     func startMotionUpdates() {

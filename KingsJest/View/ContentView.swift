@@ -12,6 +12,7 @@ import SwiftUI
 struct ContentView: View {
     
     @State private var name: String = ""
+    @State private var connectionManager: MPCManager? = nil
     @State private var showAlert = false
     @State private var navigateToHost = false
     @State private var navigateToGuest = false
@@ -47,7 +48,9 @@ struct ContentView: View {
         // MARK: Navigation
         .navigationDestination(isPresented: $navigateToHost){
             if navigateToHost{
-                HostView(connectionManager: MPCManager(yourName: name))
+                if let connectionManager = connectionManager {
+                    HostView(connectionManager: connectionManager)
+                }
             }
             else{
                 EmptyView()
@@ -55,7 +58,9 @@ struct ContentView: View {
         }
         .navigationDestination(isPresented: $navigateToGuest){
             if navigateToGuest{
-                GuestView(connectionManager: MPCManager(yourName: name))
+                if let connectionManager = connectionManager {
+                    GuestView(connectionManager: connectionManager)
+                }
             }
             else{
                 EmptyView()
@@ -101,7 +106,10 @@ extension ContentView{
                     showAlert = true
                 }
                 else{
-                    navigateToGuest.toggle()
+                    Task{
+                        connectionManager = MPCManager(yourName: name)
+                        navigateToGuest.toggle()
+                    }
                 }
             }, label: {
                 Text("Join Room")
@@ -112,7 +120,10 @@ extension ContentView{
                     showAlert = true
                 }
                 else{
-                    navigateToHost.toggle()
+                    Task{
+                        connectionManager = MPCManager(yourName: name)
+                        navigateToHost.toggle()
+                    }
                 }
             }, label: {
                 Text("New Room")
@@ -125,6 +136,3 @@ extension ContentView{
 //#Preview {
 //    ContentView()
 //}
-
-
-

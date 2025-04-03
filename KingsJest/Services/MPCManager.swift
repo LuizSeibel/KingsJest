@@ -14,8 +14,8 @@ extension String{
 class MPCManager: NSObject, ObservableObject {
     let serviceType: String = String.serviceName
     
-    let session: MCSession
-    let myPeerId: MCPeerID
+    var session: MCSession
+    var myPeerId: MCPeerID
     let nearbyServiceBrowser: MCNearbyServiceBrowser
     let nearbyServiceAdvertiser: MCNearbyServiceAdvertiser
     
@@ -32,6 +32,9 @@ class MPCManager: NSObject, ObservableObject {
     var hostPeerID: MCPeerID?
     
     init(yourName: String){
+        
+        print("-- Nova instancia MPCManager criada! --")
+        
         let yourName = yourName.isEmpty ? UUID().uuidString : yourName
         
         myPeerId = MCPeerID(displayName: yourName)
@@ -77,6 +80,7 @@ extension MPCManager: MCSessionDelegate{
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state{
         case .notConnected:
+            print("❌ Peer desconectado: \(peerID.displayName)")
             DispatchQueue.main.async {
                 if let host = self.hostPeerID, host == peerID {
                     self.paired = false
@@ -93,10 +97,12 @@ extension MPCManager: MCSessionDelegate{
             }
             
         case .connected:
+            print("✅ Conectado: \(peerID.displayName)")
             DispatchQueue.main.async {
                 self.paired = true
             }
         default:
+            print("🔄 Conectando: \(peerID.displayName)")
             DispatchQueue.main.async {
                 self.paired = false
             }
@@ -124,25 +130,43 @@ extension MPCManager: MCSessionDelegate{
 
 extension MPCManager {
     func send(data: Data) {
-        if !session.connectedPeers.isEmpty {
-            do {
-                try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
-            } catch {
-                print("Error sending data: \(error.localizedDescription)")
-            }
+        guard !session.connectedPeers.isEmpty else {
+            print("❌ Tentativa de envio sem peers conectados.")
+            return
+        }
+
+        do {
+            try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
+            print("✅ Enviado \(data.count) bytes para \(session.connectedPeers.map(\.displayName))")
+        } catch {
+            print("❌ Falha ao enviar dados: \(error)")
         }
     }
 }
 
 extension MPCManager{
-    func disconnect(){
+    func disconnect() {
+        print("🛑 Desconectando MPCManager...")
+
+        // Encerra sessão com peers
         session.disconnect()
+        
+        // Para de anunciar e buscar
+        stopAdvertising()
+        stopBrowsing()
+        
+        // Reseta estado da aplicação
         DispatchQueue.main.async {
             self.paired = false
             self.nearbyPeers.removeAll()
         }
-        stopAdvertising()
-        stopBrowsing()
+
+        // Cria nova sessão vazia para impedir uso da antiga
+        let newSession = MCSession(peer: myPeerId, securityIdentity: nil, encryptionPreference: .required)
+        newSession.delegate = self
+        self.session = newSession
+        
+        print("✅ Sessão resetada")
     }
     
     func invite(peer: MCPeerID) {
