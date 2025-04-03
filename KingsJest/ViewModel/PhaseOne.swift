@@ -41,7 +41,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             let texture = SKTexture(imageNamed: "RUN000")
             player = Player(texture: texture, position: scenePlayerNode.position)
             scenePlayerNode.removeFromParent()
-            player.node.zPosition = 5
+            player.node.zPosition = 4
             addChild(player.node)
         }
         

@@ -17,6 +17,11 @@ class Lava {
     
     let scene: SKScene
     
+    lazy var lavaFrames: [SKTexture] = {
+        return loadFrames(prefix: "File", count: 20)
+    }()
+    
+    
     init(scene: SKScene) {
         self.scene = scene
         
@@ -53,15 +58,32 @@ class Lava {
     
     func subirLavaAteOFim() {
         guard let lava = self.lava else { return }
-
+        
         let alturaDaLava = lava.frame.size.height
-
         let posicaoFinalY = scene.size.height + alturaDaLava - 500
         
+        print("Altura da cena: \(scene.size.height) & Altura da lava:\(alturaDaLava) & Position final Y:\(posicaoFinalY)")
+
+        
         let moveAction = SKAction.moveTo(y: posicaoFinalY, duration: 30.0)
-
-        let sequence = SKAction.sequence([moveAction])
-
-        lava.run(sequence)
+        let animationAction = SKAction.repeatForever(SKAction.animate(with: lavaFrames, timePerFrame: 0.1))
+        
+        let group = SKAction.group([moveAction, animationAction])
+        
+        lava.run(group, withKey: "lavaMovement")
+    }
+    
+    
+    func loadFrames(prefix: String, count: Int) -> [SKTexture] {
+        var frames: [SKTexture] = []
+        
+        for i in 1..<count {
+            let texture = SKTexture(imageNamed: "\(prefix)\(i)")
+            texture.filteringMode = .nearest
+            
+            frames.append(texture)
+        }
+        
+        return frames
     }
 }
