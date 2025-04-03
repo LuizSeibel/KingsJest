@@ -24,10 +24,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
     
-    
     private var sendTimer: TimeInterval = 0
-    var onPlayerMove: ((PlayerSnapshot) -> Void)?
-    
+    var onPlayerMove: ((MPCEncoder) -> Void)?
     
     var lastLava: Bool = false
     
@@ -96,13 +94,14 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         updateCamera()
         
         
-        ghostManager = GhostManager(scene: self, playerName: player.node.name!)
+        ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
         ghostManager.onPlayerMove = { [weak self] snapshot in
             self?.onPlayerMove?(snapshot)
         }
 
         for peerID in AttGameViewModel.shared.players {
             ghostManager.createGhost(for: peerID.displayName, at: player.node.position)
+            print(peerID.displayName)
         }
     }
     

@@ -8,13 +8,14 @@
 import Foundation
 import SpriteKit
 
+// TODO: Colocar os fantasmas com as animações
 class GhostManager {
-    private var ghostNodes: [String: SKShapeNode] = [:]
+    private var ghostPlayers: [String: GhostPlayer] = [:]
     private var sendTimer: TimeInterval = 0
     private weak var scene: SKScene? // Para adicionar/remover nós
     private var playerName: String = ""
     
-    var onPlayerMove: ((PlayerSnapshot) -> Void)?
+    var onPlayerMove: ((MPCEncoder) -> Void)?
 
     init(scene: SKScene, playerName: String) {
         self.scene = scene
@@ -22,23 +23,20 @@ class GhostManager {
     }
     
     func createGhost(for peerID: String, at position: CGPoint = .zero) {
-        guard peerID != playerName, ghostNodes[peerID] == nil else { return }
-        let ghost = SKShapeNode(rectOf: CGSize(width: 40, height: 40))
-        ghost.fillColor = .green
-        ghost.strokeColor = .clear
-        ghost.position = position
-        ghost.zPosition = 4
-        scene?.addChild(ghost)
-        ghostNodes[peerID] = ghost
+        guard peerID != playerName, ghostPlayers[peerID] == nil else { return }
+        let ghost = GhostPlayer(position: position)
+        scene?.addChild(ghost.node)
+        ghostPlayers[peerID] = ghost
     }
     
     func update(currentTime: TimeInterval, lastUpdateTime: TimeInterval, playerPosition: CGPoint, playerVelocity: CGVector) {
         // Envio do snapshot local
-        sendTimer += currentTime - lastUpdateTime
+        sendTimer += currentTime
         if sendTimer >= 0.03 {
             sendTimer = 0
             let snapshot = PlayerSnapshot(time: CACurrentMediaTime(), position: playerPosition, velocity: playerVelocity)
-            onPlayerMove?(snapshot)
+            let encoder = PlayerPositionEncoder(peerName: playerName, snapshot: snapshot)
+            onPlayerMove?(encoder)
         }
 
         // Atualização dos ghosts remotos
@@ -47,10 +45,14 @@ class GhostManager {
 
         for (peerID, snapshots) in AttGameViewModel.shared.snapshots {
             if peerID == playerName { continue }
-            guard let ghostNode = ghostNodes[peerID] else { continue }
+            guard let ghost = ghostPlayers[peerID] else { continue }
 
             if let position = interpolatedPosition(for: snapshots, at: renderTime) {
-                ghostNode.position = position
+                ghost.node.position = position
+                
+                if let latest = snapshots.last {
+                    ghost.updateTexture(for: latest.velocity)
+                }
             }
         }
     }

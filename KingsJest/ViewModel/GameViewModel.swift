@@ -11,6 +11,7 @@ import MultipeerConnectivity
 // Singleton: Instanciar na GameView
 class AttGameViewModel: ObservableObject {
     static var shared = AttGameViewModel()
+    @Published var PlayerName: String = ""
     @Published var snapshots: [String: [PlayerSnapshot]] = [:]
     @Published var players: [MCPeerID] = []
 }
@@ -27,6 +28,7 @@ class GameViewModel: ObservableObject {
         self.connectionManager = connectionManager
         self.connectionManager.onRecieveData = onReceiveMessage
         AttGameViewModel.shared.players = connectionManager.session.connectedPeers
+        AttGameViewModel.shared.PlayerName = connectionManager.session.myPeerID.displayName
     }
     
 }
@@ -49,8 +51,15 @@ extension GameViewModel: P2PMessaging {
             }
 
         case .position:
-            if let data = try? JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload) {
-                updatePosition(peerID: peerID, position: data.position, time: data.time, velocity: data.velocity)
+            do {
+                let data = try JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload)
+                let snapshot = data.snapshot
+                updatePosition(peerID: peerID, position: snapshot.position, time: snapshot.time, velocity: snapshot.velocity)
+            } catch {
+                print("❌ Erro ao decodificar PlayerPositionEncoder: \(error)")
+                if let json = String(data: envelope.payload, encoding: .utf8) {
+                    print("Payload bruto: \(json)")
+                }
             }
             
         default:

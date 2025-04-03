@@ -27,7 +27,5 @@ struct StopGameEncoder: MPCEncoder {
 
 struct PlayerPositionEncoder: MPCEncoder {
     var peerName: String
-    let position: CGPoint
-    var time: TimeInterval
-    let velocity: CGVector
+    var snapshot: PlayerSnapshot
 }

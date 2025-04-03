@@ -28,7 +28,7 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
     
     let sceneType: GameSceneType
     let finishGame: () -> Void
-    let onPlayerMove: (PlayerSnapshot) -> Void
+    let onPlayerMove: (MPCEncoder) -> Void
     
     func makeUIViewController(context: Context) -> UIViewController {
         let viewController = UIViewController()
