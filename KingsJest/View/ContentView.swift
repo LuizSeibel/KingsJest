@@ -11,8 +11,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @AppStorage("userNickname") private var name: String = ""
-    
+    @State private var name: String = ""
     @State private var showAlert = false
     @State private var navigateToHost = false
     @State private var navigateToGuest = false
@@ -27,6 +26,13 @@ struct ContentView: View {
                     .padding(.top, 50)
                     .padding(.leading, 50)
                     .frame(width: 200)
+                    .onAppear {
+                        name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
+                    }
+                    .onDisappear {
+                        UserDefaults.standard.set(name, forKey: "userNickname")
+                    }
+
                 
                 hud
                     .hideKeyboardWhenTapped()
@@ -116,9 +122,9 @@ extension ContentView{
     }
 }
 
-#Preview {
-    ContentView()
-}
+//#Preview {
+//    ContentView()
+//}
 
 
 

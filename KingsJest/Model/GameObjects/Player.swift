@@ -8,6 +8,16 @@
 import SpriteKit
 import GameplayKit
 
+extension UInt32 {
+    static let player: UInt32 = 0x1 << 0
+    static let plataform: UInt32 = 0x1 << 1
+    static let lava: UInt32 = 0x1 << 2
+    static let trigger: UInt32 = 0x1 << 3
+    static let flag: UInt32 = 0x1 << 4
+    static let ground: UInt32 = 0x1 << 5
+}
+
+
 class Player {
     
     let node: SKSpriteNode!
@@ -70,9 +80,11 @@ class Player {
         self.node.physicsBody?.affectedByGravity = true
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
+        self.node.physicsBody?.restitution = 0
+        self.node.physicsBody?.friction = 15
         self.node.physicsBody?.categoryBitMask = .player
-        self.node.physicsBody?.contactTestBitMask = 2
-        self.node.physicsBody?.collisionBitMask = 4
+        self.node.physicsBody?.contactTestBitMask = .lava
+        self.node.physicsBody?.collisionBitMask = .plataform | .ground
     }
     
     //MARK: Animações do Player
@@ -133,7 +145,7 @@ extension Player {
     
     // Movimentação do Player com CoreMotion
     func move(xAcceleration: CGFloat, deltaTime: CGFloat) {
-        let maxSpeed: CGFloat = 100
+        let maxSpeed: CGFloat = 300
         
         let accelerationRate: CGFloat = 800
         let decelerationRate: CGFloat = 2200
@@ -157,6 +169,7 @@ extension Player {
             }
         }
         
+        currentVelocityX = max(-maxSpeed, min(maxSpeed, currentVelocityX))
         self.node.physicsBody?.velocity.dx = currentVelocityX
         
         // Verifica a direção do movimento e espelha o sprite
@@ -185,7 +198,7 @@ extension Player {
             // Zera a velocidade vertical para um início consistente.
             self.node.physicsBody?.velocity.dy = 0
             // Impulso inicial (pode ajustar o valor para seu "feeling")
-            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 10))
+            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 9))
             stateMachine.enter(JumpState.self)
         }
     }
@@ -326,8 +339,4 @@ class DeadState: GKState {
 }
 
 
-extension UInt32 {
-    static var player:UInt32 { 0x1 >> 0 }
-    static var flag:UInt32 { 0x1 >> 1 }
-    static var ground:UInt32 { 0x1 >> 2 }
-}
+
