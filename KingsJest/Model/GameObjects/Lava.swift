@@ -56,9 +56,9 @@ class Lava {
 
         let alturaDaLava = lava.frame.size.height
 
-        let posicaoFinalY = self.scene.size.height + alturaDaLava * 1.8
-
-        let moveAction = SKAction.moveTo(y: posicaoFinalY, duration: 20.0)
+        let posicaoFinalY = scene.size.height + alturaDaLava - 500
+        
+        let moveAction = SKAction.moveTo(y: posicaoFinalY, duration: 30.0)
 
         let sequence = SKAction.sequence([moveAction])
 
