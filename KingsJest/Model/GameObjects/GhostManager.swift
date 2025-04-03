@@ -14,7 +14,8 @@ class GhostManager {
     private var sendTimer: TimeInterval = 0
     private weak var scene: SKScene? // Para adicionar/remover nós
     private var playerName: String = ""
-    
+    private var isRunning: Bool = true
+
     var onPlayerMove: ((MPCEncoder) -> Void)?
 
     init(scene: SKScene, playerName: String) {
@@ -30,7 +31,11 @@ class GhostManager {
     }
     
     func update(currentTime: TimeInterval, lastUpdateTime: TimeInterval, playerPosition: CGPoint, playerVelocity: CGVector) {
+        
+        guard isRunning else { return }
+        
         // Envio do snapshot local
+        guard isRunning else { return }
         sendTimer += currentTime
         if sendTimer >= 0.03 {
             sendTimer = 0
@@ -89,5 +94,9 @@ class GhostManager {
         }
         
         return nil
+    }
+    
+    func stop() {
+        isRunning = false
     }
 }

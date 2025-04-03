@@ -30,8 +30,8 @@ struct GameView: View {
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
                     viewModel.finishGame()
-                    viewModel.disconnectRoom()
                 }
+                
             }, onPlayerMove: { snapshot in
                 viewModel.send(snapshot, type: .position)
             })
@@ -43,9 +43,28 @@ struct GameView: View {
                     .transition(.opacity)
             }
         }
+        .onAppear {
+            showBlackout = false
+            viewModel.onAppear()
+        }
+        
         .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
-            EndView(winBool: viewModel.winGame)
+            if viewModel.isFinishedGame {
+                EndView(winBool: viewModel.winGame)
+                    .onAppear{
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                            viewModel.disconnectRoom()
+                        })
+                    }
+            }
+            else{
+                EmptyView()
+            }
+            
+            
         })
+        
+        .navigationBarBackButtonHidden(true)
     }
 }
 

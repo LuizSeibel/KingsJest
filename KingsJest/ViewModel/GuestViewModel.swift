@@ -15,11 +15,14 @@ class GuestViewModel: ObservableObject {
     
     @Published var startGame: Bool = false
     
+    @Published var gameSessionID: UUID?
+    
     var connectionManager: MPCManager
 
     init(connectionManager: MPCManager){
         self.connectionManager = connectionManager
         self.connectionManager.onRecieveData = onReceiveMessage
+        self.gameSessionID = UUID()
         setupBindings()
     }
 }

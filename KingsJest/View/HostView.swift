@@ -59,7 +59,7 @@ struct HostView: View {
             }
             
             .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
-                if !isPresented && !viewModel.goToGame{
+                if !isPresented && !viewModel.startGame{
                     viewModel.disconnect()
                 }
             }
@@ -79,9 +79,10 @@ struct HostView: View {
             }
             
             // MARK: Navigation
-            .navigationDestination(isPresented: $viewModel.startGame, destination: {
+            .navigationDestination(isPresented: $viewModel.startGame) {
                 GameView(connectionManager: viewModel.connectionManager)
-            })
+                    .id(viewModel.gameSessionID)
+            }
         }
         .navigationBarBackButtonHidden(true)
     }

@@ -42,11 +42,18 @@ extension GameViewModel: P2PMessaging {
 
         switch envelope.type {
         case .stopGame:
-            if (try? JSONDecoder().decode(StopGameEncoder.self, from: envelope.payload)) != nil {
+            print("Recebi mensagem de stopGame")
+            do {
+                let _ = try JSONDecoder().decode(StopGameEncoder.self, from: envelope.payload)
                 DispatchQueue.main.async {
                     self.winnerName = peerID.displayName
                     self.winGame = false
                     self.isFinishedGame = true
+                }
+            } catch {
+                print("❌ Erro ao decodificar StopGameEncoder: \(error)")
+                if let raw = String(data: envelope.payload, encoding: .utf8) {
+                    print("Payload bruto: \(raw)")
                 }
             }
 
@@ -87,6 +94,9 @@ extension GameViewModel {
             self.winnerName = self.connectionManager.myPeerId.displayName
             self.winGame = true
             self.isFinishedGame = true
+            
+            // Manda a mensagem
+            print("Enviando a mensagem de término de jogo...")
             let message = StopGameEncoder(peerName: self.connectionManager.myPeerId.displayName)
             self.send(message, type: .stopGame)
         }
@@ -115,5 +125,11 @@ extension GameViewModel {
                 shared.snapshots[key]!.removeFirst()
             }
         }
+    }
+    
+    func onAppear() {
+        self.winnerName = nil
+        self.winGame = false
+        self.isFinishedGame = false
     }
 }
