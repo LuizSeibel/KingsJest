@@ -28,6 +28,9 @@ struct EndView: View {
             
             hud
         }
+        .onAppear{
+            viewModel.stopRecording()
+        }
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $viewModel.goToMainMenu, destination: {
             ContentView()
@@ -39,10 +42,25 @@ struct EndView: View {
 extension EndView {
     
     var hud: some View {
-        VStack(spacing: 20){
-            winMessage
-            message
-            buttons
+        ZStack(alignment: .top){
+            VStack(spacing: 20){
+                winMessage
+                message
+                buttons
+            }
+            
+            HStack{
+                Spacer()
+                Button(action: {
+                    viewModel.showRecording()
+                }, label: {
+                    Image(systemName: "square.and.arrow.up.fill")
+                        .offset(x: 0, y: -2)
+                })
+                .frame(width: 55)
+                .buttonStyle(CustomUIButtonStyle(isDarkMode: true))
+                .padding(.horizontal)
+            }
         }
     }
     
@@ -73,6 +91,9 @@ extension EndView {
                 Text("Back to Menu")
             })
             .buttonStyle(CustomUIButtonStyle())
+            
+           
+            
         }
     }
     

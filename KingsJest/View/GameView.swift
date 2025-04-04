@@ -46,6 +46,7 @@ struct GameView: View {
         .onAppear {
             showBlackout = false
             viewModel.onAppear()
+            viewModel.iniciarGravação()
         }
         
         .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {

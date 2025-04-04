@@ -14,6 +14,10 @@ struct RootView: View{
             //EndView(winBool: true)
             //GameView(connectionManager: MPCManager(yourName: "OI"))
             ContentView()
+                .onAppear {
+                    PermissionsManager.solicitarPermissaoMicrofone()
+                }
         }
+        
     }
 }

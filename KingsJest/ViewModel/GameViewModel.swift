@@ -133,3 +133,16 @@ extension GameViewModel {
         self.isFinishedGame = false
     }
 }
+
+extension GameViewModel{
+    
+    func iniciarGravação(){
+        ReplayKitManager.shared.startRecording(microphoneEnabled: true) { error in
+            if let error = error {
+                print("Erro ao iniciar gravação:", error.localizedDescription)
+            } else {
+                print("Gravação iniciada com sucesso!")
+            }
+        }
+    }
+}
