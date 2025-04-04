@@ -18,11 +18,8 @@ struct ContentView: View {
     @State private var navigateToGuest = false
     
     var body: some View {
-        VStack{
-            ZStack(alignment: .topLeading) {
-                background
-                    .hideKeyboardWhenTapped()
-                
+        VStack(alignment: .leading){
+           
                 Nickname(text: $name)
                     .padding(.top, 50)
                     .padding(.leading, 50)
@@ -37,8 +34,14 @@ struct ContentView: View {
                 
                 hud
                     .hideKeyboardWhenTapped()
-            }
         }
+        .background{
+                background
+                    .hideKeyboardWhenTapped()
+                    .ignoresSafeArea(.all)
+        }
+        .ignoresSafeArea(.keyboard)
+        
         .alert("Don’t Stay Anonymous!", isPresented: $showAlert) {
             Button("OK", role: .cancel) { }
         } message: {
@@ -133,6 +136,6 @@ extension ContentView{
     }
 }
 
-//#Preview {
-//    ContentView()
-//}
+#Preview {
+    ContentView()
+}
