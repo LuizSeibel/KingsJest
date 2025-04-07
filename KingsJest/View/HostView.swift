@@ -60,10 +60,6 @@ struct HostView: View {
                         
                         startButton
                             .padding()
-                        
-//                        else {
-//                            hud
-//                        }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -89,20 +85,6 @@ struct HostView: View {
                 }
             }
             
-            // MARK: Invites Handler
-//            .alert(isPresented: $viewModel.recievedInvite){
-//                Alert(
-//                    title: Text("Join request"),
-//                    message: Text("\(viewModel.recievedInviteFrom?.displayName ?? "Anonymous") wants to join."),
-//                    primaryButton: .default(Text("Accept"), action: {
-//                        viewModel.acceptInvitation()
-//                    }),
-//                    secondaryButton: .cancel(Text("Reject"), action: {
-//                        viewModel.rejectInvitation()
-//                    })
-//                )
-//            }
-            
             // MARK: Navigation
             .navigationDestination(isPresented: $viewModel.startGame) {
                 GameView(connectionManager: viewModel.connectionManager)
@@ -121,7 +103,7 @@ extension HostView{
             HStack{
                 Spacer()
                 Button(action: {
-                    viewModel.sendMessage()
+                    viewModel.startRoom()
                 }, label: {
                     Text("Start")
                 })

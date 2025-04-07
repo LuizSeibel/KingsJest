@@ -57,6 +57,12 @@ extension HostViewModel: P2PMessaging {
 }
 
 extension HostViewModel {
+    
+    func startRoom(){
+        sendMessage()
+        connectionManager.stopAdvertising()
+    }
+    
     func startAdvertising() {
         connectionManager.startAdvertising()
     }
