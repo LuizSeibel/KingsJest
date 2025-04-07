@@ -7,7 +7,13 @@
 
 import SwiftUI
 
+
+struct MockPeerID {
+    let displayName: String
+}
+
 struct HostView: View {
+    
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: HostViewModel
     
@@ -29,16 +35,35 @@ struct HostView: View {
                 
                 GeometryReader { geometry in
                     ZStack {
-                        if viewModel.isConnected{
+                        
+                        HStack{
+                            // TODO: Colocar verificação de players no startButton
                             PlayersGridView(players: $playerNames)
-                                .frame(width: geometry.size.width * 0.8)
+                                .frame(width: geometry.size.width * 0.45)
+                                .offset(x: 10)
                             
-                            startButton
-                                .padding()
+                            CustomConnectionList(
+                                peers: $viewModel.pendingInvitations,
+                                onAccept: { peerID in
+                                    viewModel.acceptInvitation(peerID: peerID)
+                                },
+                                onDecline: { peerID in
+                                    viewModel.declineInvitation(peerID: peerID)
+                                }
+                            )
+                                .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.5)
+                                .cornerRadius(20)
+                                .padding(.leading, 40)
                         }
-                        else {
-                            hud
-                        }
+                        .padding(.horizontal, 10)
+                        .padding(.top, 30)
+                        
+                        startButton
+                            .padding()
+                        
+//                        else {
+//                            hud
+//                        }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -65,18 +90,18 @@ struct HostView: View {
             }
             
             // MARK: Invites Handler
-            .alert(isPresented: $viewModel.recievedInvite){
-                Alert(
-                    title: Text("Join request"),
-                    message: Text("\(viewModel.recievedInviteFrom?.displayName ?? "Anonymous") wants to join."),
-                    primaryButton: .default(Text("Accept"), action: {
-                        viewModel.acceptInvitation()
-                    }),
-                    secondaryButton: .cancel(Text("Reject"), action: {
-                        viewModel.rejectInvitation()
-                    })
-                )
-            }
+//            .alert(isPresented: $viewModel.recievedInvite){
+//                Alert(
+//                    title: Text("Join request"),
+//                    message: Text("\(viewModel.recievedInviteFrom?.displayName ?? "Anonymous") wants to join."),
+//                    primaryButton: .default(Text("Accept"), action: {
+//                        viewModel.acceptInvitation()
+//                    }),
+//                    secondaryButton: .cancel(Text("Reject"), action: {
+//                        viewModel.rejectInvitation()
+//                    })
+//                )
+//            }
             
             // MARK: Navigation
             .navigationDestination(isPresented: $viewModel.startGame) {
@@ -98,7 +123,7 @@ extension HostView{
                 Button(action: {
                     viewModel.sendMessage()
                 }, label: {
-                    Text("Start Room")
+                    Text("Start")
                 })
                 .buttonStyle(CustomUIButtonStyle())
             }

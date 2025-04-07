@@ -25,7 +25,9 @@ class MPCManager: NSObject, ObservableObject {
     @Published var receivedInvite: Bool = false
     @Published var recievedInviteFrom: MCPeerID?
     @Published var invitationHandler: ((Bool, MCSession?) -> Void)?
-
+    
+    @Published var pendingInvitations: [(from: MCPeerID, handler: (Bool, MCSession?) -> Void)] = []
+    
     var onDisconnectPeer: ((MCPeerID) -> Void)?
     var onRecieveData: ((Data, MCPeerID) -> Void)?
     
@@ -69,9 +71,11 @@ extension MPCManager: MCNearbyServiceBrowserDelegate{
 extension MPCManager: MCNearbyServiceAdvertiserDelegate{
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         DispatchQueue.main.async {
-            self.receivedInvite = true
-            self.recievedInviteFrom = peerID
-            self.invitationHandler = invitationHandler
+            
+            self.pendingInvitations.append((from: peerID, handler: invitationHandler))
+            //self.receivedInvite = true
+//            self.recievedInviteFrom = peerID
+//            self.invitationHandler = invitationHandler
         }
     }
 }
@@ -191,5 +195,29 @@ extension MPCManager {
     func stopBrowsing() {
         nearbyServiceBrowser.stopBrowsingForPeers()
         nearbyPeers.removeAll()
+    }
+}
+
+extension MPCManager{
+    func acceptInvitation(for peerID: MCPeerID) {
+        guard let index = self.pendingInvitations.firstIndex(where: { $0.from == peerID }) else {
+            return
+        }
+        
+        let invitation = self.pendingInvitations[index]
+        invitation.handler(true, self.session)
+        
+        self.pendingInvitations.remove(at: index)
+    }
+
+    func declineInvitation(for peerID: MCPeerID) {
+        guard let index = self.pendingInvitations.firstIndex(where: { $0.from == peerID }) else {
+            return
+        }
+        
+        let invitation = self.pendingInvitations[index]
+        invitation.handler(false, nil)
+        
+        self.pendingInvitations.remove(at: index)
     }
 }
