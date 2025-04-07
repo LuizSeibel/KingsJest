@@ -10,20 +10,15 @@ import MultipeerConnectivity
 
 class HostViewModel: ObservableObject {
     
-//    @Published var recievedInvite: Bool = false
-//
-//    @Published var recievedInviteFrom: MCPeerID?
-//    @Published var isConnected: Bool = false
-    
+    @Published var isConnected: Bool = false
     
     @Published var pendingInvitations: [MCPeerID] = []
+    
     @Published var connectedPlayers: [MCPeerID] = []
     
     @Published var startGame: Bool = false
     
     @Published var gameSessionID: UUID?
-    
-    
     
     var connectionManager: MPCManager
     
@@ -32,6 +27,8 @@ class HostViewModel: ObservableObject {
         connectionManager.onDisconnectPeer = disconnectedPeer
         setupBindings()
         self.gameSessionID = UUID()
+        
+        connectedPlayers.append(connectionManager.myPeerId)
     }
 }
 
@@ -80,10 +77,8 @@ extension HostViewModel {
     }
     
     func setupBindings(){
-//        connectionManager.$receivedInvite.assign(to: &$recievedInvite)
-//        connectionManager.$recievedInviteFrom.assign(to: &$recievedInviteFrom)
-//        connectionManager.$paired.assign(to: &$isConnected)
-        
+
+        connectionManager.$paired.assign(to: &$isConnected)
         connectionManager.$pendingInvitations
             .map { invitations in
                 invitations.map { $0.from }

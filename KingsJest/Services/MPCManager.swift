@@ -22,10 +22,6 @@ class MPCManager: NSObject, ObservableObject {
     @Published var paired: Bool = false
     @Published var nearbyPeers = [MCPeerID]()
     
-    @Published var receivedInvite: Bool = false
-    @Published var recievedInviteFrom: MCPeerID?
-    @Published var invitationHandler: ((Bool, MCSession?) -> Void)?
-    
     @Published var pendingInvitations: [(from: MCPeerID, handler: (Bool, MCSession?) -> Void)] = []
     
     var onDisconnectPeer: ((MCPeerID) -> Void)?
