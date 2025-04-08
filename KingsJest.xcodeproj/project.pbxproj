@@ -267,7 +267,6 @@
 				DEVELOPMENT_TEAM = 67AYPRFZH8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KingsJest/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app needs access to the local network to discover and connect to nearby devices.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -301,7 +300,6 @@
 				DEVELOPMENT_TEAM = 67AYPRFZH8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KingsJest/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "This app needs access to the local network to discover and connect to nearby devices.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
