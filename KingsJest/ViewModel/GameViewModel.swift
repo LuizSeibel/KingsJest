@@ -42,7 +42,6 @@ extension GameViewModel: P2PMessaging {
 
         switch envelope.type {
         case .stopGame:
-            print("Recebi mensagem de stopGame")
             do {
                 let _ = try JSONDecoder().decode(StopGameEncoder.self, from: envelope.payload)
                 DispatchQueue.main.async {
@@ -89,14 +88,14 @@ extension GameViewModel: P2PMessaging {
 extension GameViewModel {
     
     func finishGame() {
-        print(" - Terminou o jogo!")
+//        print(" - Terminou o jogo!")
         DispatchQueue.main.async{
             self.winnerName = self.connectionManager.myPeerId.displayName
             self.winGame = true
             self.isFinishedGame = true
             
             // Manda a mensagem
-            print("Enviando a mensagem de término de jogo...")
+//            print("Enviando a mensagem de término de jogo...")
             let message = StopGameEncoder(peerName: self.connectionManager.myPeerId.displayName)
             self.send(message, type: .stopGame)
         }
