@@ -40,6 +40,7 @@ extension GuestViewModel: P2PMessaging {
         case .startGame:
             if (try? JSONDecoder().decode(StartGameEncoder.self, from: envelope.payload)) != nil {
                 DispatchQueue.main.async {
+                    PhaseOneController.didShowCountdownOnce = false
                     self.startGame = true
                 }
             }
