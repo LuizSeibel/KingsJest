@@ -45,8 +45,8 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
         }
 
         skView.ignoresSiblingOrder = false
-        skView.showsFPS = true
-        skView.showsNodeCount = true
+        skView.showsFPS = false
+        skView.showsNodeCount = false
         
         return viewController
     }

@@ -24,6 +24,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var finishGame: (() -> Void)?
     
     var isFinishedGame: Bool = false
+    static var isGameStarted: Bool = false
+    static var didShowCountdownOnce: Bool = false
+
+
     
     private var sendTimer: TimeInterval = 0
     var onPlayerMove: ((MPCEncoder) -> Void)?
@@ -95,6 +99,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         applyNearestFiltering(node: self)
         startMotionUpdates()
         updateCamera()
+        startCountdown()
         
         
         ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
@@ -109,6 +114,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        
+        guard PhaseOneController.isGameStarted else { return }
+
         player.bufferJump()
         
         if isOnGround() {  // Verifica se o personagem está no chão antes de pular
@@ -118,6 +126,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard PhaseOneController.isGameStarted else { return }
+
         player.endJump()
     }
     
@@ -129,6 +139,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var playerlastPosition: [CGPoint] = []
     
     override func update(_ currentTime: TimeInterval) {
+        
+        guard PhaseOneController.isGameStarted else { return }
+
 
         let deltaTime = currentTime - lastUpdateTime
         lastUpdateTime = currentTime
@@ -222,44 +235,34 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handlePlayerLavaCollision() {
-        print("🔥 Player caiu na Lava! Chamando die()...")
-        vibrate(.heavy) // Vibração forte
+        
         player.die()
+        
+        DispatchQueue.global().async {
+            for _ in 1...10 {
+                DispatchQueue.main.async {
+                    self.vibrate(.medium)
+                }
+                Thread.sleep(forTimeInterval: 0.05)
+            }
+        }
     }
     
     private func handleLavaTrigger() {
-        print("🎉 Player ativou o Trigger!")
         lastLava = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            print("🔥 Lava Subindo...")
             self.lava.move()
         }
     }
     
     private func handleFlagTrigger() {
-        
-//        guard !isFinishedGame else { return }
-//        isFinishedGame = true
-        
-        
         guard let finishGame else {
             print("Error: finishGame not defined!")
             return
         }
         
-        print("🎉 Terminou a Fase!")
-        
         finishGame()
-        
         ghostManager.stop()
-        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            if let skView = self.view {
-//                print("🎉 Matei a cena!")
-//                
-//                skView.presentScene(nil) // Remove a cena do SKView
-//            }
-//        }
     }
     
     func startMotionUpdates() {
@@ -287,24 +290,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             }
         }
     }
-    
-    //TODO: Ajustar os calculos de limite da cena inteira.
-    func setupWorldBounds() {
-//        let worldWidth: CGFloat = 10000
-//        let worldHeight: CGFloat = 2160
-//
-//        let borderBody = SKPhysicsBody(edgeLoopFrom: CGRect(
-//            x: -worldWidth / 2,  // Ajuste para considerar o novo ponto de origem
-//            y: -worldHeight / 2, // Ajuste para o eixo Y centralizado
-//            width: worldWidth,
-//            height: worldHeight
-//        ))
-//
-//        borderBody.friction = 0
-//        borderBody.restitution = 0 // Evita que o personagem quique ao bater na parede
-//        self.physicsBody = borderBody
-    }
-    
+        
     func applyNearestFiltering(node: SKNode) {
         if let sprite = node as? SKSpriteNode {
             sprite.texture?.filteringMode = .nearest
@@ -320,6 +306,59 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         let generator = UIImpactFeedbackGenerator(style: style)
         generator.prepare()
         generator.impactOccurred()
+    }
+    
+    func startCountdown() {
+        guard !PhaseOneController.didShowCountdownOnce else { return }
+        PhaseOneController.didShowCountdownOnce = true
+        
+        let countdownLabel = SKLabelNode(fontNamed: "STSongti-TC-Bold")
+        countdownLabel.fontSize = 120
+        countdownLabel.fontColor = .white
+        countdownLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
+        countdownLabel.zPosition = 100
+        cameraNode.addChild(countdownLabel)
+        
+        let countdownNumbers = ["3", "2", "1", "GO!"]
+        var actions: [SKAction] = []
+        
+        for (_, number) in countdownNumbers.enumerated() {
+            let show = SKAction.run {
+                countdownLabel.text = number
+                countdownLabel.setScale(1.0)
+                countdownLabel.alpha = 1.0
+            }
+            
+            let scaleUp = SKAction.scale(to: 1.5, duration: 0.3)
+            let pulse = SKAction.sequence([
+                SKAction.scale(to: 2.0, duration: 0.1),
+                SKAction.scale(to: 1.5, duration: 0.1)
+            ])
+            let wait = SKAction.wait(forDuration: 0.4)
+            let fadeOut = SKAction.fadeOut(withDuration: 0.2)
+
+            let combined = SKAction.sequence([show, scaleUp, pulse, wait, fadeOut])
+            actions.append(combined)
+        }
+        
+        let startGame = SKAction.run {
+            countdownLabel.removeFromParent()
+            self.enablePlayerControls()
+        }
+        
+        self.disablePlayerControls()
+        
+        actions.append(startGame)
+        
+        countdownLabel.run(SKAction.sequence(actions))
+    }
+    
+    func disablePlayerControls() {
+        PhaseOneController.isGameStarted = false
+    }
+
+    func enablePlayerControls() {
+        PhaseOneController.isGameStarted = true
     }
 }
 

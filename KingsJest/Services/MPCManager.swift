@@ -22,10 +22,8 @@ class MPCManager: NSObject, ObservableObject {
     @Published var paired: Bool = false
     @Published var nearbyPeers = [MCPeerID]()
     
-    @Published var receivedInvite: Bool = false
-    @Published var recievedInviteFrom: MCPeerID?
-    @Published var invitationHandler: ((Bool, MCSession?) -> Void)?
-
+    @Published var pendingInvitations: [(from: MCPeerID, handler: (Bool, MCSession?) -> Void)] = []
+    
     var onDisconnectPeer: ((MCPeerID) -> Void)?
     var onRecieveData: ((Data, MCPeerID) -> Void)?
     
@@ -33,7 +31,7 @@ class MPCManager: NSObject, ObservableObject {
     
     init(yourName: String){
         
-        print("-- Nova instancia MPCManager criada! --")
+//        print("-- Nova instancia MPCManager criada! --")
         
         let yourName = yourName.isEmpty ? UUID().uuidString : yourName
         
@@ -69,9 +67,11 @@ extension MPCManager: MCNearbyServiceBrowserDelegate{
 extension MPCManager: MCNearbyServiceAdvertiserDelegate{
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         DispatchQueue.main.async {
-            self.receivedInvite = true
-            self.recievedInviteFrom = peerID
-            self.invitationHandler = invitationHandler
+            
+            self.pendingInvitations.append((from: peerID, handler: invitationHandler))
+            //self.receivedInvite = true
+//            self.recievedInviteFrom = peerID
+//            self.invitationHandler = invitationHandler
         }
     }
 }
@@ -80,7 +80,7 @@ extension MPCManager: MCSessionDelegate{
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         switch state{
         case .notConnected:
-            print("❌ Peer desconectado: \(peerID.displayName)")
+//            print("❌ Peer desconectado: \(peerID.displayName)")
             DispatchQueue.main.async {
                 if let host = self.hostPeerID, host == peerID {
                     self.paired = false
@@ -97,12 +97,12 @@ extension MPCManager: MCSessionDelegate{
             }
             
         case .connected:
-            print("✅ Conectado: \(peerID.displayName)")
+//            print("✅ Conectado: \(peerID.displayName)")
             DispatchQueue.main.async {
                 self.paired = true
             }
         default:
-            print("🔄 Conectando: \(peerID.displayName)")
+//            print("🔄 Conectando: \(peerID.displayName)")
             DispatchQueue.main.async {
                 self.paired = false
             }
@@ -131,7 +131,7 @@ extension MPCManager: MCSessionDelegate{
 extension MPCManager {
     func send(data: Data) {
         guard !session.connectedPeers.isEmpty else {
-            print("❌ Tentativa de envio sem peers conectados.")
+//            print("❌ Tentativa de envio sem peers conectados.")
             return
         }
 
@@ -146,7 +146,7 @@ extension MPCManager {
 
 extension MPCManager{
     func disconnect() {
-        print("🛑 Desconectando MPCManager...")
+//        print("🛑 Desconectando MPCManager...")
 
         // Encerra sessão com peers
         session.disconnect()
@@ -166,7 +166,7 @@ extension MPCManager{
         newSession.delegate = self
         self.session = newSession
         
-        print("✅ Sessão resetada")
+//        print("✅ Sessão resetada")
     }
     
     func invite(peer: MCPeerID) {
@@ -191,5 +191,29 @@ extension MPCManager {
     func stopBrowsing() {
         nearbyServiceBrowser.stopBrowsingForPeers()
         nearbyPeers.removeAll()
+    }
+}
+
+extension MPCManager{
+    func acceptInvitation(for peerID: MCPeerID) {
+        guard let index = self.pendingInvitations.firstIndex(where: { $0.from == peerID }) else {
+            return
+        }
+        
+        let invitation = self.pendingInvitations[index]
+        invitation.handler(true, self.session)
+        
+        self.pendingInvitations.remove(at: index)
+    }
+
+    func declineInvitation(for peerID: MCPeerID) {
+        guard let index = self.pendingInvitations.firstIndex(where: { $0.from == peerID }) else {
+            return
+        }
+        
+        let invitation = self.pendingInvitations[index]
+        invitation.handler(false, nil)
+        
+        self.pendingInvitations.remove(at: index)
     }
 }

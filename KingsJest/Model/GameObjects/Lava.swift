@@ -62,9 +62,6 @@ class Lava {
         let alturaDaLava = lava.frame.size.height
         let posicaoFinalY = scene.size.height + alturaDaLava - 500
         
-        print("Altura da cena: \(scene.size.height) & Altura da lava:\(alturaDaLava) & Position final Y:\(posicaoFinalY)")
-
-        
         let moveAction = SKAction.moveTo(y: posicaoFinalY, duration: 30.0)
         let animationAction = SKAction.repeatForever(SKAction.animate(with: lavaFrames, timePerFrame: 0.1))
         
