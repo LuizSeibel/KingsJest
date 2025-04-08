@@ -321,7 +321,6 @@ class DeadState: GKState {
     }
     
     override func didEnter(from previousState: GKState?) {
-        print("☠️ DeadState ativado!")
         player.startDeadAnimation()
 
         guard let currentScene = player.node.scene as? PhaseOneController else { return }
@@ -331,7 +330,6 @@ class DeadState: GKState {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             if let newScene = PhaseOneController(fileNamed: "PhaseOne") {
-                print("🔄 Reiniciando a fase...")
                 newScene.scaleMode = .resizeFill
                 newScene.finishGame = oldFinishGame
                 newScene.onPlayerMove = oldOnPlayerMove

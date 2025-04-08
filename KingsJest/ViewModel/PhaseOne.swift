@@ -235,16 +235,16 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handlePlayerLavaCollision() {
-        print("🔥 Player caiu na Lava! Chamando die()...")
+//        print("🔥 Player caiu na Lava! Chamando die()...")
         vibrate(.heavy) // Vibração forte
         player.die()
     }
     
     private func handleLavaTrigger() {
-        print("🎉 Player ativou o Trigger!")
+//        print("🎉 Player ativou o Trigger!")
         lastLava = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            print("🔥 Lava Subindo...")
+//            print("🔥 Lava Subindo...")
             self.lava.move()
         }
     }
@@ -256,7 +256,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             return
         }
         
-        print("🎉 Terminou a Fase!")
+//        print("🎉 Terminou a Fase!")
         
         finishGame()
         

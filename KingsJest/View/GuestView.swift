@@ -44,7 +44,6 @@ struct GuestView: View {
             // MARK: View States
             .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
                 if !isPresented && !viewModel.startGame{
-                    print("FOI AQUI O ERRO!!!!!! | GuestView.swift")
                     viewModel.disconnect()
                 }
             }
