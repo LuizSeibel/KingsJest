@@ -35,7 +35,7 @@ extension EndViewModel {
     }
     
     func showRecording(){
-        guard let rootVC = UIApplication.shared.rootViewController() else {
+        guard UIApplication.shared.rootViewController() != nil else {
             print("Não foi possível encontrar o rootViewController.")
             return
         }
