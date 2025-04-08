@@ -131,7 +131,7 @@ extension MPCManager: MCSessionDelegate{
 extension MPCManager {
     func send(data: Data) {
         guard !session.connectedPeers.isEmpty else {
-            print("❌ Tentativa de envio sem peers conectados.")
+//            print("❌ Tentativa de envio sem peers conectados.")
             return
         }
 

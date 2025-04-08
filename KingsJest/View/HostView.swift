@@ -97,6 +97,8 @@ extension HostView{
                 Spacer()
                 Button(action: {
                     viewModel.sendMessage()
+                    PhaseOneController.didShowCountdownOnce = false
+
                 }, label: {
                     Text("Start Room")
                 })
