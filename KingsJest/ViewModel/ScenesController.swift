@@ -10,11 +10,14 @@ import SpriteKit
 
 enum GameSceneType: String {
     case phaseOne = "PhaseOne"
+    case phaseTwo = "PhaseTwo"
 
     func getScene() -> SKScene? {
         switch self {
         case .phaseOne:
             return PhaseOneController(fileNamed: self.rawValue)
+        case .phaseTwo:
+            return PhaseTwoController(fileNamed: self.rawValue)
         }
     }
 }
