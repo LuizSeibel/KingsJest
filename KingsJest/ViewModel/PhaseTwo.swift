@@ -11,17 +11,34 @@ import SpriteKit
 class PhaseTwoController: SKScene{
     
     var player: Player!
+    var spawner: Spawner!
+    
+    var lastSpawnTime: TimeInterval = 0
+    let spawnInterval: TimeInterval = 2.0
     
     override func didMove(to view: SKView) {
         
         setupPlayer()
         
+        setupSpawner()
     }
     
     override func update(_ currentTime: TimeInterval) {
         // Chamado antes de cada frame ser renderizado
+        
+        
+        if lastSpawnTime == 0 {
+            lastSpawnTime = currentTime
+        }
+        
+        if currentTime - lastSpawnTime >= spawnInterval {
+            spawner.spawn()
+            lastSpawnTime = currentTime
+        }
     }
 }
+
+
 
 // MARK: - Touches Controller
 extension PhaseTwoController {
@@ -55,5 +72,11 @@ extension PhaseTwoController{
         }
     }
     
-    
+    func setupSpawner(){
+        if let newSpawner = self.childNode(withName: "spawnLava") {
+            spawner = Spawner(scene: self.scene!, node: newSpawner)
+        }
+    }
 }
+
+// MARK: Player Movement
