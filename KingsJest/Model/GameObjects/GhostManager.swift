@@ -15,6 +15,8 @@ class GhostManager {
     private weak var scene: SKScene? // Para adicionar/remover nós
     private var playerName: String = ""
     private var isRunning: Bool = true
+    
+
 
     var onPlayerMove: ((MPCEncoder) -> Void)?
 
@@ -30,19 +32,38 @@ class GhostManager {
         ghostPlayers[peerID] = ghost
     }
     
-    func update(currentTime: TimeInterval, lastUpdateTime: TimeInterval, playerPosition: CGPoint, playerVelocity: CGVector) {
-        
-        // Envio do snapshot local
+    func update(currentTime: TimeInterval, lastUpdateTime: TimeInterval, player: Player) {
         guard isRunning else { return }
+        
         sendTimer += currentTime
         if sendTimer >= 0.03 {
             sendTimer = 0
-            let snapshot = PlayerSnapshot(time: CACurrentMediaTime(), position: playerPosition, velocity: playerVelocity)
+
+            // Determina o estado atual do player
+            let currentState: PlayerAnimationState
+            switch player.stateMachine.currentState {
+            case is RunState:
+                currentState = .run
+            case is JumpState:
+                currentState = .jump
+            case is DeadState:
+                currentState = .dead
+            default:
+                currentState = .idle
+            }
+
+            let snapshot = PlayerSnapshot(
+                time: CACurrentMediaTime(),
+                position: player.node.position,
+                velocity: player.node.physicsBody?.velocity ?? .zero,
+                state: currentState
+            )
+
             let encoder = PlayerPositionEncoder(peerName: playerName, snapshot: snapshot)
             onPlayerMove?(encoder)
         }
 
-        // Atualização dos ghosts remotos
+        // Atualização dos fantasmas
         let renderDelay: TimeInterval = 0.15
         let renderTime = currentTime - renderDelay
 
@@ -52,13 +73,14 @@ class GhostManager {
 
             if let position = interpolatedPosition(for: snapshots, at: renderTime) {
                 ghost.node.position = position
-                
+
                 if let latest = snapshots.last {
-                    ghost.updateTexture(for: latest.velocity)
+                    ghost.update(for: latest)
                 }
             }
         }
     }
+
     
     private func interpolatedPosition(for snapshots: [PlayerSnapshot], at renderTime: TimeInterval) -> CGPoint? {
         guard !snapshots.isEmpty else { return nil }
@@ -97,4 +119,5 @@ class GhostManager {
     func stop() {
         isRunning = false
     }
+    
 }

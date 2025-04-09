@@ -60,7 +60,7 @@ extension GameViewModel: P2PMessaging {
             do {
                 let data = try JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload)
                 let snapshot = data.snapshot
-                updatePosition(peerID: peerID, position: snapshot.position, time: snapshot.time, velocity: snapshot.velocity)
+                updatePosition(peerID: peerID, snapshot: snapshot)
             } catch {
                 print("❌ Erro ao decodificar PlayerPositionEncoder: \(error)")
                 if let json = String(data: envelope.payload, encoding: .utf8) {
@@ -102,26 +102,26 @@ extension GameViewModel {
         connectionManager.disconnect()
     }
     
-    func updatePosition(peerID: MCPeerID, position: CGPoint, time: TimeInterval, velocity: CGVector) {
+    func updatePosition(peerID: MCPeerID, snapshot: PlayerSnapshot) {
         DispatchQueue.main.async {
             let shared = AttGameViewModel.shared
-            
             let key = peerID.displayName
-            let snap = PlayerSnapshot(time: time, position: position, velocity: velocity)
+            
             if shared.snapshots[key] == nil {
                 shared.snapshots[key] = []
             }
-            shared.snapshots[key]?.append(snap)
+            shared.snapshots[key]?.append(snapshot)
             
             // Ordena por tempo (caso mensagens cheguem fora de ordem)
             shared.snapshots[key]?.sort { $0.time < $1.time }
-            
+
             // Limita tamanho do buffer
             if shared.snapshots[key]!.count > 20 {
                 shared.snapshots[key]!.removeFirst()
             }
         }
     }
+
     
     func onAppear() {
         self.winnerName = nil

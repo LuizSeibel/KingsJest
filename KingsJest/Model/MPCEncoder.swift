@@ -25,7 +25,7 @@ struct StopGameEncoder: MPCEncoder {
     var peerName: String
 }
 
-struct PlayerPositionEncoder: MPCEncoder {
+struct PlayerPositionEncoder: MPCEncoder, Codable {
     var peerName: String
     var snapshot: PlayerSnapshot
 }

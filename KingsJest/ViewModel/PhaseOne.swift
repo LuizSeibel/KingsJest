@@ -165,10 +165,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         ghostManager.update(
             currentTime: currentTime,
             lastUpdateTime: lastUpdateTime,
-            playerPosition: player.getPosition(),
-            playerVelocity: player.node.physicsBody?.velocity ?? .zero
+            player: player
         )
-        
+
         // O que eu quero atualizar num framerate menor
         guard Int(currentTime*60) % 10 == 0 else { return }
         updateCamera()
