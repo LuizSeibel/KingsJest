@@ -33,7 +33,7 @@ class HostViewModel: ObservableObject {
 }
 
 extension HostViewModel: P2PMessaging {
-    func send<T: Codable>(_ message: T, type: MessageType) {
+    func send<T: Codable>(_ message: T, type: MessageType, peer: MCPeerID? = nil) {
         do {
             let payload = try JSONEncoder().encode(message)
             let envelope = MessageEnvelope(type: type, payload: payload)
@@ -45,14 +45,13 @@ extension HostViewModel: P2PMessaging {
     }
 
     func onReceiveMessage(data: Data, peerID: MCPeerID) {
-        // Implementar lógica de recebimento, se necessário
+       
     }
 
     func sendMessage() {
         self.startGame = true
         let message = StartGameEncoder(peerName: connectionManager.myPeerId.displayName)
         send(message, type: .startGame)
-        
     }
 }
 
@@ -102,5 +101,9 @@ extension HostViewModel {
     
     func declineInvitation(peerID: MCPeerID) {
         connectionManager.declineInvitation(for: peerID)
+    }
+    
+    func removeExpiredInvites() {
+        connectionManager.removeExpiredInvitations()
     }
 }

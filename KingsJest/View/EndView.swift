@@ -13,7 +13,7 @@ struct EndView: View {
     
     @StateObject private var viewModel: EndViewModel
     
-    let formsUrl: String = "https://docs.google.com/forms/d/1wqncvx2zmH0rpddkwzWfHkshKFU_ATlrkAJVVFp82aY/edit"
+    let formsUrl: String = "https://forms.gle/A1AwYC8LkspddA9x9"
     
     var winBool: Bool = false
     

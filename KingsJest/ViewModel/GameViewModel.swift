@@ -73,7 +73,7 @@ extension GameViewModel: P2PMessaging {
         }
     }
     
-    func send<T: Codable>(_ message: T, type: MessageType) {
+    func send<T: Codable>(_ message: T, type: MessageType, peer: MCPeerID? = nil) {
         do {
             let payload = try JSONEncoder().encode(message)
             let envelope = MessageEnvelope(type: type, payload: payload)

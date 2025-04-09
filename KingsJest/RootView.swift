@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SpriteKit
 
 struct RootView: View{
     
@@ -14,6 +15,9 @@ struct RootView: View{
             //EndView(winBool: true)
 //            GameView(connectionManager: MPCManager(yourName: "OI"))
             ContentView()
+//            GameScenesViewControllerRepresentable(sceneType: .phaseTwo, finishGame: {}, onPlayerMove: {_ in })
+//                .ignoresSafeArea()
+            
         }
     }
 }

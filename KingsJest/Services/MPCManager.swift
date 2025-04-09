@@ -11,6 +11,12 @@ extension String{
     static var serviceName = "king-jest"
 }
 
+struct PendingInvitation {
+    let from: MCPeerID
+    let timestamp: Date
+    let handler: (Bool, MCSession?) -> Void
+}
+
 class MPCManager: NSObject, ObservableObject {
     let serviceType: String = String.serviceName
     
@@ -22,7 +28,8 @@ class MPCManager: NSObject, ObservableObject {
     @Published var paired: Bool = false
     @Published var nearbyPeers = [MCPeerID]()
     
-    @Published var pendingInvitations: [(from: MCPeerID, handler: (Bool, MCSession?) -> Void)] = []
+    @Published var pendingInvitations: [PendingInvitation] = []
+    let invitationTimeout: TimeInterval = 5
     
     var onDisconnectPeer: ((MCPeerID) -> Void)?
     var onRecieveData: ((Data, MCPeerID) -> Void)?
@@ -68,10 +75,12 @@ extension MPCManager: MCNearbyServiceAdvertiserDelegate{
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         DispatchQueue.main.async {
             
-            self.pendingInvitations.append((from: peerID, handler: invitationHandler))
-            //self.receivedInvite = true
-//            self.recievedInviteFrom = peerID
-//            self.invitationHandler = invitationHandler
+            let invitation = PendingInvitation(
+                from: peerID,
+                timestamp: Date(),
+                handler: invitationHandler
+            )
+            self.pendingInvitations.append(invitation)
         }
     }
 }
@@ -142,6 +151,17 @@ extension MPCManager {
             print("❌ Falha ao enviar dados: \(error)")
         }
     }
+    
+    func send(data: Data, peer: MCPeerID){
+        guard !session.connectedPeers.isEmpty else {
+            return
+        }
+        do {
+            try session.send(data, toPeers: [peer], with: .unreliable)
+        } catch {
+            print("❌ Falha ao enviar dados: \(error)")
+        }
+    }
 }
 
 extension MPCManager{
@@ -171,7 +191,7 @@ extension MPCManager{
     
     func invite(peer: MCPeerID) {
         self.hostPeerID = peer
-        nearbyServiceBrowser.invitePeer(peer, to: session, withContext: nil, timeout: 30)
+        nearbyServiceBrowser.invitePeer(peer, to: session, withContext: nil, timeout: 5)
     }
 }
 
@@ -215,5 +235,12 @@ extension MPCManager{
         invitation.handler(false, nil)
         
         self.pendingInvitations.remove(at: index)
+    }
+    
+    func removeExpiredInvitations() {
+        let now = Date()
+        pendingInvitations.removeAll {
+            now.timeIntervalSince($0.timestamp) > invitationTimeout
+        }
     }
 }
