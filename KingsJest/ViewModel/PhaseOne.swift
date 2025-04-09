@@ -84,6 +84,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                 texture: texture
             )
             
+            flagTrigger.node.zPosition = -1
+            
             sceneTrigger.removeFromParent()
             addChild(flagTrigger.node)
         }
