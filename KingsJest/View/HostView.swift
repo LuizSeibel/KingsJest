@@ -24,6 +24,8 @@ struct HostView: View {
     let maxDots = 3
     let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
+    let removeInvitationsTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    
     init(connectionManager: MPCManager){
         _viewModel = StateObject(wrappedValue: HostViewModel(connectionManager: connectionManager))
     }
@@ -35,31 +37,37 @@ struct HostView: View {
                 
                 GeometryReader { geometry in
                     ZStack {
-                        
-                        HStack{
-                            // TODO: Colocar verificação de players no startButton
-                            PlayersGridView(players: $playerNames)
-                                .frame(width: geometry.size.width * 0.45)
-                                .offset(x: 10)
-                            
-                            CustomConnectionList(
-                                peers: $viewModel.pendingInvitations,
-                                onAccept: { peerID in
-                                    viewModel.acceptInvitation(peerID: peerID)
-                                },
-                                onDecline: { peerID in
-                                    viewModel.declineInvitation(peerID: peerID)
-                                }
-                            )
+                        VStack{
+                            Text("Room Overview")
+                                .font(.custom("STSongti-TC-Bold", size: 32))
+                                .foregroundStyle(Color(.gray1))
+                                .offset(y: 10)
+                                .padding()
+                            HStack(spacing: 10){
+                                // TODO: Colocar verificação de players no startButton
+                                PlayersGridView(players: $playerNames)
+                                    .frame(width: geometry.size.width * 0.45)
+                                    .offset(x: 10)
+                                
+                                CustomConnectionList(
+                                    peers: $viewModel.pendingInvitations,
+                                    onAccept: { peerID in
+                                        viewModel.acceptInvitation(peerID: peerID)
+                                    },
+                                    onDecline: { peerID in
+                                        viewModel.declineInvitation(peerID: peerID)
+                                    }
+                                )
                                 .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.5)
                                 .cornerRadius(20)
-                                .padding(.leading, 40)
+                                //.padding(.leading, 40)
+                            }
+                            //.padding(.horizontal, 10)
+                            .padding(.top, 30)
+                            
+                            startButton
+                                .padding()
                         }
-                        .padding(.horizontal, 10)
-                        .padding(.top, 30)
-                        
-                        startButton
-                            .padding()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -70,7 +78,14 @@ struct HostView: View {
                 
             }
             
+            
+            
             // MARK: View States
+            
+            .onReceive(timer) { _ in
+                viewModel.removeExpiredInvites()
+            }
+            
             .onAppear {
                 viewModel.onAppear()
                 playerNames = viewModel.connectedPlayers.map { $0.displayName }

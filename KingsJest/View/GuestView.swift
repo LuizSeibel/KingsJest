@@ -41,6 +41,16 @@ struct GuestView: View {
                     .padding(.leading, 50)
             }
             
+            .onChange(of: viewModel.startDelay){ value in
+                if value{
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: {
+                        withAnimation(.easeInOut){
+                            viewModel.startDelay.toggle()
+                        }
+                    })
+                }
+            }
+            
             // MARK: View States
             .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
                 if !isPresented && !viewModel.startGame{
@@ -81,23 +91,33 @@ extension GuestView {
             .foregroundStyle(Color(.gray1))
     }
     
+
     var list: some View{
-        List(viewModel.availableRooms, id: \.self){ peer in
-            CustomListIndexView(label: "\(peer.displayName)'s Room", labelButton1: "Join", labelButton2: "0/8", button1Closure: {viewModel.sendInvite(peer: peer)}, button2Disable: true, isSmallStyle: true)
-                .padding(.horizontal, 144)
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
+        ZStack{
+            ScrollView(.horizontal){
+                HStack{
+                    ForEach(viewModel.availableRooms, id: \.self){ peer in
+                        
+                        CustomRoomCard(
+                            roomName: peer.displayName,
+                            playersCount: 1,
+                            frontCardAction: { viewModel.sendInvite(peer: peer) },
+                            backCardAction: { viewModel.cancelInvite(peer: peer) }
+                        )
+                        .offset(y: 16)
+                    }
+                }
+            }
         }
-        .listStyle(PlainListStyle())
-        .scrollContentBackground(.hidden)
-        .background(Color.clear)
     }
     
     var hud: some View {
         VStack(alignment: .center){
             title
-                .padding(48)
+                .padding(.top, 48)
+            Spacer()
             list
+                .allowsHitTesting(!viewModel.startDelay)
         }
     }
     

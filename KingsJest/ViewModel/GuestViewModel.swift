@@ -17,6 +17,8 @@ class GuestViewModel: ObservableObject {
     
     @Published var gameSessionID: UUID?
     
+    @Published var startDelay: Bool = false
+    
     var connectionManager: MPCManager
 
     init(connectionManager: MPCManager){
@@ -29,7 +31,7 @@ class GuestViewModel: ObservableObject {
 
 extension GuestViewModel: P2PMessaging {
     
-    func send<T>(_ message: T, type: MessageType) where T : Decodable, T : Encodable {
+    func send<T>(_ message: T, type: MessageType, peer: MCPeerID? = nil) where T : Decodable, T : Encodable {
         
     }
     
@@ -63,6 +65,10 @@ extension GuestViewModel {
     
     func sendInvite(peer: MCPeerID){
         connectionManager.invite(peer: peer)
+    }
+    
+    func cancelInvite(peer: MCPeerID){
+        startDelay = true
     }
     
     func disconnect(){

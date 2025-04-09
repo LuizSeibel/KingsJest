@@ -16,35 +16,48 @@ struct CustomRoomCard: View {
     var backCardAction: () -> Void = {}
     
     @State var isFlipped: Bool = false
-    @Namespace private var animation
-        
+    
     var body: some View {
         ZStack {
             if isFlipped {
-                BackCard(roomName: roomName, flipAction: {
+                BackCard(roomName: roomName) {
                     backCardAction()
                     withAnimation(.easeInOut(duration: 0.6)) {
                         isFlipped.toggle()
                     }
-                })
-                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                }
+                .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             } else {
-                FrontCard(roomName: roomName, playersCount: playersCount, flipAction: {
+                FrontCard(roomName: roomName, playersCount: playersCount) {
                     frontCardAction()
                     withAnimation(.easeInOut(duration: 0.6)) {
                         isFlipped.toggle()
                     }
-                })
+                }
             }
         }
-        .frame(width: 320, height: 300)
-        .rotation3DEffect(.degrees(isFlipped ? 180 : 0), axis: (x: 0, y: 1, z: 0))
-        .animation(.easeInOut(duration: 1), value: isFlipped)
+        .compositingGroup()
+        .aspectRatio(300/280, contentMode: .fit)
+        
+        .rotation3DEffect(.degrees(isFlipped ? 180 : 0),
+                          axis: (x: 0, y: 1, z: 0),
+                          perspective: 0.5)
+        .scaleEffect(0.85)
+        .animation(.easeInOut(duration: 0.6), value: isFlipped)
+        
+        .onChange(of: isFlipped) { newValue in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                if isFlipped {
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        isFlipped = false
+                    }
+                }
+            }
+        }
     }
 }
 
 struct FrontCard: View {
-    
     let roomName: String
     var playersCount: Int
     var flipAction: () -> Void
@@ -60,6 +73,7 @@ struct FrontCard: View {
                 }
                 .padding()
             )
+            .aspectRatio(1, contentMode: .fit)
     }
     
     var hud: some View {
@@ -91,7 +105,6 @@ struct FrontCard: View {
 }
 
 struct BackCard: View {
-    
     let roomName: String
     var flipAction: () -> Void
     
@@ -99,19 +112,18 @@ struct BackCard: View {
         RoundedRectangle(cornerRadius: 20)
             .foregroundStyle(.white1)
             .overlay(
-                VStack{
+                VStack {
                     hud
                         .padding()
                     button
                 }
-                    .padding()
-                    
+                .padding()
             )
-            .frame(width: 320, height: 300)
+            .aspectRatio(1, contentMode: .fit)
     }
     
     var hud: some View {
-        VStack(spacing: 30){
+        VStack(spacing: 20) {
             Text("\(roomName)'s Room")
                 .font(.title2)
                 .fontWeight(.semibold)
@@ -119,12 +131,13 @@ struct BackCard: View {
             ProgressView()
                 .progressViewStyle(.circular)
                 .scaleEffect(2)
-                .padding()
+                .padding(6)
             
             VStack(spacing: 0) {
                 Text("Wait while the host")
                 Text("approves your request")
             }
+            .font(.callout)
             .fontWeight(.semibold)
         }
     }
