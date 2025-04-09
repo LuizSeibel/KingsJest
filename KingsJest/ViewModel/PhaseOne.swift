@@ -235,33 +235,34 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handlePlayerLavaCollision() {
-//        print("🔥 Player caiu na Lava! Chamando die()...")
-        vibrate(.heavy) // Vibração forte
+        
         player.die()
+        
+        DispatchQueue.global().async {
+            for _ in 1...10 {
+                DispatchQueue.main.async {
+                    self.vibrate(.medium)
+                }
+                Thread.sleep(forTimeInterval: 0.05)
+            }
+        }
     }
     
     private func handleLavaTrigger() {
-//        print("🎉 Player ativou o Trigger!")
         lastLava = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-//            print("🔥 Lava Subindo...")
             self.lava.move()
         }
     }
     
     private func handleFlagTrigger() {
-        
         guard let finishGame else {
             print("Error: finishGame not defined!")
             return
         }
         
-//        print("🎉 Terminou a Fase!")
-        
         finishGame()
-        
         ghostManager.stop()
-        
     }
     
     func startMotionUpdates() {

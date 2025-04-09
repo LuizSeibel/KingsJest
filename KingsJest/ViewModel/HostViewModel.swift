@@ -8,16 +8,11 @@
 import SwiftUI
 import MultipeerConnectivity
 
-struct inviteModel{
-    var peerID: MCPeerID
-
-}
-
 class HostViewModel: ObservableObject {
     
-    @Published var recievedInvite: Bool = false
-    @Published var recievedInviteFrom: MCPeerID?
     @Published var isConnected: Bool = false
+    
+    @Published var pendingInvitations: [MCPeerID] = []
     
     @Published var connectedPlayers: [MCPeerID] = []
     
@@ -32,6 +27,8 @@ class HostViewModel: ObservableObject {
         connectionManager.onDisconnectPeer = disconnectedPeer
         setupBindings()
         self.gameSessionID = UUID()
+        
+        connectedPlayers.append(connectionManager.myPeerId)
     }
 }
 
@@ -60,6 +57,12 @@ extension HostViewModel: P2PMessaging {
 }
 
 extension HostViewModel {
+    
+    func startRoom(){
+        sendMessage()
+        connectionManager.stopAdvertising()
+    }
+    
     func startAdvertising() {
         connectionManager.startAdvertising()
     }
@@ -80,30 +83,24 @@ extension HostViewModel {
     }
     
     func setupBindings(){
-        connectionManager.$receivedInvite.assign(to: &$recievedInvite)
-        connectionManager.$recievedInviteFrom.assign(to: &$recievedInviteFrom)
-        connectionManager.$paired.assign(to: &$isConnected)
-    }
-    
-    func acceptInvitation() {
-        if let handler = connectionManager.invitationHandler {
-            handler(true, connectionManager.session)
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                self.startAdvertising()
+        connectionManager.$paired.assign(to: &$isConnected)
+        connectionManager.$pendingInvitations
+            .map { invitations in
+                invitations.map { $0.from }
             }
-            
-            if connectedPlayers.isEmpty {
-                self.isConnected = true
-            }
-            
-            self.connectedPlayers.append(recievedInviteFrom!)
-        }
+            .assign(to: &$pendingInvitations)
     }
     
-    func rejectInvitation() {
-        if let handler = connectionManager.invitationHandler {
-            handler(false, nil)
-        }
+}
+
+extension HostViewModel {
+    func acceptInvitation(peerID: MCPeerID) {
+        connectionManager.acceptInvitation(for: peerID)
+        connectedPlayers.append(peerID)
+    }
+    
+    func declineInvitation(peerID: MCPeerID) {
+        connectionManager.declineInvitation(for: peerID)
     }
 }

@@ -23,20 +23,22 @@ struct GameView: View {
     
     private func gameViewBody() -> some View {
         ZStack {
-            GameScenesViewControllerRepresentable(sceneType: .phaseOne, finishGame: {
-                withAnimation(.easeIn(duration: 0.5)) {
-                    showBlackout = true
-                }
+            if !viewModel.isFinishedGame {
+                GameScenesViewControllerRepresentable(sceneType: .phaseOne, finishGame: {
+                    withAnimation(.easeIn(duration: 0.5)) {
+                        showBlackout = true
+                    }
 
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
-                    viewModel.finishGame()
-                }
-                
-            }, onPlayerMove: { snapshot in
-                viewModel.send(snapshot, type: .position)
-            })
-            .edgesIgnoringSafeArea(.all)
-
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.75) {
+                        viewModel.finishGame()
+                    }
+                    
+                }, onPlayerMove: { snapshot in
+                    viewModel.send(snapshot, type: .position)
+                })
+                .edgesIgnoringSafeArea(.all)
+            }
+            
             if showBlackout {
                 Color.black
                     .ignoresSafeArea()

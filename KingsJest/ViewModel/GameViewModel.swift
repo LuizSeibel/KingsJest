@@ -88,14 +88,11 @@ extension GameViewModel: P2PMessaging {
 extension GameViewModel {
     
     func finishGame() {
-//        print(" - Terminou o jogo!")
         DispatchQueue.main.async{
             self.winnerName = self.connectionManager.myPeerId.displayName
             self.winGame = true
             self.isFinishedGame = true
             
-            // Manda a mensagem
-//            print("Enviando a mensagem de término de jogo...")
             let message = StopGameEncoder(peerName: self.connectionManager.myPeerId.displayName)
             self.send(message, type: .stopGame)
         }

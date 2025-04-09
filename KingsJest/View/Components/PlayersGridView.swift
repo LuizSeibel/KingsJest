@@ -14,7 +14,7 @@ struct PlayerItemView: View {
         VStack {
             RoundedRectangle(cornerRadius: 8)
                 .fill(Color.gray)
-                .frame(width: 60, height: 80)
+                .frame(width: 55, height: 75)
             
             Text(nickname)
                 .font(.caption)

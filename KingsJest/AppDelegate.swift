@@ -21,7 +21,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
         
         let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = UIHostingController(rootView: RootView())
+        
+        // Substitua pelo Controller que oculta a Home Indicator
+        window.rootViewController = HomeIndicatorHostingController(rootView: RootView())
+        
         self.window = window
         window.makeKeyAndVisible()
         
