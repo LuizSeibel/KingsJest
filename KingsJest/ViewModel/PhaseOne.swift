@@ -269,7 +269,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             print("Error: finishGame not defined!")
             return
         }
-        
+        player.node.physicsBody = nil
+        player.node.zPosition = -5
+
         finishGame()
         ghostManager.stop()
     }

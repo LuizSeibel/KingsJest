@@ -60,7 +60,7 @@ class Lava {
         guard let lava = self.lava else { return }
         
         let alturaDaLava = lava.frame.size.height
-        let posicaoFinalY = scene.size.height + alturaDaLava - 500
+        let posicaoFinalY = scene.size.height + alturaDaLava - 600
         
         let moveAction = SKAction.moveTo(y: posicaoFinalY, duration: 30.0)
         let animationAction = SKAction.repeatForever(SKAction.animate(with: lavaFrames, timePerFrame: 0.1))
