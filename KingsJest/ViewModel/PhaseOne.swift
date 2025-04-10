@@ -36,16 +36,21 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
-    lazy var backgroundLimits:CGRect = {
+    lazy var backgroundLimits: CGRect = {
         let backgroundLeft = self.childNode(withName: "pilastra0") as! SKSpriteNode
         let backgroundRight = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
-        let backgroundTop = self.childNode(withName: "backgroundCena7") as! SKSpriteNode
-        return CGRect(x: backgroundLeft.frame.minX + (self.view?.frame.width ?? 0) / 2,
-                      y: backgroundRight.frame.minY,
-                      width: backgroundRight.frame.minX - backgroundLeft.frame.minX,
-                      height: backgroundTop.frame.maxY - backgroundRight.frame.minY - (self.view?.frame.width ?? 0) / 2)
+        let backgroundTop = self.childNode(withName: "backgroundCena6") as! SKSpriteNode
+
+        let halfWidth = (self.view?.frame.width ?? 0) / 2
+
+        return CGRect(
+            x: backgroundLeft.frame.minX + halfWidth,
+            y: backgroundRight.frame.minY,
+            width: backgroundRight.frame.maxX - backgroundLeft.frame.minX - halfWidth * 2,
+            height: backgroundTop.frame.maxY - backgroundRight.frame.minY - halfWidth
+        )
     }()
-    
+
     override func didMove(to view: SKView) {
         
         if let scenePlayerNode = self.childNode(withName: "player") {
@@ -84,7 +89,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
                 texture: texture
             )
             
-            flagTrigger.node.zPosition = -1
+            flagTrigger.node.zPosition = -11
             
             sceneTrigger.removeFromParent()
             addChild(flagTrigger.node)
@@ -191,18 +196,21 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         // MOVIMENTAÇÃO HORIZONTAL
         // =============================
         if lastLava {
-            cameraNode.run(.moveTo(x: backgroundLimits.maxX, duration: cameraMoveDuration))
+            // Mesmo com lava, continua acompanhando o player no eixo X
+            let playerX = player.node.position.x
+            let clampedX = min(max(playerX, backgroundLimits.minX), backgroundLimits.maxX)
+            cameraNode.run(.moveTo(x: clampedX, duration: cameraMoveDuration))
         } else {
             // Verifica se a câmera está dentro dos limites
             let currentX = cameraNode.position.x
             guard currentX >= backgroundLimits.minX,
                   currentX <= backgroundLimits.maxX else { return }
             
-            // Limita a posição da câmera ao mínimo e máximo permitido
             let playerX = player.node.position.x
             let clampedX = min(max(playerX, backgroundLimits.minX), backgroundLimits.maxX)
             cameraNode.run(.moveTo(x: clampedX, duration: cameraMoveDuration))
         }
+
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
