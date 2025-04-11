@@ -40,6 +40,8 @@ class Player {
         loadFrames(prefix: "death00", count: 12)
     }()
     
+    var isInDynamicPlataform: SKSpriteNode? = nil
+
     
     // Jump vars
     var isJumping: Bool = false
@@ -118,7 +120,7 @@ class Player {
             self.node.physicsBody = nil
             self.node.removeAllActions() // Remove todas as animações anteriores
 
-            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.2)
+            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
             let holdLastFrame = SKAction.run {
                 self.node.texture = self.deathFrames.last // Mantém o último frame
             }
@@ -257,6 +259,45 @@ extension Player {
 }
 
 
+// TODO: melhorar logica de sincronizacao do player com a plataforma dinamica
+// MARK: - Player se move com a plataforma dinamica
+extension Player {
+    func syncWithMovingPlatform(deltaTime: TimeInterval) {
+        guard let plataforma = isInDynamicPlataform else { return }
+
+        if plataforma.userData == nil {
+            plataforma.userData = NSMutableDictionary()
+        }
+
+        let previousPosition = plataforma.userData?["previousPosition"] as? CGPoint ?? plataforma.position
+        let currentPosition = plataforma.position
+
+        let deltaX = currentPosition.x - previousPosition.x
+        let deltaY = currentPosition.y - previousPosition.y
+
+        // Limita o quanto o movimento pode afetar o player
+        let maxDelta: CGFloat = 20.0
+        let clampedDeltaX = max(-maxDelta, min(deltaX, maxDelta))
+        let clampedDeltaY = max(-maxDelta, min(deltaY, maxDelta))
+
+        // Aplica deltaX normalmente
+        node.position.x += clampedDeltaX
+
+        // 🔐 Bloqueia Y somente se o player está com velocidade baixa (em cima da plataforma)
+        if let velocityY = node.physicsBody?.velocity.dy, abs(velocityY) < 10 {
+            node.position.y += clampedDeltaY
+            // Resetar velocidade vertical para evitar impulso extra
+            node.physicsBody?.velocity.dy = 0
+        }
+
+        plataforma.userData?["previousPosition"] = currentPosition
+    }
+
+}
+
+
+
+
 //MARK: - PlayerStates
 class IdleState: GKState {
     unowned let player: Player
@@ -327,14 +368,25 @@ class DeadState: GKState {
 
         let oldFinishGame = currentScene.finishGame
         let oldOnPlayerMove = currentScene.onPlayerMove
+        let wasOnFinalLava = currentScene.lastLava
+        let triggerPos = currentScene.lavaTriggerPosition
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             if let newScene = PhaseOneController(fileNamed: "PhaseOne") {
                 newScene.scaleMode = .resizeFill
                 newScene.finishGame = oldFinishGame
                 newScene.onPlayerMove = oldOnPlayerMove
+                
+                if wasOnFinalLava, let trigger = triggerPos {
+                    let offsetX: CGFloat = -200
+                    let offsetY: CGFloat = -140
+                    let respawn = CGPoint(x: trigger.x + offsetX, y: trigger.y + offsetY)
 
-                currentScene.view?.presentScene(newScene, transition: .fade(withDuration: 2))
+                    newScene.respawnPoint = respawn
+                }
+
+
+                currentScene.view?.presentScene(newScene, transition: .fade(withDuration: 0.8))
             }
         }
     }

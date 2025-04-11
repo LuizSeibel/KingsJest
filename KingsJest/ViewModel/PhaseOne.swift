@@ -33,6 +33,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var onPlayerMove: ((MPCEncoder) -> Void)?
     
     var lastLava: Bool = false
+    var lavaTriggerPosition: CGPoint?
+    var respawnPoint: CGPoint? = nil
+
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
@@ -61,10 +64,18 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             addChild(player.node)
         }
         
+        if let respawn = respawnPoint {
+            player.node.position = respawn
+        }
+        
+        
+
+        
         if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
-            
             let position = sceneTrigger.position
             let size = sceneTrigger.size
+            lavaTriggerPosition = position
+
             let lavaTrigger = Trigger(
                 position: position,
                 size: size,
@@ -75,7 +86,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             sceneTrigger.removeFromParent()
             addChild(lavaTrigger.node)
         }
-        
+
         if let sceneTrigger = self.childNode(withName: "bandeira") as? SKSpriteNode {
             let position = sceneTrigger.position
             let size = sceneTrigger.size
@@ -98,13 +109,15 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         lava = Lava(scene: self)
         
         plataform = Plataform(scene: self)
-        plataform.startDynamicPlatformsMovement()
+        plataform.startHorizontalPlatformsMovement()
+        plataform.startVerticalPlatformsMovement()
 
         ground = Ground(scene: self)
         
         camera = cameraNode
         addChild(cameraNode)
-        
+        cameraNode.position = CGPoint(x: player.node.position.x, y: 5)
+
         self.physicsWorld.contactDelegate = self
         applyNearestFiltering(node: self)
         startMotionUpdates()
@@ -168,6 +181,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         player.updateJumpState()
         
         player.stateMachine.update(deltaTime: currentTime)
+        player.syncWithMovingPlatform(deltaTime: deltaTime)
+
         
         ghostManager.update(
             currentTime: currentTime,
@@ -215,6 +230,22 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
     }
     
+    func didEnd(_ contact: SKPhysicsContact) {
+        let bodyA = contact.bodyA
+        let bodyB = contact.bodyB
+        
+        let (body1, body2) = bodyA.categoryBitMask < bodyB.categoryBitMask ? (bodyA, bodyB) : (bodyB, bodyA)
+
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
+            if let plataforma = body2.node as? SKSpriteNode,
+               plataforma.name == "plataformaDinamica" || plataforma.name == "plataformaDinamicaVertical" {
+                player.isInDynamicPlataform = nil
+            }
+        }
+
+
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         let bodyA = contact.bodyA
         let bodyB = contact.bodyB
@@ -224,6 +255,14 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         if let plataformaNode = [body1.node, body2.node].first(where: { $0?.name == "blocoArmadilha" }) {
             handleBlocoArmadilha(plataformaNode!)
         }
+        
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
+            if let plataforma = body2.node as? SKSpriteNode,
+               plataforma.name == "plataformaDinamica" || plataforma.name == "plataformaDinamicaVertical" {
+                player.isInDynamicPlataform = plataforma
+            }
+        }
+
 
         if body1.categoryBitMask == .player && body2.categoryBitMask == .lava {
             handlePlayerLavaCollision()
@@ -239,12 +278,37 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handleBlocoArmadilha(_ node: SKNode) {
-        if node.name == "blocoArmadilha", let spriteNode = node as? SKSpriteNode {
+        guard node.name == "blocoArmadilha",
+              let spriteNode = node as? SKSpriteNode else { return }
+
+        // 🔹 Previne que o bloco seja ativado mais de uma vez
+        if spriteNode.userData?["activated"] as? Bool == true { return }
+        if spriteNode.userData == nil {
+            spriteNode.userData = NSMutableDictionary()
+        }
+        spriteNode.userData?["activated"] = true
+
+        let shake = SKAction.sequence([
+            SKAction.rotate(toAngle: .pi / 32, duration: 0.05),
+            SKAction.rotate(toAngle: -.pi / 32, duration: 0.05)
+        ])
+        let continuousShake = SKAction.repeat(shake, count: 1)
+        let resetRotation = SKAction.rotate(toAngle: 0, duration: 0.05)
+
+        let fallAction = SKAction.run {
             spriteNode.physicsBody?.affectedByGravity = true
             spriteNode.physicsBody?.isDynamic = true
             spriteNode.physicsBody?.collisionBitMask = 0
         }
+
+        let fullSequence = SKAction.sequence([
+            continuousShake,
+            resetRotation,
+            fallAction
+        ])
+        spriteNode.run(fullSequence, withKey: "fallWithShake")
     }
+
     
     private func handlePlayerLavaCollision() {
         
