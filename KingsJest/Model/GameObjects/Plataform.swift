@@ -13,7 +13,7 @@ class Plataform {
     init (scene: SKScene) {
         
         for node in scene.children {
-            if node.name == "plataforma" || node.name == "plataformaInclinada" || node.name == "blocoArmadilha" || node.name == "plataformaDinamica" {
+            if node.name == "plataforma" || node.name == "plataformaInclinada" || node.name == "blocoArmadilha" || node.name == "plataformaDinamicaHorizontal" || node.name == "plataformaDinamicaVertical" {
                 if let plataformNode = node as? SKSpriteNode {
                     setupPhysics(for: plataformNode)
                     nodes.append(plataformNode)
@@ -32,9 +32,9 @@ class Plataform {
         plataformNode.physicsBody?.collisionBitMask = .player
     }
     
-    func startDynamicPlatformsMovement() {
+    func startHorizontalPlatformsMovement() {
         for node in nodes {
-            guard node.name == "plataformaDinamica" else { continue }
+            guard node.name == "plataformaDinamicaHorizontal" else { continue }
 
             // Distância total de ida e volta no eixo X
             let moveDistance: CGFloat = 150
@@ -51,4 +51,24 @@ class Plataform {
             node.run(repeatForever, withKey: "dynamicMovement")
         }
     }
+    
+    func startVerticalPlatformsMovement() {
+        for node in nodes {
+            guard node.name == "plataformaDinamicaVertical" else { continue }
+
+            // Configuração de deslocamento vertical
+            let moveDistance: CGFloat = 110
+            let moveDuration: TimeInterval = 2.0
+
+            let moveDown = SKAction.moveBy(x: 0, y: -moveDistance, duration: moveDuration)
+            let moveUp = SKAction.moveBy(x: 0, y: moveDistance, duration: moveDuration)
+            let sequence = SKAction.sequence([moveDown, moveUp])
+
+            let repeatForever = SKAction.repeatForever(sequence)
+            repeatForever.timingMode = .easeInEaseOut
+
+            node.run(repeatForever, withKey: "dynamicVerticalMovement")
+        }
+    }
+
 }

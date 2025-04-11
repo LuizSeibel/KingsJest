@@ -98,7 +98,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         lava = Lava(scene: self)
         
         plataform = Plataform(scene: self)
-        plataform.startDynamicPlatformsMovement()
+        plataform.startHorizontalPlatformsMovement()
+        plataform.startVerticalPlatformsMovement()
 
         ground = Ground(scene: self)
         
@@ -224,10 +225,12 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         let (body1, body2) = bodyA.categoryBitMask < bodyB.categoryBitMask ? (bodyA, bodyB) : (bodyB, bodyA)
 
         if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
-            if let plataforma = body2.node as? SKSpriteNode, plataforma.name == "plataformaDinamica" {
+            if let plataforma = body2.node as? SKSpriteNode,
+               plataforma.name == "plataformaDinamica" || plataforma.name == "plataformaDinamicaVertical" {
                 player.isInDynamicPlataform = nil
             }
         }
+
 
     }
     
@@ -242,7 +245,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
         
         if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
-            if let plataforma = body2.node as? SKSpriteNode, plataforma.name == "plataformaDinamica" {
+            if let plataforma = body2.node as? SKSpriteNode,
+               plataforma.name == "plataformaDinamica" || plataforma.name == "plataformaDinamicaVertical" {
                 player.isInDynamicPlataform = plataforma
             }
         }

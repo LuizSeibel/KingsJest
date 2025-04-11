@@ -258,12 +258,13 @@ extension Player {
     }
 }
 
+
+// TODO: melhorar logica de sincronizacao do player com a plataforma dinamica
 // MARK: - Player se move com a plataforma dinamica
 extension Player {
     func syncWithMovingPlatform(deltaTime: TimeInterval) {
         guard let plataforma = isInDynamicPlataform else { return }
 
-        // Salva a posição anterior uma única vez por frame
         if plataforma.userData == nil {
             plataforma.userData = NSMutableDictionary()
         }
@@ -271,20 +272,29 @@ extension Player {
         let previousPosition = plataforma.userData?["previousPosition"] as? CGPoint ?? plataforma.position
         let currentPosition = plataforma.position
 
-        // Atualiza o delta
         let deltaX = currentPosition.x - previousPosition.x
+        let deltaY = currentPosition.y - previousPosition.y
 
-        // ⚠️ Limita deltaX para evitar saltos (clamp)
-        let maxDelta: CGFloat = 20.0 // Ajustável
+        // Limita o quanto o movimento pode afetar o player
+        let maxDelta: CGFloat = 20.0
         let clampedDeltaX = max(-maxDelta, min(deltaX, maxDelta))
+        let clampedDeltaY = max(-maxDelta, min(deltaY, maxDelta))
 
-        // Move o player junto
+        // Aplica deltaX normalmente
         node.position.x += clampedDeltaX
 
-        // Armazena a nova posição pra próxima iteração
+        // 🔐 Bloqueia Y somente se o player está com velocidade baixa (em cima da plataforma)
+        if let velocityY = node.physicsBody?.velocity.dy, abs(velocityY) < 10 {
+            node.position.y += clampedDeltaY
+            // Resetar velocidade vertical para evitar impulso extra
+            node.physicsBody?.velocity.dy = 0
+        }
+
         plataforma.userData?["previousPosition"] = currentPosition
     }
+
 }
+
 
 
 
