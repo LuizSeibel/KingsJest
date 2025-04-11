@@ -33,6 +33,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var onPlayerMove: ((MPCEncoder) -> Void)?
     
     var lastLava: Bool = false
+    var lavaTriggerPosition: CGPoint?
+    var respawnPoint: CGPoint? = nil
+
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
@@ -61,10 +64,16 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             addChild(player.node)
         }
         
+        if let respawn = respawnPoint {
+            player.node.position = respawn
+        }
+
+        
         if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
-            
             let position = sceneTrigger.position
             let size = sceneTrigger.size
+            lavaTriggerPosition = position
+
             let lavaTrigger = Trigger(
                 position: position,
                 size: size,
@@ -75,7 +84,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             sceneTrigger.removeFromParent()
             addChild(lavaTrigger.node)
         }
-        
+
         if let sceneTrigger = self.childNode(withName: "bandeira") as? SKSpriteNode {
             let position = sceneTrigger.position
             let size = sceneTrigger.size

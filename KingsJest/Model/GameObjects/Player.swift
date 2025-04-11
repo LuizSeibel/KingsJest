@@ -120,7 +120,7 @@ class Player {
             self.node.physicsBody = nil
             self.node.removeAllActions() // Remove todas as animações anteriores
 
-            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.2)
+            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
             let holdLastFrame = SKAction.run {
                 self.node.texture = self.deathFrames.last // Mantém o último frame
             }
@@ -368,14 +368,25 @@ class DeadState: GKState {
 
         let oldFinishGame = currentScene.finishGame
         let oldOnPlayerMove = currentScene.onPlayerMove
+        let wasOnFinalLava = currentScene.lastLava
+        let triggerPos = currentScene.lavaTriggerPosition
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
             if let newScene = PhaseOneController(fileNamed: "PhaseOne") {
                 newScene.scaleMode = .resizeFill
                 newScene.finishGame = oldFinishGame
                 newScene.onPlayerMove = oldOnPlayerMove
+                
+                if wasOnFinalLava, let trigger = triggerPos {
+                    let offsetX: CGFloat = -200
+                    let offsetY: CGFloat = 0
+                    let respawn = CGPoint(x: trigger.x + offsetX, y: trigger.y + offsetY)
 
-                currentScene.view?.presentScene(newScene, transition: .fade(withDuration: 2))
+                    newScene.respawnPoint = respawn
+                }
+
+
+                currentScene.view?.presentScene(newScene, transition: .fade(withDuration: 0.8))
             }
         }
     }
