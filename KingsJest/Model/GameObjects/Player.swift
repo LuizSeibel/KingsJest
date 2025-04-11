@@ -379,7 +379,7 @@ class DeadState: GKState {
                 
                 if wasOnFinalLava, let trigger = triggerPos {
                     let offsetX: CGFloat = -200
-                    let offsetY: CGFloat = 0
+                    let offsetY: CGFloat = -140
                     let respawn = CGPoint(x: trigger.x + offsetX, y: trigger.y + offsetY)
 
                     newScene.respawnPoint = respawn

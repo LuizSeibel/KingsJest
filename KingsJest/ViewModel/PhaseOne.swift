@@ -67,6 +67,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         if let respawn = respawnPoint {
             player.node.position = respawn
         }
+        
+        
 
         
         if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
@@ -114,7 +116,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         camera = cameraNode
         addChild(cameraNode)
-        
+        cameraNode.position = CGPoint(x: player.node.position.x, y: 5)
+
         self.physicsWorld.contactDelegate = self
         applyNearestFiltering(node: self)
         startMotionUpdates()
