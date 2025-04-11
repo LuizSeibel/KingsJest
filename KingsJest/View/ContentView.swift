@@ -20,20 +20,21 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading){
            
-                Nickname(text: $name)
-                    .padding(.top, 50)
-                    .padding(.leading, 50)
-                    .frame(width: 200)
-                    .onAppear {
-                        name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
-                    }
-                    .onDisappear {
-                        UserDefaults.standard.set(name, forKey: "userNickname")
-                    }
-
-                
-                hud
-                    .hideKeyboardWhenTapped()
+            Nickname(text: $name)
+                .padding(.top, 50)
+                .padding(.leading, 50)
+                .frame(width: 200)
+                .onAppear {
+                    name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
+                }
+                .onDisappear {
+                    UserDefaults.standard.set(name, forKey: "userNickname")
+                }
+        
+            hud
+                .hideKeyboardWhenTapped()
+            
+            
         }
         .background{
                 background
@@ -78,17 +79,29 @@ struct ContentView: View {
 // MARK: - UI Components & Layout
 extension ContentView{
     var hud: some View {
-        VStack{
-            GeometryReader { geometry in
-                Image("GameName")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: geometry.size.width * 0.3)
-                    .position(x: geometry.size.width / 2, y: geometry.size.height / 2 - 20)
+        ZStack{
+            VStack{
+                GeometryReader { geometry in
+                    Image("GameName")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: geometry.size.width * 0.3)
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2 - 20)
+                }
+                buttons
+                
+                
             }
-            buttons
+            .padding(.vertical)
+            
+            HStack{
+                Spacer()
+                VStack{
+                    Spacer()
+                    SendFeedbackButton()
+                }
+            }
         }
-        .padding(.vertical)
     }
     
     var background: some View {

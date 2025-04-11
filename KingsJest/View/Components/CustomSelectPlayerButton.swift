@@ -21,11 +21,23 @@ struct CustomSelectPlayerButton: ButtonStyle {
     }
 }
 
+struct CustomSelectPlayerButton2: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .padding(8)
+            .background(configuration.isPressed ? Color(.background).opacity(0.7) : Color(.background))
+            .foregroundColor(.white)
+            .cornerRadius(10)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
+    }
+}
+
 #Preview {
     Button(action: {
         print("Botão clicado")
     }, label: {
         Text("Join")
     })
-    .buttonStyle(CustomSelectPlayerButton())
+    .buttonStyle(CustomSelectPlayerButton2())
 }

@@ -35,19 +35,26 @@ struct CustomConnectionList: View {
                     ForEach($peers, id: \.self) { peer in
                         HStack {
                             Text(peer.wrappedValue.displayName)
+                                .foregroundStyle(.black)
                                 .fontWeight(.semibold)
                             
                             Spacer()
                             
-                            Button("Ignore") {
+                            
+                            Button {
                                 onDecline(peer.wrappedValue)
+                            } label: {
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 16, weight: .bold))
                             }
                             .buttonStyle(CustomSelectButton2())
                             
-                            Button("Accept") {
+                            Button {
                                 onAccept(peer.wrappedValue)
+                            } label: {
+                                Image(systemName: "checkmark")
                             }
-                            .buttonStyle(CustomSelectPlayerButton())
+                            .buttonStyle(CustomSelectPlayerButton2())
                             
                         }
                     }
@@ -65,7 +72,7 @@ struct CustomConnectionList: View {
     }
 }
 
-//
+
 //#Preview {
 //    CustomConnectionList(peers: .constant([MCPeerID(displayName: "Flavio"), MCPeerID(displayName: "Rafaerl")]))
 //}

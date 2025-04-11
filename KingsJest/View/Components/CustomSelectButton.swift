@@ -11,11 +11,10 @@ struct CustomSelectButton2: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(8)
-            .fontWeight(.semibold)
-            .frame(maxWidth: 90)
-            .background(configuration.isPressed ? Color(.gray1).opacity(0.7) : Color(.gray1))
+            //.padding(.horizontal, 8)
+            .background(configuration.isPressed ? Color.gray.opacity(0.7) : Color(.gray1))
             .foregroundColor(Color(.darkGray).opacity(0.8))
-            .cornerRadius(12)
+            .cornerRadius(10)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
     }

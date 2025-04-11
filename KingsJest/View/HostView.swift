@@ -19,12 +19,13 @@ struct HostView: View {
     
     @State private var playerNames: [String] = []
     
-    // Animation vars
-    @State private var dotCount: Int = 0
-    let maxDots = 3
-    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
+    @State var disableStartButton: Bool = false
     
-    let removeInvitationsTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    // Animation Connecting Peer
+    let maxDots = 3
+    @State var connectingPeerString: String = "Connecting Peer"
+    @State private var dotCount: Int = 0
+    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
     
     init(connectionManager: MPCManager){
         _viewModel = StateObject(wrappedValue: HostViewModel(connectionManager: connectionManager))
@@ -60,9 +61,7 @@ struct HostView: View {
                                 )
                                 .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.5)
                                 .cornerRadius(20)
-                                //.padding(.leading, 40)
                             }
-                            //.padding(.horizontal, 10)
                             .padding(.top, 30)
                             
                             startButton
@@ -78,8 +77,6 @@ struct HostView: View {
                 
             }
             
-            
-            
             // MARK: View States
             
             .onReceive(timer) { _ in
@@ -92,12 +89,29 @@ struct HostView: View {
             }
             .onChange(of: viewModel.connectedPlayers) { newPeers in
                 playerNames = newPeers.map { $0.displayName }
+                
+                
+            }
+            
+            .onChange(of: viewModel.connectedNewPeer) { value in
+                
+                if value{
+                    disableStartButton = true
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                        disableStartButton = false
+                        viewModel.connectedNewPeer = false
+                    }
+                }
             }
             
             .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
                 if !isPresented && !viewModel.startGame{
                     viewModel.disconnect()
                 }
+            }
+            
+            .onReceive(timer) { _ in
+                dotCount = (dotCount + 1) % (maxDots + 1)
             }
             
             // MARK: Navigation
@@ -121,9 +135,10 @@ extension HostView{
                     viewModel.startRoom()
                     PhaseOneController.didShowCountdownOnce = false
                 }, label: {
-                    Text("Start")
+                    Text(disableStartButton ? "\(connectingPeerString)\(String(repeating: ".", count: dotCount))" : viewModel.isConnected ? "Start Match" : "Play Solo")
                 })
                 .buttonStyle(CustomUIButtonStyle())
+                .disabled(disableStartButton)
             }
         }
     }
@@ -136,18 +151,6 @@ extension HostView{
                 .resizable()
                 .scaledToFill()
                 .ignoresSafeArea()
-        }
-    }
-    
-    var hud: some View {
-        VStack(alignment: .center){
-            Image("coroa")
-            Text("Waiting for players \(String(repeating: ".", count: dotCount))")
-                .foregroundStyle(.gray)
-                .font(.custom("STSongti-TC-Bold", size: 26))
-        }
-        .onReceive(timer) { _ in
-            dotCount = (dotCount + 1) % (maxDots + 1)
         }
     }
 }

@@ -19,6 +19,9 @@ struct PlayerItemView: View {
             Text(nickname)
                 .font(.caption)
                 .foregroundColor(.white)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+                
         }
     }
 }

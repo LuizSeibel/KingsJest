@@ -9,7 +9,7 @@ import Foundation
 import MultipeerConnectivity
 
 class GuestViewModel: ObservableObject {
-    
+    // MCPeerID(displayName: "Rafael"), MCPeerID(displayName: "Carlos"), MCPeerID(displayName: "AAAA"), MCPeerID(displayName: "Paula")
     @Published var availableRooms: [MCPeerID] = []
     @Published var isConnected: Bool = false
     

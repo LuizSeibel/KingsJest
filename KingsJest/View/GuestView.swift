@@ -95,9 +95,8 @@ extension GuestView {
     var list: some View{
         ZStack{
             ScrollView(.horizontal){
-                HStack{
+                HStack(spacing: -16){
                     ForEach(viewModel.availableRooms, id: \.self){ peer in
-                        
                         CustomRoomCard(
                             roomName: peer.displayName,
                             playersCount: 1,
@@ -109,6 +108,7 @@ extension GuestView {
                 }
             }
         }
+        .padding(.horizontal, 32)
     }
     
     var hud: some View {

@@ -20,6 +20,8 @@ class HostViewModel: ObservableObject {
     
     @Published var gameSessionID: UUID?
     
+    @Published var connectedNewPeer: Bool = false
+    
     var connectionManager: MPCManager
     
     init(connectionManager: MPCManager){
@@ -97,6 +99,8 @@ extension HostViewModel {
     func acceptInvitation(peerID: MCPeerID) {
         connectionManager.acceptInvitation(for: peerID)
         connectedPlayers.append(peerID)
+        
+        connectedNewPeer = true
     }
     
     func declineInvitation(peerID: MCPeerID) {

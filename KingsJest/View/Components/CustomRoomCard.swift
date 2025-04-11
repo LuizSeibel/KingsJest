@@ -8,46 +8,51 @@
 import SwiftUI
 
 struct CustomRoomCard: View {
-    
+
     let roomName: String
     var playersCount: Int
     
     var frontCardAction: () -> Void = {}
     var backCardAction: () -> Void = {}
     
-    @State var isFlipped: Bool = false
-    
+    @State private var isFlipped: Bool = false
+    @State private var flipResetTask: Task<Void, Never>? = nil
+
     var body: some View {
         ZStack {
             if isFlipped {
                 BackCard(roomName: roomName) {
                     backCardAction()
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        isFlipped.toggle()
-                    }
+                    flipCard()
                 }
                 .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
             } else {
                 FrontCard(roomName: roomName, playersCount: playersCount) {
                     frontCardAction()
-                    withAnimation(.easeInOut(duration: 0.6)) {
-                        isFlipped.toggle()
-                    }
+                    flipCard()
                 }
             }
         }
         .compositingGroup()
         .aspectRatio(300/280, contentMode: .fit)
-        
         .rotation3DEffect(.degrees(isFlipped ? 180 : 0),
                           axis: (x: 0, y: 1, z: 0),
                           perspective: 0.5)
         .scaleEffect(0.85)
         .animation(.easeInOut(duration: 0.6), value: isFlipped)
+    }
+
+    private func flipCard() {
+        withAnimation(.easeInOut(duration: 0.6)) {
+            isFlipped.toggle()
+        }
         
-        .onChange(of: isFlipped) { newValue in
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                if isFlipped {
+        // Cancela qualquer tarefa anterior antes de iniciar uma nova
+        flipResetTask?.cancel()
+        flipResetTask = Task {
+            try? await Task.sleep(nanoseconds: 5 * 1_000_000_000)
+            if !Task.isCancelled {
+                await MainActor.run {
                     withAnimation(.easeInOut(duration: 0.6)) {
                         isFlipped = false
                     }
@@ -129,17 +134,19 @@ struct BackCard: View {
                 .fontWeight(.semibold)
             
             ProgressView()
+                .tint(.black)
                 .progressViewStyle(.circular)
                 .scaleEffect(2)
                 .padding(6)
             
             VStack(spacing: 0) {
                 Text("Wait while the host")
-                Text("approves your request")
+                Text("approves your request...")
             }
             .font(.callout)
-            .fontWeight(.semibold)
+            .fontWeight(.medium)
         }
+        .foregroundStyle(.black)
     }
     
     var button: some View {
