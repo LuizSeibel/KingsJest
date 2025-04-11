@@ -275,12 +275,37 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     private func handleBlocoArmadilha(_ node: SKNode) {
-        if node.name == "blocoArmadilha", let spriteNode = node as? SKSpriteNode {
+        guard node.name == "blocoArmadilha",
+              let spriteNode = node as? SKSpriteNode else { return }
+
+        // 🔹 Previne que o bloco seja ativado mais de uma vez
+        if spriteNode.userData?["activated"] as? Bool == true { return }
+        if spriteNode.userData == nil {
+            spriteNode.userData = NSMutableDictionary()
+        }
+        spriteNode.userData?["activated"] = true
+
+        let shake = SKAction.sequence([
+            SKAction.rotate(toAngle: .pi / 32, duration: 0.05),
+            SKAction.rotate(toAngle: -.pi / 32, duration: 0.05)
+        ])
+        let continuousShake = SKAction.repeat(shake, count: 1)
+        let resetRotation = SKAction.rotate(toAngle: 0, duration: 0.05)
+
+        let fallAction = SKAction.run {
             spriteNode.physicsBody?.affectedByGravity = true
             spriteNode.physicsBody?.isDynamic = true
             spriteNode.physicsBody?.collisionBitMask = 0
         }
+
+        let fullSequence = SKAction.sequence([
+            continuousShake,
+            resetRotation,
+            fallAction
+        ])
+        spriteNode.run(fullSequence, withKey: "fallWithShake")
     }
+
     
     private func handlePlayerLavaCollision() {
         
