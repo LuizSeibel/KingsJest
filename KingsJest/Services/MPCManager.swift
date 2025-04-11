@@ -71,10 +71,10 @@ extension MPCManager: MCNearbyServiceBrowserDelegate{
     }
 }
 
+//let discoveryInfo = ["count": "\(self.session.connectedPeers.count)"]
 extension MPCManager: MCNearbyServiceAdvertiserDelegate{
     func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
         DispatchQueue.main.async {
-            
             let invitation = PendingInvitation(
                 from: peerID,
                 timestamp: Date(),

@@ -86,7 +86,7 @@ struct FrontCard: View {
             VStack(alignment: .leading, spacing: 20) {
                 Text("\(roomName)'s Room")
                     .font(.title2)
-                Text("\(playersCount)/8 Players")
+                //Text("Max. 8 Players")
             }
             .fontWeight(.semibold)
             .foregroundStyle(.white)
