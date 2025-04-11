@@ -168,6 +168,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         player.updateJumpState()
         
         player.stateMachine.update(deltaTime: currentTime)
+        player.syncWithMovingPlatform(deltaTime: deltaTime)
+
         
         ghostManager.update(
             currentTime: currentTime,
@@ -215,6 +217,20 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
     }
     
+    func didEnd(_ contact: SKPhysicsContact) {
+        let bodyA = contact.bodyA
+        let bodyB = contact.bodyB
+        
+        let (body1, body2) = bodyA.categoryBitMask < bodyB.categoryBitMask ? (bodyA, bodyB) : (bodyB, bodyA)
+
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
+            if let plataforma = body2.node as? SKSpriteNode, plataforma.name == "plataformaDinamica" {
+                player.isInDynamicPlataform = nil
+            }
+        }
+
+    }
+    
     func didBegin(_ contact: SKPhysicsContact) {
         let bodyA = contact.bodyA
         let bodyB = contact.bodyB
@@ -224,6 +240,13 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         if let plataformaNode = [body1.node, body2.node].first(where: { $0?.name == "blocoArmadilha" }) {
             handleBlocoArmadilha(plataformaNode!)
         }
+        
+        if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
+            if let plataforma = body2.node as? SKSpriteNode, plataforma.name == "plataformaDinamica" {
+                player.isInDynamicPlataform = plataforma
+            }
+        }
+
 
         if body1.categoryBitMask == .player && body2.categoryBitMask == .lava {
             handlePlayerLavaCollision()

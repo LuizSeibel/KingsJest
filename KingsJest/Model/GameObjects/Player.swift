@@ -40,6 +40,8 @@ class Player {
         loadFrames(prefix: "death00", count: 12)
     }()
     
+    var isInDynamicPlataform: SKSpriteNode? = nil
+
     
     // Jump vars
     var isJumping: Bool = false
@@ -255,6 +257,35 @@ extension Player {
         }
     }
 }
+
+// MARK: - Player se move com a plataforma dinamica
+extension Player {
+    func syncWithMovingPlatform(deltaTime: TimeInterval) {
+        guard let plataforma = isInDynamicPlataform else { return }
+
+        // Salva a posição anterior uma única vez por frame
+        if plataforma.userData == nil {
+            plataforma.userData = NSMutableDictionary()
+        }
+
+        let previousPosition = plataforma.userData?["previousPosition"] as? CGPoint ?? plataforma.position
+        let currentPosition = plataforma.position
+
+        // Atualiza o delta
+        let deltaX = currentPosition.x - previousPosition.x
+
+        // ⚠️ Limita deltaX para evitar saltos (clamp)
+        let maxDelta: CGFloat = 20.0 // Ajustável
+        let clampedDeltaX = max(-maxDelta, min(deltaX, maxDelta))
+
+        // Move o player junto
+        node.position.x += clampedDeltaX
+
+        // Armazena a nova posição pra próxima iteração
+        plataforma.userData?["previousPosition"] = currentPosition
+    }
+}
+
 
 
 //MARK: - PlayerStates

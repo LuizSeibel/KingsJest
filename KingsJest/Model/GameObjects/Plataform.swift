@@ -37,7 +37,7 @@ class Plataform {
             guard node.name == "plataformaDinamica" else { continue }
 
             // Distância total de ida e volta no eixo X
-            let moveDistance: CGFloat = 100
+            let moveDistance: CGFloat = 150
             let moveDuration: TimeInterval = 2.0
 
             // Ações de movimento
