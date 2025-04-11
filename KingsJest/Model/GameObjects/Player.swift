@@ -83,7 +83,7 @@ class Player {
         self.node.physicsBody?.restitution = 0
         self.node.physicsBody?.friction = 15
         self.node.physicsBody?.categoryBitMask = .player
-        self.node.physicsBody?.contactTestBitMask = .lava
+        self.node.physicsBody?.contactTestBitMask = .plataform | .lava
         self.node.physicsBody?.collisionBitMask = .plataform | .ground
     }
     

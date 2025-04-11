@@ -13,7 +13,7 @@ class Plataform {
     init (scene: SKScene) {
         
         for node in scene.children {
-            if node.name == "plataforma" {
+            if node.name == "plataforma" || node.name == "plataformaInclinada" || node.name == "blocoArmadilha" || node.name == "plataformaDinamica" {
                 if let plataformNode = node as? SKSpriteNode {
                     setupPhysics(for: plataformNode)
                     nodes.append(plataformNode)
@@ -28,8 +28,27 @@ class Plataform {
         plataformNode.physicsBody?.restitution = 0
         plataformNode.physicsBody?.friction = 0
         plataformNode.physicsBody?.categoryBitMask = .plataform
-        plataformNode.physicsBody?.contactTestBitMask = 0
+        plataformNode.physicsBody?.contactTestBitMask = .player
         plataformNode.physicsBody?.collisionBitMask = .player
     }
+    
+    func startDynamicPlatformsMovement() {
+        for node in nodes {
+            guard node.name == "plataformaDinamica" else { continue }
 
+            // Distância total de ida e volta no eixo X
+            let moveDistance: CGFloat = 100
+            let moveDuration: TimeInterval = 2.0
+
+            // Ações de movimento
+            let moveRight = SKAction.moveBy(x: moveDistance, y: 0, duration: moveDuration)
+            let moveLeft = SKAction.moveBy(x: -moveDistance, y: 0, duration: moveDuration)
+            let sequence = SKAction.sequence([moveRight, moveLeft])
+
+            // Repetição infinita
+            let repeatForever = SKAction.repeatForever(sequence)
+
+            node.run(repeatForever, withKey: "dynamicMovement")
+        }
+    }
 }

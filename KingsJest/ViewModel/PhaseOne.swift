@@ -96,7 +96,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
         
         lava = Lava(scene: self)
+        
         plataform = Plataform(scene: self)
+        plataform.startDynamicPlatformsMovement()
+
         ground = Ground(scene: self)
         
         camera = cameraNode
@@ -107,7 +110,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         startMotionUpdates()
         updateCamera()
         startCountdown()
-        
         
         ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
         ghostManager.onPlayerMove = { [weak self] snapshot in
@@ -219,10 +221,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         let (body1, body2) = bodyA.categoryBitMask < bodyB.categoryBitMask ? (bodyA, bodyB) : (bodyB, bodyA)
         
-        if let node = [body1.node, body2.node].compactMap({ $0 }).first {
-            handleBlocoArmadilha(node)
+        if let plataformaNode = [body1.node, body2.node].first(where: { $0?.name == "blocoArmadilha" }) {
+            handleBlocoArmadilha(plataformaNode!)
         }
-        
+
         if body1.categoryBitMask == .player && body2.categoryBitMask == .lava {
             handlePlayerLavaCollision()
         }
@@ -239,6 +241,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     private func handleBlocoArmadilha(_ node: SKNode) {
         if node.name == "blocoArmadilha", let spriteNode = node as? SKSpriteNode {
             spriteNode.physicsBody?.affectedByGravity = true
+            spriteNode.physicsBody?.isDynamic = true
             spriteNode.physicsBody?.collisionBitMask = 0
         }
     }
