@@ -34,7 +34,7 @@ struct GameView: View {
                     }
                     
                 }, onPlayerMove: { snapshot in
-                    viewModel.send(snapshot, type: .position)
+                    viewModel.send(snapshot, type: .position, peer: nil)
                 })
                 .edgesIgnoringSafeArea(.all)
             }

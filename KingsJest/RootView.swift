@@ -10,6 +10,8 @@ import SpriteKit
 
 struct RootView: View{
     
+    @StateObject var appViewModel = RootViewModel()
+    
     var body: some View{
         NavigationStack{
             //EndView(winBool: true)
@@ -19,5 +21,6 @@ struct RootView: View{
 //                .ignoresSafeArea()
             
         }
+        .environmentObject(appViewModel)
     }
 }

@@ -16,8 +16,6 @@ class GhostManager {
     private var playerName: String = ""
     private var isRunning: Bool = true
     
-
-
     var onPlayerMove: ((MPCEncoder) -> Void)?
 
     init(scene: SKScene, playerName: String) {
@@ -36,7 +34,7 @@ class GhostManager {
         guard isRunning else { return }
         
         sendTimer += currentTime
-        if sendTimer >= 0.03 {
+        if sendTimer >= 0.1 {
             sendTimer = 0
 
             // Determina o estado atual do player

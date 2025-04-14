@@ -5,7 +5,6 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_king-jest._tcp</string>
-		<string>_king-jest._udp</string>
 	</array>
 </dict>
 </plist>

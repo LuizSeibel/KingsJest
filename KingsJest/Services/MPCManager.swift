@@ -6,6 +6,7 @@
 //
 
 import MultipeerConnectivity
+import os.signpost
 
 extension String{
     static var serviceName = "king-jest"
@@ -36,9 +37,13 @@ class MPCManager: NSObject, ObservableObject {
     
     var hostPeerID: MCPeerID?
     
+    let log = OSLog(subsystem: "kingsJest", category: .pointsOfInterest)
+    
     init(yourName: String){
+        let signpostID = OSSignpostID(log: log)
+        os_signpost(.event, log: log, name: "Inicializando MPCManager", signpostID: signpostID)
         
-//        print("-- Nova instancia MPCManager criada! --")
+        print("-- Nova instancia MPCManager criada! --")
         
         let yourName = yourName.isEmpty ? UUID().uuidString : yourName
         
@@ -52,6 +57,11 @@ class MPCManager: NSObject, ObservableObject {
         session.delegate = self
         nearbyServiceBrowser.delegate = self
         nearbyServiceAdvertiser.delegate = self
+    }
+    
+    deinit {
+        let signpostID = OSSignpostID(log: log)
+        os_signpost(.event, log: log, name: "Deinicializando MeuObjeto", signpostID: signpostID)
     }
 }
 
@@ -85,20 +95,45 @@ extension MPCManager: MCNearbyServiceAdvertiserDelegate{
     }
 }
 
+//foundPear, lostPear
+
+// Usar swiftConcurrency
+
 extension MPCManager: MCSessionDelegate{
+    
+    private func stateString(for state: MCSessionState) -> String {
+        switch state {
+        case .notConnected: return "notConnected"
+        case .connecting: return "connecting"
+        case .connected: return "connected"
+        @unknown default: return "unknown"
+        }
+    }
+    
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        
+        if peerID == myPeerId {
+            print("⚠️ [DEBUG] Meu próprio peer (HOST) teve mudança de estado: \(stateString(for: state))")
+        } else {
+            print("🔄 [DEBUG] Peer \(peerID.displayName) estado: \(stateString(for: state))")
+        }
+        
         switch state{
         case .notConnected:
-//            print("❌ Peer desconectado: \(peerID.displayName)")
+            print("❌ Peer desconectado: \(peerID.displayName)")
             DispatchQueue.main.async {
                 if let host = self.hostPeerID, host == peerID {
+                    print("⚠️ A conexão com o HOST caiu!")
                     self.paired = false
-                }
-                else {
+                } else {
                     if session.connectedPeers.isEmpty {
+                        print("⚠️ Todos os peers se desconectaram. A sessão está vazia!")
                         self.paired = false
                     }
                 }
+                
+                let signpostID = OSSignpostID(log: self.log)
+                os_signpost(.event, log: self.log, name: "Desconexão de Peer", signpostID: signpostID)
                 
                 if let onDisconnectPeer = self.onDisconnectPeer {
                     onDisconnectPeer(peerID)
@@ -106,12 +141,14 @@ extension MPCManager: MCSessionDelegate{
             }
             
         case .connected:
-//            print("✅ Conectado: \(peerID.displayName)")
+            print("✅ Conectado: \(peerID.displayName)")
             DispatchQueue.main.async {
                 self.paired = true
             }
+            let signpostID = OSSignpostID(log: self.log)
+            os_signpost(.event, log: self.log, name: "Conexão de Peer", signpostID: signpostID)
         default:
-//            print("🔄 Conectando: \(peerID.displayName)")
+            print("🔄 Conectando: \(peerID.displayName)")
             DispatchQueue.main.async {
                 self.paired = false
             }
@@ -146,7 +183,7 @@ extension MPCManager {
 
         do {
             try session.send(data, toPeers: session.connectedPeers, with: .unreliable)
-            //print("✅ Enviado \(data.count) bytes para \(session.connectedPeers.map(\.displayName))")
+            print(data)
         } catch {
             print("❌ Falha ao enviar dados: \(error)")
         }
@@ -158,6 +195,7 @@ extension MPCManager {
         }
         do {
             try session.send(data, toPeers: [peer], with: .unreliable)
+            //print(data)
         } catch {
             print("❌ Falha ao enviar dados: \(error)")
         }
@@ -165,8 +203,14 @@ extension MPCManager {
 }
 
 extension MPCManager{
+    
+    @MainActor
     func disconnect() {
-//        print("🛑 Desconectando MPCManager...")
+        
+        let signpostID = OSSignpostID(log: self.log)
+        os_signpost(.event, log: self.log, name: "Desconexão MPCManager", signpostID: signpostID)
+        
+        print("🛑 Desconectando MPCManager...")
 
         // Encerra sessão com peers
         session.disconnect()
@@ -186,7 +230,7 @@ extension MPCManager{
         newSession.delegate = self
         self.session = newSession
         
-//        print("✅ Sessão resetada")
+        print("✅ Sessão resetada")
     }
     
     func invite(peer: MCPeerID) {
@@ -197,6 +241,7 @@ extension MPCManager{
 
 extension MPCManager {
     func startAdvertising() {
+        print("Inicio do Advertiser")
         nearbyServiceAdvertiser.startAdvertisingPeer()
     }
     
@@ -205,6 +250,7 @@ extension MPCManager {
     }
 
     func startBrowsing() {
+        print("Inicio do Browsing")
         nearbyServiceBrowser.startBrowsingForPeers()
     }
     
@@ -215,6 +261,8 @@ extension MPCManager {
 }
 
 extension MPCManager{
+    
+    @MainActor
     func acceptInvitation(for peerID: MCPeerID) {
         guard let index = self.pendingInvitations.firstIndex(where: { $0.from == peerID }) else {
             return
@@ -225,7 +273,8 @@ extension MPCManager{
         
         self.pendingInvitations.remove(at: index)
     }
-
+    
+    @MainActor
     func declineInvitation(for peerID: MCPeerID) {
         guard let index = self.pendingInvitations.firstIndex(where: { $0.from == peerID }) else {
             return
@@ -237,6 +286,7 @@ extension MPCManager{
         self.pendingInvitations.remove(at: index)
     }
     
+    @MainActor
     func removeExpiredInvitations() {
         let now = Date()
         pendingInvitations.removeAll {

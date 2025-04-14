@@ -16,6 +16,10 @@ class AttGameViewModel: ObservableObject {
     @Published var players: [MCPeerID] = []
 }
 
+struct MessageEnvelopeHeader: Codable {
+    let type: MessageType
+}
+
 class GameViewModel: ObservableObject {
     
     @Published var isFinishedGame: Bool = false
@@ -34,55 +38,45 @@ class GameViewModel: ObservableObject {
 }
 
 extension GameViewModel: P2PMessaging {
-    func onReceiveMessage(data: Data, peerID: MCPeerID) {
-        guard let envelope = try? JSONDecoder().decode(MessageEnvelope.self, from: data) else {
-            print("❌ Falha ao decodificar envelope")
-            return
-        }
-
-        switch envelope.type {
-        case .stopGame:
-            do {
-                let _ = try JSONDecoder().decode(StopGameEncoder.self, from: envelope.payload)
-                DispatchQueue.main.async {
-                    self.winnerName = peerID.displayName
-                    self.winGame = false
-                    self.isFinishedGame = true
-                }
-            } catch {
-                print("❌ Erro ao decodificar StopGameEncoder: \(error)")
-                if let raw = String(data: envelope.payload, encoding: .utf8) {
-                    print("Payload bruto: \(raw)")
-                }
-            }
-
-        case .position:
-            do {
-                let data = try JSONDecoder().decode(PlayerPositionEncoder.self, from: envelope.payload)
-                let snapshot = data.snapshot
-                updatePosition(peerID: peerID, snapshot: snapshot)
-            } catch {
-                print("❌ Erro ao decodificar PlayerPositionEncoder: \(error)")
-                if let json = String(data: envelope.payload, encoding: .utf8) {
-                    print("Payload bruto: \(json)")
-                }
-            }
-            
-        default:
-            break
-        }
-    }
-    
-    func send<T: Codable>(_ message: T, type: MessageType, peer: MCPeerID? = nil) {
+    func send<T>(_ message: T, type: MessageType, peer: MCPeerID?) where T : Decodable, T : Encodable {
         do {
-            let payload = try JSONEncoder().encode(message)
-            let envelope = MessageEnvelope(type: type, payload: payload)
+            let envelope = MessageEnvelope(type: type, content: message)
             let finalData = try JSONEncoder().encode(envelope)
             connectionManager.send(data: finalData)
         } catch {
             print("Erro ao enviar mensagem do tipo \(type): \(error)")
         }
     }
+    
+    func onReceiveMessage(data: Data, peerID: MCPeerID) {
+        do {
+            let envelopeHeader = try JSONDecoder().decode(MessageEnvelopeHeader.self, from: data)
+            
+            switch envelopeHeader.type {
+            case .stopGame:
+                DispatchQueue.main.async {
+                    self.winnerName = peerID.displayName
+                    self.winGame = false
+                    self.isFinishedGame = true
+                }
+                
+            case .position:
+                let envelope = try JSONDecoder().decode(
+                    MessageEnvelope<PlayerPositionEncoder>.self,
+                    from: data
+                )
+                let snapshot = envelope.content.snapshot
+                updatePosition(peerID: peerID, snapshot: snapshot)
+                
+            default:
+                break
+            }
+        } catch {
+            print("❌ Falha ao decodificar envelope: \(error)")
+        }
+    }
+    
+
 }
 
 extension GameViewModel {
@@ -94,10 +88,11 @@ extension GameViewModel {
             self.isFinishedGame = true
             
             let message = StopGameEncoder(peerName: self.connectionManager.myPeerId.displayName)
-            self.send(message, type: .stopGame)
+            self.send(message, type: .stopGame, peer: nil)
         }
     }
     
+    @MainActor
     func disconnectRoom() {
         connectionManager.disconnect()
     }

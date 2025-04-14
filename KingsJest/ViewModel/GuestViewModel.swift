@@ -36,18 +36,21 @@ extension GuestViewModel: P2PMessaging {
     }
     
     func onReceiveMessage(data: Data, peerID: MCPeerID) {
-        guard let envelope = try? JSONDecoder().decode(MessageEnvelope.self, from: data) else { return }
-
-        switch envelope.type {
+        guard let header = try? JSONDecoder().decode(MessageEnvelopeHeader.self, from: data) else {
+            print("❌ Falha ao decodificar cabeçalho do envelope")
+            return
+        }
+        
+        switch header.type {
         case .startGame:
-            if (try? JSONDecoder().decode(StartGameEncoder.self, from: envelope.payload)) != nil {
-                DispatchQueue.main.async {
-                    PhaseOneController.didShowCountdownOnce = false
-                    self.startGame = true
-                }
+            DispatchQueue.main.async {
+                PhaseOneController.didShowCountdownOnce = false
+                self.startGame = true
             }
+
         default:
             break
+
         }
     }
     
@@ -71,6 +74,7 @@ extension GuestViewModel {
         startDelay = true
     }
     
+    @MainActor
     func disconnect(){
         connectionManager.disconnect()
     }

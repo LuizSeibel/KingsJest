@@ -7,79 +7,65 @@
 
 import SwiftUI
 
-
 struct MockPeerID {
     let displayName: String
 }
 
 struct HostView: View {
-    
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: HostViewModel
-    
+
     @State private var playerNames: [String] = []
     
-    @State var disableStartButton: Bool = false
+    private let removeInvitationsPublisher = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     
-    // Animation Connecting Peer
-    let maxDots = 3
-    @State var connectingPeerString: String = "Connecting Peer"
-    @State private var dotCount: Int = 0
-    let timer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
-    
-    init(connectionManager: MPCManager){
+    init(connectionManager: MPCManager) {
         _viewModel = StateObject(wrappedValue: HostViewModel(connectionManager: connectionManager))
     }
     
     var body: some View {
-        NavigationStack{
+        NavigationStack {
             ZStack(alignment: .topLeading) {
                 background
                 
                 GeometryReader { geometry in
-                    ZStack {
-                        VStack{
-                            Text("Room Overview")
-                                .font(.custom("STSongti-TC-Bold", size: 32))
-                                .foregroundStyle(Color(.gray1))
-                                .offset(y: 10)
-                                .padding()
-                            HStack(spacing: 10){
-                                // TODO: Colocar verificação de players no startButton
-                                PlayersGridView(players: $playerNames)
-                                    .frame(width: geometry.size.width * 0.45)
-                                    .offset(x: 10)
-                                
-                                CustomConnectionList(
-                                    peers: $viewModel.pendingInvitations,
-                                    onAccept: { peerID in
-                                        viewModel.acceptInvitation(peerID: peerID)
-                                    },
-                                    onDecline: { peerID in
-                                        viewModel.declineInvitation(peerID: peerID)
-                                    }
-                                )
-                                .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.5)
-                                .cornerRadius(20)
-                            }
-                            .padding(.top, 30)
+                    VStack {
+                        Text("Room Overview")
+                            .font(.custom("STSongti-TC-Bold", size: 32))
+                            .foregroundStyle(Color(.gray1))
+                            .padding(.top, 10)
+                        
+                        HStack(spacing: 10) {
+                            PlayersGridView(players: $playerNames)
+                                .frame(width: geometry.size.width * 0.45)
+                                .offset(x: 10)
                             
-                            startButton
-                                .padding()
+                            CustomConnectionList(
+                                peers: $viewModel.pendingInvitations,
+                                onAccept: { peerID in
+                                    viewModel.acceptInvitation(peerID: peerID)
+                                },
+                                onDecline: { peerID in
+                                    viewModel.declineInvitation(peerID: peerID)
+                                }
+                            )
+                            .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.5)
+                            .cornerRadius(20)
                         }
+                        .padding(.top, 30)
+                        
+                        startButton
+                            .padding()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-
+                
                 CustomBackButton()
                     .padding(.top, 40)
                     .padding(.leading, 50)
-                
             }
             
-            // MARK: View States
-            
-            .onReceive(timer) { _ in
+            .onReceive(removeInvitationsPublisher) { _ in
                 viewModel.removeExpiredInvites()
             }
             
@@ -87,34 +73,24 @@ struct HostView: View {
                 viewModel.onAppear()
                 playerNames = viewModel.connectedPlayers.map { $0.displayName }
             }
-            .onChange(of: viewModel.connectedPlayers) { newPeers in
-                playerNames = newPeers.map { $0.displayName }
-                
-                
-            }
             
-            .onChange(of: viewModel.connectedNewPeer) { value in
-                
+            .onChange(of: viewModel.recentlyConnected){ value in
                 if value{
-                    disableStartButton = true
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                        disableStartButton = false
-                        viewModel.connectedNewPeer = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                        viewModel.recentlyConnected = false
                     }
                 }
             }
             
+            .onChange(of: viewModel.connectedPlayers) { newPeers in
+                playerNames = newPeers.map { $0.displayName }
+            }
             .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
-                if !isPresented && !viewModel.startGame{
+                if !isPresented && !viewModel.startGame {
                     viewModel.disconnect()
                 }
             }
-            
-            .onReceive(timer) { _ in
-                dotCount = (dotCount + 1) % (maxDots + 1)
-            }
-            
-            // MARK: Navigation
+            // Navegação para GameView quando o jogo for iniciado.
             .navigationDestination(isPresented: $viewModel.startGame) {
                 GameView(connectionManager: viewModel.connectionManager)
                     .id(viewModel.gameSessionID)
@@ -124,27 +100,30 @@ struct HostView: View {
     }
 }
 
-extension HostView{
-    
-    var startButton: some View{
-        VStack{
+extension HostView {
+    var startButton: some View {
+        VStack {
             Spacer()
-            HStack{
+            HStack {
                 Spacer()
                 Button(action: {
                     viewModel.startRoom()
                     PhaseOneController.didShowCountdownOnce = false
                 }, label: {
-                    Text(disableStartButton ? "\(connectingPeerString)\(String(repeating: ".", count: dotCount))" : viewModel.isConnected ? "Start Match" : "Play Solo")
+                    Text(
+                        viewModel.isConnected
+                                    ? "Start Match"
+                                    : (viewModel.recentlyConnected ? "Connecting" : "Play Solo")
+                    )
                 })
                 .buttonStyle(CustomUIButtonStyle())
-                .disabled(disableStartButton)
+                .disabled(viewModel.recentlyConnected)
             }
         }
     }
     
     var background: some View {
-        ZStack{
+        ZStack {
             Color("BackgroundColor")
                 .ignoresSafeArea()
             Image("bricks2")

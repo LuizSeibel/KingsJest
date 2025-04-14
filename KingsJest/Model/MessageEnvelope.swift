@@ -13,7 +13,7 @@ enum MessageType: String, Codable {
     case position
 }
 
-struct MessageEnvelope: Codable {
+struct MessageEnvelope<T: Codable>: Codable {
     let type: MessageType
-    let payload: Data
+    let content: T
 }

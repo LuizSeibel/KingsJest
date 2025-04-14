@@ -10,9 +10,8 @@ import SwiftUI
 
 
 struct ContentView: View {
+    @EnvironmentObject var appViewModel: RootViewModel
     
-    @State private var name: String = ""
-    @State private var connectionManager: MPCManager? = nil
     @State private var showAlert = false
     @State private var navigateToHost = false
     @State private var navigateToGuest = false
@@ -20,16 +19,10 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading){
            
-            Nickname(text: $name)
+            Nickname(text: $appViewModel.name)
                 .padding(.top, 50)
                 .padding(.leading, 50)
                 .frame(width: 200)
-                .onAppear {
-                    name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
-                }
-                .onDisappear {
-                    UserDefaults.standard.set(name, forKey: "userNickname")
-                }
         
             hud
                 .hideKeyboardWhenTapped()
@@ -50,23 +43,19 @@ struct ContentView: View {
         }
         
         // MARK: Navigation
-        .navigationDestination(isPresented: $navigateToHost){
-            if navigateToHost{
-                if let connectionManager = connectionManager {
-                    HostView(connectionManager: connectionManager)
-                }
-            }
-            else{
+        // Testar com um arquio de View
+        .navigationDestination(isPresented: $navigateToHost) {
+            if let mpc = appViewModel.manager {
+                HostView(connectionManager: mpc)
+            } else {
                 EmptyView()
             }
         }
-        .navigationDestination(isPresented: $navigateToGuest){
-            if navigateToGuest{
-                if let connectionManager = connectionManager {
-                    GuestView(connectionManager: connectionManager)
-                }
-            }
-            else{
+        
+        .navigationDestination(isPresented: $navigateToGuest) {
+            if let mpc = appViewModel.manager {
+                GuestView(connectionManager: mpc)
+            } else {
                 EmptyView()
             }
         }
@@ -118,12 +107,11 @@ extension ContentView{
     var buttons: some View {
         VStack{
             Button(action: {
-                if self.name.isEmpty{
+                if appViewModel.name.isEmpty {
                     showAlert = true
-                }
-                else{
+                } else {
                     Task{
-                        connectionManager = MPCManager(yourName: name)
+                        appViewModel.createManagerIfNeeded()
                         navigateToGuest.toggle()
                     }
                 }
@@ -132,12 +120,11 @@ extension ContentView{
             })
             
             Button(action: {
-                if self.name.isEmpty{
+                if appViewModel.name.isEmpty {
                     showAlert = true
-                }
-                else{
+                } else {
                     Task{
-                        connectionManager = MPCManager(yourName: name)
+                        appViewModel.createManagerIfNeeded()
                         navigateToHost.toggle()
                     }
                 }
