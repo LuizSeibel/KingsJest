@@ -9,16 +9,17 @@ import SwiftUI
 
 final class RootViewModel: ObservableObject {
     @Published var manager: MPCManager? = nil
-    @Published var name: String = ""
-    
+    @Published var name: String = "" {
+        didSet {
+            UserDefaults.standard.set(name, forKey: "userNickname")
+        }
+    }
+
     
     init(){
         name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
     }
     
-    deinit{
-        UserDefaults.standard.set(name, forKey: "userNickname")
-    }
     
     func createManagerIfNeeded() {
         guard !name.isEmpty else { return }
