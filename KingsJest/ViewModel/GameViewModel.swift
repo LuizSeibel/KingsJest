@@ -54,6 +54,9 @@ extension GameViewModel: P2PMessaging {
             
             switch envelopeHeader.type {
             case .stopGame:
+                guard !self.isFinishedGame || self.winGame == false else {
+//                    print("🏁 Já finalizei o jogo como vencedor, ignorando mensagem de stopGame.")
+                    return }
                 DispatchQueue.main.async {
                     self.winnerName = peerID.displayName
                     self.winGame = false
@@ -82,6 +85,11 @@ extension GameViewModel: P2PMessaging {
 extension GameViewModel {
     
     func finishGame() {
+        guard !self.isFinishedGame else {
+//            print("⚠️ Game already finished locally, ignoring.")
+            return
+        }
+        
         DispatchQueue.main.async{
             self.winnerName = self.connectionManager.myPeerId.displayName
             self.winGame = true
