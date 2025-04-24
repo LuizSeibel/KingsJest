@@ -23,19 +23,21 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var lastUpdateTime: TimeInterval = 0
     var finishGame: (() -> Void)?
     
-    var isFinishedGame: Bool = false
-    static var isGameStarted: Bool = false
-    static var didShowCountdownOnce: Bool = false
-
-
+    var isGameStarted: Bool = false
+    var didShowCountdownOnce: Bool = false
     
+    
+    var isFinishedGame: Bool = false
+    
+    
+    
+
     private var sendTimer: TimeInterval = 0
     var onPlayerMove: ((MPCEncoder) -> Void)?
     
     var lastLava: Bool = false
     var lavaTriggerPosition: CGPoint?
     var respawnPoint: CGPoint? = nil
-
     
     lazy var blocoArmadilha = self.childNode(withName: "blocoArmadilha") as! SKSpriteNode
     
@@ -67,9 +69,6 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         if let respawn = respawnPoint {
             player.node.position = respawn
         }
-        
-        
-
         
         if let sceneTrigger = self.childNode(withName: "triggerLava") as? SKSpriteNode {
             let position = sceneTrigger.position
@@ -122,6 +121,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         applyNearestFiltering(node: self)
         startMotionUpdates()
         updateCamera()
+        
         startCountdown()
         
         ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
@@ -137,7 +137,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
-        guard PhaseOneController.isGameStarted else { return }
+        guard self.isGameStarted else { return }
 
         player.bufferJump()
         
@@ -148,7 +148,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard PhaseOneController.isGameStarted else { return }
+        guard self.isGameStarted else { return }
 
         player.endJump()
     }
@@ -162,7 +162,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     override func update(_ currentTime: TimeInterval) {
         
-        guard PhaseOneController.isGameStarted else { return }
+        guard self.isGameStarted else { return }
 
 
         let deltaTime = currentTime - lastUpdateTime
@@ -387,8 +387,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     func startCountdown() {
-        guard !PhaseOneController.didShowCountdownOnce else { return }
-        PhaseOneController.didShowCountdownOnce = true
+        guard !self.didShowCountdownOnce else { return }
+        self.didShowCountdownOnce = true
         
         let countdownLabel = SKLabelNode(fontNamed: "STSongti-TC-Bold")
         countdownLabel.fontSize = 120
@@ -432,11 +432,11 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     }
     
     func disablePlayerControls() {
-        PhaseOneController.isGameStarted = false
+        self.isGameStarted = false
     }
 
     func enablePlayerControls() {
-        PhaseOneController.isGameStarted = true
+        self.isGameStarted = true
     }
 }
 

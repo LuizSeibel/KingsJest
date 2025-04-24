@@ -44,7 +44,7 @@ extension GuestViewModel: P2PMessaging {
         switch header.type {
         case .startGame:
             DispatchQueue.main.async {
-                PhaseOneController.didShowCountdownOnce = false
+//                PhaseOneController.didShowCountdownOnce = false
                 self.startGame = true
             }
 

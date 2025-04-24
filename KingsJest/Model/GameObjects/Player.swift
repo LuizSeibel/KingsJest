@@ -365,10 +365,14 @@ class DeadState: GKState {
         player.startDeadAnimation()
 
         guard let currentScene = player.node.scene as? PhaseOneController else { return }
-
+        
+        // Closure para continuar a referencia
         let oldFinishGame = currentScene.finishGame
         let oldOnPlayerMove = currentScene.onPlayerMove
+        
+        // Usa para saber se o player morreu na lava final
         let wasOnFinalLava = currentScene.lastLava
+        // Usa para pegar a posicao do trigger
         let triggerPos = currentScene.lavaTriggerPosition
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
@@ -376,6 +380,10 @@ class DeadState: GKState {
                 newScene.scaleMode = .resizeFill
                 newScene.finishGame = oldFinishGame
                 newScene.onPlayerMove = oldOnPlayerMove
+                
+                // Variaveis para reiniciar a cena sem o countdown e sem bloquear os controles
+                newScene.isGameStarted = true
+                newScene.didShowCountdownOnce = true
                 
                 if wasOnFinalLava, let trigger = triggerPos {
                     let offsetX: CGFloat = -200
