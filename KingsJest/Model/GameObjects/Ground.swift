@@ -27,7 +27,7 @@ class Ground {
         delimitacaoNode.physicsBody = SKPhysicsBody(rectangleOf: delimitacaoNode.size)
         delimitacaoNode.physicsBody?.isDynamic = false
         delimitacaoNode.physicsBody?.restitution = 0
-//        delimitacaoNode.physicsBody?.friction = 0
+        delimitacaoNode.physicsBody?.friction = 0
         delimitacaoNode.physicsBody?.categoryBitMask = .ground
         delimitacaoNode.physicsBody?.contactTestBitMask = 0
         delimitacaoNode.physicsBody?.collisionBitMask = .player
