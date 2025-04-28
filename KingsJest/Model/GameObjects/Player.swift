@@ -75,10 +75,9 @@ class Player {
         
     }
     
-    
     //MARK: Fisicas do Player
     func setupPhysics() {
-        self.node.physicsBody = SKPhysicsBody(texture: self.node.texture!, size: self.node.size)
+        self.node.physicsBody = SKPhysicsBody(circleOfRadius: 18, center: CGPoint(x:0, y:-2))
         self.node.physicsBody?.affectedByGravity = true
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
@@ -200,7 +199,7 @@ extension Player {
             // Zera a velocidade vertical para um início consistente.
             self.node.physicsBody?.velocity.dy = 0
             // Impulso inicial (pode ajustar o valor para seu "feeling")
-            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 9))
+            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 24))
             stateMachine.enter(JumpState.self)
         }
     }
