@@ -124,6 +124,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         startCountdown()
         
+        UIApplication.shared.isIdleTimerDisabled = true
+        
         ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
         ghostManager.onPlayerMove = { [weak self] snapshot in
             self?.onPlayerMove?(snapshot)

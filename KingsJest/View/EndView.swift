@@ -32,6 +32,9 @@ struct EndView: View {
         .navigationDestination(isPresented: $viewModel.goToMainMenu, destination: {
             ContentView()
         })
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = false
+        }
     }
 }
 
