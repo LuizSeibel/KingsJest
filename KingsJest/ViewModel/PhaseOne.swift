@@ -240,7 +240,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
         if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
             if let plataforma = body2.node as? SKSpriteNode,
-               plataforma.name == "plataformaDinamica" || plataforma.name == "plataformaDinamicaVertical" {
+               plataforma.name == "plataformaDinamicaHorizontal" || plataforma.name == "plataformaDinamicaVertical" {
                 player.isInDynamicPlataform = nil
             }
         }
@@ -260,7 +260,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         if body1.categoryBitMask == .player && body2.categoryBitMask == .plataform {
             if let plataforma = body2.node as? SKSpriteNode,
-               plataforma.name == "plataformaDinamica" || plataforma.name == "plataformaDinamicaVertical" {
+               plataforma.name == "plataformaDinamicaHorizontal" || plataforma.name == "plataformaDinamicaVertical" {
                 player.isInDynamicPlataform = plataforma
             }
         }
