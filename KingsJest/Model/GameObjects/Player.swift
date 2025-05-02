@@ -66,8 +66,7 @@ class Player {
     var hasPlayedLandingSound = false
     var previousDY: CGFloat = 0
     let minimumFallSpeedToPlaySound: CGFloat = -100
-
-
+    
     
     init(texture: SKTexture, position: CGPoint, size: CGSize) {
         
@@ -161,6 +160,9 @@ class Player {
     }
     
     func die() {
+        let deathSound = SKAction.playSoundFileNamed("morteEffect.wav", waitForCompletion: false)
+        node.run(deathSound)
+        
         stateMachine.enter(DeadState.self)
     }
 }
@@ -273,8 +275,7 @@ extension Player {
         }
 
         previousDY = dy
-        
-        print("🟢 Aterrissagem com dy anterior: \(previousDY)")
+
     }
 
     
