@@ -28,16 +28,16 @@ class Player {
     var currentVelocityX: CGFloat = 0.0
     
     lazy var idleFrames: [SKTexture] = {
-        return loadFrames(prefix: "idle00", count: 7)
+        return loadFrames(prefix: "RUN00", count: 7)
     }()
     lazy var runFrames: [SKTexture] = {
-        loadFrames(prefix: "RUN00", count: 8)
+        loadFrames(prefix: "RUN00", count: 7)
     }()
     lazy var jumpFrames: [SKTexture] = {
-        loadFrames(prefix: "jump00", count: 5)
+        loadFrames(prefix: "RUN00", count: 7)
     }()
     lazy var deathFrames: [SKTexture] = {
-        loadFrames(prefix: "death00", count: 12)
+        loadFrames(prefix: "RUN00", count: 7)
     }()
     
     var isInDynamicPlataform: SKSpriteNode? = nil
@@ -58,10 +58,11 @@ class Player {
     var coyoteTimeCounter: CGFloat = 0
     let coyoteTimeDuration: CGFloat = 0.1
     
-    init(texture: SKTexture, position: CGPoint) {
+    init(texture: SKTexture, position: CGPoint, size: CGSize) {
         
         node = SKSpriteNode(texture: texture)
         node.position = position
+        node.size = size
         
         setupPhysics()
         
@@ -77,7 +78,24 @@ class Player {
     
     //MARK: Fisicas do Player
     func setupPhysics() {
-        self.node.physicsBody = SKPhysicsBody(circleOfRadius: 18, center: CGPoint(x:0, y:-2))
+        // Ajustes
+        let rectWidth: CGFloat = 35
+        let rectHeight: CGFloat = 45
+        let circleRadius: CGFloat = 18
+
+        let baseRectCenterY = circleRadius / 2
+        let heightDiff = 60 - rectHeight
+        let adjustedRectCenterY = baseRectCenterY - (heightDiff / 2)
+
+        let circleCenterY = baseRectCenterY - (60 / 2)
+
+        let rectBody = SKPhysicsBody(rectangleOf: CGSize(width: rectWidth, height: rectHeight),
+                                     center: CGPoint(x: 0, y: adjustedRectCenterY))
+
+        let footCircle = SKPhysicsBody(circleOfRadius: circleRadius,
+                                       center: CGPoint(x: 0, y: circleCenterY))
+
+        self.node.physicsBody = SKPhysicsBody(bodies: [rectBody, footCircle])
         self.node.physicsBody?.affectedByGravity = true
         self.node.physicsBody?.isDynamic = true
         self.node.physicsBody?.allowsRotation = false
@@ -104,7 +122,7 @@ class Player {
     
     //MARK: Animações de cada Estado do Player
     func startIdleAnimation() {
-        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.1)), withKey: "idle")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.08)), withKey: "idle")
     }
     
     func startRunAnimation() {
@@ -199,7 +217,7 @@ extension Player {
             // Zera a velocidade vertical para um início consistente.
             self.node.physicsBody?.velocity.dy = 0
             // Impulso inicial (pode ajustar o valor para seu "feeling")
-            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 24))
+            self.node.physicsBody?.applyImpulse(CGVector(dx: 0, dy: 65))
             stateMachine.enter(JumpState.self)
         }
     }
