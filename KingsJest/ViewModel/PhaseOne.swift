@@ -9,6 +9,7 @@ import SpriteKit
 import SwiftUI
 import CoreMotion
 import UIKit
+import AVFoundation
 
 class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
@@ -126,6 +127,14 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         startCountdown()
         
         UIApplication.shared.isIdleTimerDisabled = true
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Erro ao configurar sessão de áudio: \(error)")
+        }
+
         
         ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
         ghostManager.onPlayerMove = { [weak self] snapshot in

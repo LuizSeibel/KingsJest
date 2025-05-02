@@ -61,6 +61,10 @@ class Player {
     // Som dos Passos Vars
     var stepSoundCooldown: TimeInterval = 0
     let stepSoundInterval: TimeInterval = 0.4 // tempo entre passos (em segundos)
+    
+    // Variavel de controle para Efeito sonoro de queda
+    var hasPlayedLandingSound = false
+
 
     
     init(texture: SKTexture, position: CGPoint, size: CGSize) {
@@ -247,12 +251,26 @@ extension Player {
         jumpBufferCounter = jumpBufferDuration
     }
     
+    //TODO: Efeito sonoro de queda está errado, ajustar depois!
     func updateJumpState() {
-        // Verifica se a velocidade vertical está próxima de zero (ou seja, está no chão)
-        if let dy = node.physicsBody?.velocity.dy, abs(dy) < 0.1 {
-            isJumping = false
-            isJumpButtonHeld = false
-            jumpTime = 0
+        if let dy = node.physicsBody?.velocity.dy {
+            // Está no chão?
+            if abs(dy) < 0.1 {
+                if isJumping {
+                    // Acabou de aterrissar
+                    let landingSound = SKAction.playSoundFileNamed("queda.mp3", waitForCompletion: false)
+                    node.run(landingSound)
+                    hasPlayedLandingSound = true
+                }
+
+                // Reset estado de pulo
+                isJumping = false
+                isJumpButtonHeld = false
+                jumpTime = 0
+            } else {
+                // Ainda no ar, pode tocar novamente quando aterrissar
+                hasPlayedLandingSound = false
+            }
         }
     }
     
@@ -322,7 +340,6 @@ extension Player {
 // MARK: - Efeito sonoro do player
 extension Player {
     func playStepSound(currentTime: TimeInterval) {
-        // Toca o som se o cooldown tiver passado
         if currentTime > stepSoundCooldown {
             let stepSound = SKAction.playSoundFileNamed("passo.mp3", waitForCompletion: false)
             node.run(stepSound)
