@@ -63,7 +63,10 @@ class Player {
         node = SKSpriteNode(texture: texture)
         node.position = position
         node.size = size
-        
+        self.node.color = .green
+        self.node.alpha = 1
+        self.node.colorBlendFactor = 1
+
         setupPhysics()
         
         stateMachine = GKStateMachine(states: [
