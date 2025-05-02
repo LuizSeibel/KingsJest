@@ -58,6 +58,11 @@ class Player {
     var coyoteTimeCounter: CGFloat = 0
     let coyoteTimeDuration: CGFloat = 0.1
     
+    // Som dos Passos Vars
+    var stepSoundCooldown: TimeInterval = 0
+    let stepSoundInterval: TimeInterval = 0.4 // tempo entre passos (em segundos)
+
+    
     init(texture: SKTexture, position: CGPoint, size: CGSize) {
         
         node = SKSpriteNode(texture: texture)
@@ -125,11 +130,11 @@ class Player {
     
     //MARK: Animações de cada Estado do Player
     func startIdleAnimation() {
-        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.08)), withKey: "idle")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.06)), withKey: "idle")
     }
     
     func startRunAnimation() {
-        self.node.run(SKAction.repeatForever(SKAction.animate(with: runFrames, timePerFrame: 0.1)), withKey: "run")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: runFrames, timePerFrame: 0.06)), withKey: "run")
     }
     
     func startJumpAnimation() {
@@ -279,7 +284,6 @@ extension Player {
 }
 
 
-// TODO: melhorar logica de sincronizacao do player com a plataforma dinamica
 // MARK: - Player se move com a plataforma dinamica
 extension Player {
     func syncWithMovingPlatform(deltaTime: TimeInterval) {
@@ -315,8 +319,17 @@ extension Player {
 
 }
 
-
-
+// MARK: - Efeito sonoro do player
+extension Player {
+    func playStepSound(currentTime: TimeInterval) {
+        // Toca o som se o cooldown tiver passado
+        if currentTime > stepSoundCooldown {
+            let stepSound = SKAction.playSoundFileNamed("passo.mp3", waitForCompletion: false)
+            node.run(stepSound)
+            stepSoundCooldown = currentTime + stepSoundInterval
+        }
+    }
+}
 
 //MARK: - PlayerStates
 class IdleState: GKState {
@@ -346,6 +359,13 @@ class RunState: GKState {
     
     override func didEnter(from previousState: GKState?) {
         player.startRunAnimation()
+    }
+    
+    override func update(deltaTime seconds: TimeInterval) {
+        // Toca som se estiver realmente correndo (velocidade relevante)
+        if abs(player.currentVelocityX) > 50 {
+            player.playStepSound(currentTime: seconds)
+        }
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
