@@ -341,8 +341,7 @@ extension Player {
 extension Player {
     func playStepSound(currentTime: TimeInterval) {
         if currentTime > stepSoundCooldown {
-            let stepSound = SKAction.playSoundFileNamed("passosEffect.wav", waitForCompletion: false)
-            node.run(stepSound)
+            AudioManager.shared.playSound(named: "passosEffect.wav", withRandomPitchIn: 850...1150)
             stepSoundCooldown = currentTime + stepSoundInterval
         }
     }
