@@ -258,7 +258,7 @@ extension Player {
             if abs(dy) < 0.1 {
                 if isJumping {
                     // Acabou de aterrissar
-                    let landingSound = SKAction.playSoundFileNamed("queda.mp3", waitForCompletion: false)
+                    let landingSound = SKAction.playSoundFileNamed("quedasEffect.wav", waitForCompletion: false)
                     node.run(landingSound)
                     hasPlayedLandingSound = true
                 }
@@ -341,7 +341,7 @@ extension Player {
 extension Player {
     func playStepSound(currentTime: TimeInterval) {
         if currentTime > stepSoundCooldown {
-            let stepSound = SKAction.playSoundFileNamed("passo.mp3", waitForCompletion: false)
+            let stepSound = SKAction.playSoundFileNamed("passosEffect.wav", waitForCompletion: false)
             node.run(stepSound)
             stepSoundCooldown = currentTime + stepSoundInterval
         }
