@@ -64,6 +64,8 @@ class Player {
     
     // Variavel de controle para Efeito sonoro de queda
     var hasPlayedLandingSound = false
+    var previousDY: CGFloat = 0
+    let minimumFallSpeedToPlaySound: CGFloat = -100
 
 
     
@@ -253,27 +255,28 @@ extension Player {
     
     //TODO: Efeito sonoro de queda está errado, ajustar depois!
     func updateJumpState() {
-        if let dy = node.physicsBody?.velocity.dy {
-            // Está no chão?
-            if abs(dy) < 0.1 {
-                if isJumping {
-                    // Acabou de aterrissar
-                    let landingSound = SKAction.playSoundFileNamed("quedasEffect.wav", waitForCompletion: false)
-                    node.run(landingSound)
-                    hasPlayedLandingSound = true
-                }
+        guard let dy = node.physicsBody?.velocity.dy else { return }
 
-                // Reset estado de pulo
-                isJumping = false
-                isJumpButtonHeld = false
-                jumpTime = 0
-            } else {
-                // Ainda no ar, pode tocar novamente quando aterrissar
-                hasPlayedLandingSound = false
+        // Detectar aterrissagem após uma queda "real"
+        if dy == 0 || (dy < 0 && previousDY < 0 && abs(dy) < 0.1) {
+            if !hasPlayedLandingSound && previousDY <= minimumFallSpeedToPlaySound {
+                let landingSound = SKAction.playSoundFileNamed("quedasEffect.wav", waitForCompletion: false)
+                node.run(landingSound)
+                hasPlayedLandingSound = true
             }
+
+            isJumping = false
+            isJumpButtonHeld = false
+            jumpTime = 0
+        } else {
+            hasPlayedLandingSound = false
         }
+
+        previousDY = dy
+        
+        print("🟢 Aterrissagem com dy anterior: \(previousDY)")
     }
-    
+
     
     func updateCoyoteTime(deltaTime: CGFloat) {
         // Defina um threshold para considerar que o personagem está no chão
