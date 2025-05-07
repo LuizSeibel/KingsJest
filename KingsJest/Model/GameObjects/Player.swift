@@ -147,22 +147,23 @@ class Player {
     }
     
     func startDeadAnimation() {
-            self.node.physicsBody = nil
-            self.node.removeAllActions() // Remove todas as animações anteriores
+        // Toca som na cena (evita problemas se o node for modificado)
+        self.node.scene?.run(SKAction.playSoundFileNamed("deathEffect.wav", waitForCompletion: false))
 
-            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
-            let holdLastFrame = SKAction.run {
-                self.node.texture = self.deathFrames.last // Mantém o último frame
-            }
-            
-            let sequence = SKAction.sequence([deathAnimation, holdLastFrame])
-            self.node.run(sequence, withKey: "dead")
+        self.node.physicsBody = nil
+        self.node.removeAllActions()
+
+        let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
+        let holdLastFrame = SKAction.run {
+            self.node.texture = self.deathFrames.last
+        }
+
+        let sequence = SKAction.sequence([deathAnimation, holdLastFrame])
+        self.node.run(sequence, withKey: "dead")
     }
+
     
     func die() {
-        let deathSound = SKAction.playSoundFileNamed("morteEffect.wav", waitForCompletion: false)
-        node.run(deathSound)
-        
         stateMachine.enter(DeadState.self)
     }
 }
@@ -230,6 +231,11 @@ extension Player {
             isJumping = true
             isJumpButtonHeld = true
             jumpTime = 0
+            
+            // Toca som de pulo
+            let jumpSound = SKAction.playSoundFileNamed("puloEffect.wav", waitForCompletion: false)
+            node.run(jumpSound)
+
             // Zera a velocidade vertical para um início consistente.
             self.node.physicsBody?.velocity.dy = 0
             // Impulso inicial (pode ajustar o valor para seu "feeling")

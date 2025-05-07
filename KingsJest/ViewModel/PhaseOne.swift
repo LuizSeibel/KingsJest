@@ -29,6 +29,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
     
     var isFinishedGame: Bool = false
+    var isDead: Bool = false
     
     
     
@@ -323,6 +324,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
     
     private func handlePlayerLavaCollision() {
+        guard !isDead else { return }
+        isDead = true
         
         player.die()
         
@@ -411,6 +414,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         
         let countdownNumbers = ["3", "2", "1", "GO!"]
         var actions: [SKAction] = []
+        
+        let playSound = SKAction.playSoundFileNamed("startEffect.wav", waitForCompletion: false)
+        actions.append(playSound)
         
         for (_, number) in countdownNumbers.enumerated() {
             let show = SKAction.run {
