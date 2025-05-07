@@ -9,15 +9,14 @@ import SwiftUI
 
 struct CustomUIButtonStyle: ButtonStyle {
     var isDarkMode: Bool = false
-    
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(8)
             .font(.custom("STSongti-TC-Bold", size: 20))
             .frame(maxWidth: 180)
             .background(configuration.isPressed ?
-                        (isDarkMode ? Color(.uiBackground1).opacity(0.7) : Color(.gray1)).opacity(0.7) :
-                        (isDarkMode ? Color(.uiBackground1) : Color(.gray1)))
+                        (isDarkMode ? Color(.uiBackground1).opacity(0.7) : Color(.beigeMain)).opacity(0.7) :
+                        (isDarkMode ? Color(.uiBackground1) : Color(.beigeMain)))
             .foregroundColor(isDarkMode ? .white : Color("BackgroundColor"))
             .cornerRadius(12)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)

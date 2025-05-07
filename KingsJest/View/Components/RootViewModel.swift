@@ -3,7 +3,7 @@
 //  KingsJest
 //
 //  Created by Luiz Seibel on 14/04/25.
-//
+
 
 import SwiftUI
 
@@ -14,10 +14,21 @@ final class RootViewModel: ObservableObject {
             UserDefaults.standard.set(name, forKey: "userNickname")
         }
     }
-
+    
+    @Published var isFirstLaunch: Bool = true {
+       didSet {
+           UserDefaults.standard.set(isFirstLaunch, forKey: "isFirstLaunch")
+       }
+    }
     
     init(){
         name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
+
+        if UserDefaults.standard.object(forKey: "isFirstLaunch") == nil {
+            isFirstLaunch = true
+        } else {
+            isFirstLaunch = false
+        }
     }
     
     

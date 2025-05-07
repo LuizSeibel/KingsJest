@@ -21,11 +21,11 @@ struct CustomConnectionList: View {
             
             if peers.isEmpty {
                 VStack(spacing: 16){
-                    Image("touca")
+                    Image("tower")
                     
-                    Text("Your requests will appear here")
-                        .font(.custom("STSongti-TC-Bold", size: 20))
-                        .foregroundStyle(Color.background)
+                    Text("No jesters at the door yet...")
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.grayDark)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .multilineTextAlignment(.center)
@@ -35,7 +35,7 @@ struct CustomConnectionList: View {
                     ForEach($peers, id: \.self) { peer in
                         HStack {
                             Text(peer.wrappedValue.displayName)
-                                .foregroundStyle(.black)
+                                .foregroundStyle(Color.grayLight)
                                 .fontWeight(.semibold)
                             
                             Spacer()
@@ -59,7 +59,7 @@ struct CustomConnectionList: View {
                         }
                     }
                     .padding(12)
-                    .background(.white1)
+                    .background(.beigeMain)
                     .cornerRadius(12)
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
@@ -68,7 +68,7 @@ struct CustomConnectionList: View {
                 .padding(.vertical)
             }
         }
-        .background(.uiBackground1)
+        .background(.grayLight)
     }
 }
 

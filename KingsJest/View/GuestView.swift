@@ -20,6 +20,8 @@ struct GuestView: View {
         _viewModel = StateObject(wrappedValue: GuestViewModel(connectionManager: connectionManager))
     }
     
+    let sizeClass = DeviceType.current()
+    
     var body: some View {
         NavigationStack{
             ZStack(alignment: .topLeading) {
@@ -38,7 +40,7 @@ struct GuestView: View {
                 
                 CustomBackButton()
                     .padding(.top, 40)
-                    .padding(.leading, 50)
+                    .padding(.horizontal)
             }
             
             .onChange(of: viewModel.startDelay){ value in
@@ -76,19 +78,15 @@ struct GuestView: View {
 extension GuestView {
     var background: some View {
         ZStack{
-            Color("BackgroundColor")
-                .ignoresSafeArea()
-            Image("bricks2")
-                .resizable()
-                .scaledToFill()
+            Color.grayMain
                 .ignoresSafeArea()
         }
     }
     
     var title: some View {
         Text("Join Room")
-            .font(.custom("STSongti-TC-Bold", size: 32))
-            .foregroundStyle(Color(.gray1))
+            .font(.custom("ø", size: 32))
+            .foregroundStyle(Color(.beigeMain))
     }
     
 
@@ -104,17 +102,17 @@ extension GuestView {
                             backCardAction: { viewModel.cancelInvite(peer: peer) }
                         )
                         .offset(y: 16)
+                        
                     }
                 }
             }
         }
-        .padding(.horizontal, 32)
     }
     
     var hud: some View {
         VStack(alignment: .center){
             title
-                .padding(.top, 48)
+                .padding(.top, 28)
             Spacer()
             list
                 .allowsHitTesting(!viewModel.startDelay)
@@ -126,7 +124,7 @@ extension GuestView {
             Image("coroa")
             Text("Waiting for host's start game \(String(repeating: ".", count: dotCount))")
                 .foregroundStyle(.gray)
-                .font(.custom("STSongti-TC-Bold", size: 26))
+                .font(.custom("ø", size: 26))
         }
         .onReceive(timer) { _ in
             dotCount = (dotCount + 1) % (maxDots + 1)

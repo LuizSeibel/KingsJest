@@ -402,7 +402,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         guard !self.didShowCountdownOnce else { return }
         self.didShowCountdownOnce = true
         
-        let countdownLabel = SKLabelNode(fontNamed: "STSongti-TC-Bold")
+        let countdownLabel = SKLabelNode(fontNamed: "ø")
         countdownLabel.fontSize = 120
         countdownLabel.fontColor = .white
         countdownLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
