@@ -19,6 +19,8 @@ class GuestViewModel: ObservableObject {
     
     @Published var startDelay: Bool = false
     
+    @Published var roomPlayers: [PlayerIdentifier] = []
+    
     var connectionManager: MPCManager
 
     init(connectionManager: MPCManager){
@@ -26,6 +28,10 @@ class GuestViewModel: ObservableObject {
         self.connectionManager.onRecieveData = onReceiveMessage
         self.gameSessionID = UUID()
         setupBindings()
+        
+        // Adiciono o player como o primeiro da lista
+        let user = PlayerIdentifier(peerName: connectionManager.myPeerId.displayName, color: .none)
+        roomPlayers.append(user)
     }
 }
 
@@ -36,24 +42,61 @@ extension GuestViewModel: P2PMessaging {
     }
     
     func onReceiveMessage(data: Data, peerID: MCPeerID) {
-        guard let header = try? JSONDecoder().decode(MessageEnvelopeHeader.self, from: data) else {
-            print("❌ Falha ao decodificar cabeçalho do envelope")
-            return
-        }
-        
-        switch header.type {
-        case .startGame:
-            DispatchQueue.main.async {
-//                PhaseOneController.didShowCountdownOnce = false
-                self.startGame = true
+        do{
+            guard let header = try? JSONDecoder().decode(MessageEnvelopeHeader.self, from: data) else {
+                print("❌ Falha ao decodificar cabeçalho do envelope")
+                return
             }
-
-        default:
-            break
-
+            
+            switch header.type {
+            case .startGame:
+                DispatchQueue.main.async {
+                    self.startGame = true
+                }
+                
+            case .players:
+                let envelope = try JSONDecoder().decode(
+                    MessageEnvelope<LobbyPlayersEncoder>.self,
+                    from: data
+                )
+                let playersArray = envelope.content.players
+                DispatchQueue.main.async {
+                    self.updatePlayers(players: playersArray)
+                }
+                
+            default:
+                break
+                
+            }
+        } catch{
+            print("❌ Falha ao decodificar envelope: \(error)")
         }
     }
     
+}
+
+extension GuestViewModel{
+    @MainActor
+    func updatePlayers(players: [PlayerIdentifier]) {
+        
+        if !roomPlayers.isEmpty {
+            let name = roomPlayers[0].peerName
+            if let new = players.first(where: { $0.peerName == name }) {
+                roomPlayers[0].color = new.color
+                print(roomPlayers[0].color)
+            }
+        }
+        
+        for player in players {
+            if !roomPlayers.contains(player) {
+                roomPlayers.append(player)
+            }
+        }
+
+        roomPlayers.removeAll { localPlayer in
+            !players.contains(localPlayer)
+        }
+    }
 }
 
 extension GuestViewModel {

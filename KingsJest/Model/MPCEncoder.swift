@@ -29,3 +29,14 @@ struct PlayerPositionEncoder: MPCEncoder, Codable {
     var peerName: String
     var snapshot: PlayerSnapshot
 }
+
+struct LobbyPlayersEncoder: MPCEncoder{
+    var peerName: String
+    var players: [PlayerIdentifier]
+}
+
+
+
+
+
+

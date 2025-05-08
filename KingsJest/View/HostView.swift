@@ -26,14 +26,13 @@ struct HostView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .topLeading) {
-                BackgroundView()
-                    .ignoresSafeArea()
+                background
 
                 VStack(spacing: 16) {
                     Title("Room Overview")
                     
                     Spacer()
-                    PlayersAndInvites(playerNames: $playerNames, viewModel: viewModel)
+                    PlayersAndInvites(playerNames: $viewModel.players, viewModel: viewModel)
                     Spacer()
 
                     startButton
@@ -132,7 +131,7 @@ private struct Title: View {
 
 private struct PlayersAndInvites: View {
     @Environment(\.horizontalSizeClass) private var hSizeClass
-    @Binding var playerNames: [String]
+    @Binding var playerNames: [PlayerIdentifier]
     @ObservedObject var viewModel: HostViewModel
 
     var body: some View {
@@ -164,10 +163,4 @@ private struct PlayersAndInvites: View {
     
     private var playerColumnRatio: CGFloat { hSizeClass == .regular ? 0.45 : 0.50 }
     private var inviteColumnRatio: CGFloat { hSizeClass == .regular ? 0.50 : 0.45 }
-}
-
-private struct BackgroundView: View {
-    var body: some View {
-        Color(.black).opacity(0.9)
-    }
 }

@@ -29,12 +29,11 @@ struct GuestView: View {
                 
                 ZStack {
                     if viewModel.isConnected{
-                        lobbyHud
+                        playersHud
                     }
                     else{
                         hud
                     }
-                    
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
@@ -119,15 +118,34 @@ extension GuestView {
         }
     }
     
-    var lobbyHud: some View {
+    var waitingView: some View {
         VStack {
             Image("coroa")
-            Text("Waiting for host's start game \(String(repeating: ".", count: dotCount))")
+            Text("Waiting for connection \(String(repeating: ".", count: dotCount))")
                 .foregroundStyle(.gray)
                 .font(.custom("ø", size: 26))
         }
         .onReceive(timer) { _ in
             dotCount = (dotCount + 1) % (maxDots + 1)
+        }
+    }
+    
+    
+    
+    var playersHud: some View{
+        VStack{
+            Text("Waiting Room")
+                .foregroundStyle(.beigeMain)
+                .font(.custom("ø", size: 32))
+                .padding(.top, 28)
+            Spacer()
+            if viewModel.roomPlayers.count <= 1{
+                waitingView
+            }
+            else{
+                PlayersGridView(players: $viewModel.roomPlayers)
+            }
+            Spacer()
         }
     }
 }
