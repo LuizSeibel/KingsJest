@@ -27,26 +27,14 @@ struct EndView: View {
     }
     
     var body: some View {
-        ZStack{
+        ZStack {
             background
+                .ignoresSafeArea()
+
             hud
-        }
-        
-        .toolbar {
-            ToolbarItem(placement: .navigationBarLeading, content: {
-                Button(action: {
-                    withAnimation{
-                        guard let url = URL(string: formsUrl) else { return }
-                        openURL(url)
-                    }
-                }) {
-                    Image("InfoButton")
-                }
-                .font(.title)
-                .padding(.top, sizeClass == .iPhone ? 48 : 24)
-                .padding(.trailing, sizeClass == .iPhone ? 0 : 24)
-                
-            })
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            infoButton
         }
         
         
@@ -103,7 +91,7 @@ extension EndView {
                 Text("Victory Is Yours... this time")
             }
             else{
-                Text("Winner: playername")
+                Text("Winner: \(winnerName)")
             }
         }
         .font(Font.custom(appFonts.Libra.rawValue, size: 20).weight(.bold))
@@ -116,6 +104,29 @@ extension EndView {
         ZStack{
             Color(.grayMain)
                 .ignoresSafeArea()
+        }
+    }
+    
+    var infoButton: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    withAnimation {
+                        guard let url = URL(string: formsUrl) else { return }
+                        openURL(url)
+                    }
+                }) {
+                    Image("InfoButton")
+                        .resizable()
+                        .frame(width: 36, height: 36)
+                }
+                .padding(.leading, 24)
+
+                Spacer()
+            }
+            .padding(.top, sizeClass == .iPhone ? 24 : 12)
+
+            Spacer()
         }
     }
 }

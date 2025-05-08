@@ -30,47 +30,29 @@ struct ContentView: View {
     let sizeClass = DeviceType.current()
     
     var body: some View {
-        ZStack{
+        ZStack {
             VStack {
                 hud
                     .hideKeyboardWhenTapped()
             }
-            
+
             if showNicknameAlert {
                 nicknameAlert
             }
-            
+
+            configButton
         }
-        
-        .onAppear{
-            if appViewModel.isFirstLaunch{
+        .onAppear {
+            if appViewModel.isFirstLaunch {
                 showNicknameAlert = true
                 indexNicknameLabel = 0
             }
         }
-        
-        .background{
+        .background {
             background
         }
-
         .ignoresSafeArea(.all)
         .ignoresSafeArea(.keyboard)
-
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing, content: {
-                Button(action: {
-                    withAnimation{
-                        showNicknameAlert = true
-                    }
-                }) {
-                    Image("SettingsButton")
-                }
-                .font(.title)
-                .padding(.top, sizeClass == .iPhone ? 48 : 24)
-                .padding(.trailing, sizeClass == .iPhone ? 0 : 24)
-                .opacity(showNicknameAlert ? 0 : 1)
-            })
-        }
         
         
         // MARK: Alert
@@ -217,6 +199,27 @@ extension ContentView{
         }
         .animation(.easeInOut(duration: 0.2), value: showNicknameAlert)
         .zIndex(2)
+    }
+    
+    var configButton: some View {
+        VStack {
+            HStack {
+                Spacer()
+
+                Button(action: {
+                    withAnimation {
+                        showNicknameAlert = true
+                    }
+                }) {
+                    Image("SettingsButton")
+                }
+                .padding(.trailing, sizeClass == .iPhone ? 72 : 42)
+                .padding(.top, sizeClass == .iPhone ? 28 : 42)
+                .opacity(showNicknameAlert ? 0 : 1)
+            }
+
+            Spacer()
+        }
     }
 }
 
