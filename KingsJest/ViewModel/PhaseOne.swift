@@ -415,9 +415,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         let countdownNumbers = ["3", "2", "1", "GO!"]
         var actions: [SKAction] = []
         
-        let playSound = SKAction.playSoundFileNamed("startEffect.wav", waitForCompletion: false)
-        actions.append(playSound)
-        
+        AudioManager.shared.playSound(named: "startEffect.wav", on: self.scene!, waitForCompletion: false)
+                
         for (_, number) in countdownNumbers.enumerated() {
             let show = SKAction.run {
                 countdownLabel.text = number

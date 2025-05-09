@@ -147,9 +147,10 @@ class Player {
     }
     
     func startDeadAnimation() {
-        // Toca som na cena (evita problemas se o node for modificado)
-        self.node.scene?.run(SKAction.playSoundFileNamed("deathEffect.wav", waitForCompletion: false))
-
+//        self.node.scene?.run(SKAction.playSoundFileNamed("deathEffect.wav", waitForCompletion: false))
+        
+        AudioManager.shared.playSound(named: "deathEffect.wav", on: self.node.scene!, waitForCompletion: false)
+        
         self.node.physicsBody = nil
         self.node.removeAllActions()
 
@@ -233,8 +234,8 @@ extension Player {
             jumpTime = 0
             
             // Toca som de pulo
-            let jumpSound = SKAction.playSoundFileNamed("puloEffect.wav", waitForCompletion: false)
-            node.run(jumpSound)
+            AudioManager.shared.playSound(named: "puloEffect.wav", on: self.node, waitForCompletion: false)
+            
 
             // Zera a velocidade vertical para um início consistente.
             self.node.physicsBody?.velocity.dy = 0
@@ -268,11 +269,11 @@ extension Player {
         // Detectar aterrissagem após uma queda "real"
         if dy == 0 || (dy < 0 && previousDY < 0 && abs(dy) < 0.1) {
             if !hasPlayedLandingSound && previousDY <= minimumFallSpeedToPlaySound {
-                let landingSound = SKAction.playSoundFileNamed("quedasEffect.wav", waitForCompletion: false)
-                node.run(landingSound)
+                AudioManager.shared.playSound(named: "quedasEffect.wav", on: self.node, waitForCompletion: false)
+                
                 hasPlayedLandingSound = true
             }
-
+            
             isJumping = false
             isJumpButtonHeld = false
             jumpTime = 0
@@ -351,7 +352,7 @@ extension Player {
 extension Player {
     func playStepSound(currentTime: TimeInterval) {
         if currentTime > stepSoundCooldown {
-            AudioManager.shared.playSound(named: "passosEffect.wav", withRandomPitchIn: 850...1150)
+            AudioManager.shared.playSound(named: "passosEffect.wav", on: node)
             stepSoundCooldown = currentTime + stepSoundInterval
         }
     }
