@@ -28,7 +28,7 @@ class Player {
     var currentVelocityX: CGFloat = 0.0
     
     lazy var idleFrames: [SKTexture] = {
-        return loadFrames(prefix: "RUN00", count: 7)
+        return loadFrames(prefix: "idle00", count: 6)
     }()
     lazy var runFrames: [SKTexture] = {
         loadFrames(prefix: "RUN00", count: 7)
@@ -37,7 +37,7 @@ class Player {
         loadFrames(prefix: "RUN00", count: 7)
     }()
     lazy var deathFrames: [SKTexture] = {
-        loadFrames(prefix: "RUN00", count: 7)
+        loadFrames(prefix: "death00", count: 7)
     }()
     
     var isInDynamicPlataform: SKSpriteNode? = nil
@@ -135,7 +135,7 @@ class Player {
     
     //MARK: Animações de cada Estado do Player
     func startIdleAnimation() {
-        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.06)), withKey: "idle")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.09)), withKey: "idle")
     }
     
     func startRunAnimation() {
@@ -147,7 +147,6 @@ class Player {
     }
     
     func startDeadAnimation() {
-//        self.node.scene?.run(SKAction.playSoundFileNamed("deathEffect.wav", waitForCompletion: false))
         
         AudioManager.shared.playSound(named: "deathEffect.wav", on: self.node.scene!, waitForCompletion: false)
         
