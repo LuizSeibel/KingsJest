@@ -19,3 +19,8 @@ func registerFont(withName name: String, fileExtension: String) {
         print("Erro ao registrar fonte: \(error.debugDescription)")
     }
 }
+
+enum appFonts: String{
+    case Libra = "ø"
+    case Song = "STSongti-TC-Bold"
+}

@@ -8,46 +8,80 @@
 import SwiftUI
 
 struct PlayerItemView: View {
-    let nickname: String
-    
+    /// `nil` quando o slot está vazio.
+    let player: PlayerIdentifier?
+
     var body: some View {
         VStack {
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.gray)
+                .fill(player == nil ? Color.gray.opacity(0.5) : Color.clear)
+                .overlay{
+                    if let p = player{
+                        Image("J_\(p.color.rawValue)")
+                            .resizable()
+                            .scaledToFill()
+                    }
+                }
                 .frame(width: 55, height: 75)
             
-            Text(nickname)
+
+            Text(player?.peerName ?? "")
                 .font(.caption)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
-                
         }
     }
 }
 
 struct PlayersGridView: View {
-    @Binding var players: [String]
+    @Binding var players: [PlayerIdentifier]
 
-    let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
-    
+    private let maxPlayers = 8
+    private let columns = Array(repeating: GridItem(.flexible()), count: 4)
+
+    /// Array com exatamente `maxPlayers` posições (com `nil` para slots vazios).
+    private var paddedPlayers: [PlayerIdentifier?] {
+        var list = players.map(Optional.init)
+        list.append(contentsOf: Array(repeating: nil, count: max(0, maxPlayers - list.count)))
+        return list
+    }
+
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
-            ForEach(players, id: \.self) { player in
-                PlayerItemView(nickname: player)
+            ForEach(0..<maxPlayers, id: \.self) { index in
+                PlayerItemView(player: paddedPlayers[index])
             }
         }
     }
 }
 
-#Preview {
-    PlayersGridView(players: .constant(["Player1", "Player2", "Player3", "Player4",
-                                        "Player5", "Player6", "Player7", "Player8"]))
-    .background(Color.black.edgesIgnoringSafeArea(.all))
+// MARK: – Previews ------------------------------------------------------------
+
+private let demoPlayersSome: [PlayerIdentifier] = [
+    .init(peerName: "Luiz",    color: .blue),
+    .init(peerName: "Maju",    color: .pink),
+    .init(peerName: "Willys",  color: .orange),
+    .init(peerName: "Amanda",  color: .yellow)
+]
+
+private let demoPlayersAll: [PlayerIdentifier] = [
+    .init(peerName: "Player1", color: .red),
+    .init(peerName: "Player2", color: .green),
+    .init(peerName: "Player3", color: .purple),
+    .init(peerName: "Player4", color: .blue),
+    .init(peerName: "Player5", color: .yellow),
+    .init(peerName: "Player6", color: .orange),
+    .init(peerName: "Player7", color: .pink),
+    .init(peerName: "Player8", color: .black)
+]
+
+#Preview("Some") {
+    PlayersGridView(players: .constant(demoPlayersSome))
+        .background(Color.black.ignoresSafeArea())
 }
 
+#Preview("All") {
+    PlayersGridView(players: .constant(demoPlayersAll))
+        .background(Color.black.ignoresSafeArea())
+}

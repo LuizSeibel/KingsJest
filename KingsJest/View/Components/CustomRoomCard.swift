@@ -34,7 +34,7 @@ struct CustomRoomCard: View {
             }
         }
         .compositingGroup()
-        .aspectRatio(300/280, contentMode: .fit)
+        .aspectRatio(264/232, contentMode: .fit)
         .rotation3DEffect(.degrees(isFlipped ? 180 : 0),
                           axis: (x: 0, y: 1, z: 0),
                           perspective: 0.5)
@@ -69,14 +69,20 @@ struct FrontCard: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: 20)
-            .foregroundStyle(.uiBackground1)
+            .foregroundStyle(.grayLight)
             .overlay(
-                VStack {
-                    hud
-                    Spacer()
-                    button
+                ZStack{
+                    Image("Subtract")
+                        .resizable()
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                    VStack {
+                        hud
+                        Spacer()
+                        button
+                    }
+                    .padding()
                 }
-                .padding()
             )
             .aspectRatio(1, contentMode: .fit)
     }
@@ -98,7 +104,7 @@ struct FrontCard: View {
     var button: some View {
         Button(action: flipAction) {
             RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(Color.background)
+                .foregroundStyle(Color.redLight)
                 .frame(maxHeight: 60)
                 .overlay(
                     Text("Join")
@@ -115,14 +121,25 @@ struct BackCard: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: 20)
-            .foregroundStyle(.white1)
+            .foregroundStyle(Color.redMain)
             .overlay(
-                VStack {
-                    hud
-                        .padding()
-                    button
+                
+                ZStack{
+                    Image("Subtract")
+                        .resizable()
+                        .renderingMode(.template)
+                        .foregroundColor(.redLight)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                    
+                    VStack {
+                        hud
+                            .padding()
+                        button
+                    }
+                    .padding()
                 }
-                .padding()
+                
             )
             .aspectRatio(1, contentMode: .fit)
     }
@@ -134,7 +151,7 @@ struct BackCard: View {
                 .fontWeight(.semibold)
             
             ProgressView()
-                .tint(.black)
+                .tint(.white1)
                 .progressViewStyle(.circular)
                 .scaleEffect(2)
                 .padding(6)
@@ -146,17 +163,17 @@ struct BackCard: View {
             .font(.callout)
             .fontWeight(.medium)
         }
-        .foregroundStyle(.black)
+        .foregroundStyle(.white1)
     }
     
     var button: some View {
         Button(action: flipAction) {
             RoundedRectangle(cornerRadius: 12)
-                .foregroundStyle(.gray1)
+                .foregroundStyle(Color.redDark)
                 .frame(maxHeight: 60)
                 .overlay(
                     Text("Cancel")
-                        .foregroundStyle(.black)
+                        .foregroundStyle(.redLight)
                         .fontWeight(.semibold)
                 )
         }

@@ -16,18 +16,28 @@ struct EndView: View {
     let formsUrl: String = "https://forms.gle/A1AwYC8LkspddA9x9"
     
     var winBool: Bool = false
+    var winnerName: String = ""
     
-    init(winBool: Bool){
+    let sizeClass = DeviceType.current()
+    
+    init(winBool: Bool, winnerName: String){
         self.winBool = winBool
+        self.winnerName = winnerName
         _viewModel = StateObject(wrappedValue: EndViewModel())
     }
     
     var body: some View {
-        ZStack{
+        ZStack {
             background
-            
+                .ignoresSafeArea()
+
             hud
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            infoButton
         }
+        
+        
         .navigationBarBackButtonHidden(true)
         .navigationDestination(isPresented: $viewModel.goToMainMenu, destination: {
             ContentView()
@@ -44,32 +54,27 @@ extension EndView {
     var hud: some View {
         VStack(spacing: 20){
             winMessage
-            message
             buttons
         }
     }
     
     var winMessage: some View {
-        VStack{
+        VStack(spacing: 32){
             Image(winBool ? "coroa2" : "touca2")
                 .frame(width: 78, height: 52)
             
-            Text(winBool ? "You Dodged the Dungeon!" : "The King was not Amused...")
-                .font(Font.custom("Songti TC", size: 32).weight(.bold))
+            VStack(spacing: 6){
+                Text(winBool ? "You Dodged the Dungeon!" : "The King was not Amused...")
+                    .font(Font.custom(appFonts.Libra.rawValue, size: 32).weight(.bold))
+                message
+            }
+            
         }
-        .foregroundStyle(winBool ? .yellow1 : .red1)
+        .foregroundStyle(.beigeMain)
     }
     
     var buttons: some View {
-        VStack(spacing: 12){
-            Button(action: {
-                guard let url = URL(string: formsUrl) else { return }
-                openURL(url)
-            }, label: {
-                Text("Send Review")
-            })
-            .buttonStyle(CustomUIButtonStyle(isDarkMode: true))
-            
+        HStack(spacing: 12){
             Button(action: {
                 viewModel.toMainMenu()
             }, label: {
@@ -80,27 +85,55 @@ extension EndView {
     }
     
     var message: some View {
-        Text("""
-            Thank's for testing our game!
-            Your feedback helps us make it even better.
-            """)
-        .foregroundStyle(.gray)
-        .fontWeight(.semibold)
-        .multilineTextAlignment(.center)
+        
+        VStack{
+            if winBool{
+                Text("Victory Is Yours... this time")
+            }
+            else{
+                Text("Winner: \(winnerName)")
+            }
+        }
+        .font(Font.custom(appFonts.Libra.rawValue, size: 20).weight(.bold))
+        .foregroundStyle(.yellowMain)
+        
+    
     }
     
     var background: some View {
         ZStack{
-            Color("BackgroundColor")
+            Color(.grayMain)
                 .ignoresSafeArea()
-            Image("bricks1")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
+        }
+    }
+    
+    var infoButton: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    withAnimation {
+                        guard let url = URL(string: formsUrl) else { return }
+                        openURL(url)
+                    }
+                }) {
+                    Image("InfoButton")
+                        .resizable()
+                        .frame(width: 36, height: 36)
+                }
+                .padding(.leading, 24)
+
+                Spacer()
+            }
+            .padding(.top, sizeClass == .iPhone ? 24 : 12)
+
+            Spacer()
         }
     }
 }
 
 #Preview {
-    EndView(winBool: false)
+    NavigationStack{
+        EndView(winBool: false, winnerName: "playername")
+    }
 }
+

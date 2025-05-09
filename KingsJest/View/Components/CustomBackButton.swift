@@ -22,7 +22,7 @@ struct CustomBackButton: View {
                 Image(iconName)
                 Text(labelText)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.red1)
+                    .foregroundStyle(.yellowMain)
             }
         }
     }

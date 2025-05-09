@@ -19,6 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
 
         registerFont(withName: "songti-tc-bold", fileExtension: "ttf")
+        registerFont(withName: "libra-mn", fileExtension: "ttf")
         
         let window = UIWindow(frame: UIScreen.main.bounds)
         

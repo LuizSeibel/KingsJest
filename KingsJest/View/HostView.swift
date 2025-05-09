@@ -27,43 +27,26 @@ struct HostView: View {
         NavigationStack {
             ZStack(alignment: .topLeading) {
                 background
-                
-                GeometryReader { geometry in
-                    VStack {
-                        Text("Room Overview")
-                            .font(.custom("STSongti-TC-Bold", size: 32))
-                            .foregroundStyle(Color(.gray1))
-                            .padding(.top, 10)
-                        
-                        HStack(spacing: 10) {
-                            PlayersGridView(players: $playerNames)
-                                .frame(width: geometry.size.width * 0.45)
-                                .offset(x: 10)
-                            
-                            CustomConnectionList(
-                                peers: $viewModel.pendingInvitations,
-                                onAccept: { peerID in
-                                    viewModel.acceptInvitation(peerID: peerID)
-                                },
-                                onDecline: { peerID in
-                                    viewModel.declineInvitation(peerID: peerID)
-                                }
-                            )
-                            .frame(width: geometry.size.width * 0.45, height: geometry.size.height * 0.5)
-                            .cornerRadius(20)
-                        }
-                        .padding(.top, 30)
-                        
-                        startButton
-                            .padding()
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                VStack(spacing: 16) {
+                    Title("Room Overview")
+                    
+                    Spacer()
+                    PlayersAndInvites(playerNames: $viewModel.players, viewModel: viewModel)
+                    Spacer()
+
+                    startButton
+                        .padding(.bottom, 12)
+                        .padding(.horizontal, 12)
                 }
-                
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.top, 28)
+              
                 CustomBackButton()
                     .padding(.top, 40)
-                    .padding(.leading, 50)
+                    .padding(.horizontal)
             }
+            
             
             .onReceive(removeInvitationsPublisher) { _ in
                 viewModel.removeExpiredInvites()
@@ -102,38 +85,82 @@ struct HostView: View {
 
 extension HostView {
     var startButton: some View {
-        VStack {
+        HStack {
             Spacer()
-            HStack {
-                Spacer()
-                Button(action: {
-                    viewModel.startRoom()
+            Button(action: {
+                viewModel.startRoom()
 //                    PhaseOneController.didShowCountdownOnce = false
-                }, label: {
-                    Text(
-                        viewModel.isConnected
-                                    ? "Start Match"
-                                    : (viewModel.recentlyConnected ? "Connecting" : "Play Solo")
-                    )
-                })
-                .buttonStyle(CustomUIButtonStyle())
-                .disabled(viewModel.recentlyConnected)
-            }
+            }, label: {
+                Text(
+                    viewModel.isConnected
+                                ? "Start Match"
+                                : (viewModel.recentlyConnected ? "Connecting" : "Play Solo")
+                )
+            })
+            .buttonStyle(CustomUIButtonStyle())
+            .disabled(viewModel.recentlyConnected)
         }
     }
     
     var background: some View {
         ZStack {
-            Color("BackgroundColor")
+            Color.grayMain
                 .ignoresSafeArea()
-            Image("bricks2")
-                .resizable()
-                .scaledToFill()
-                .ignoresSafeArea()
+//            Image("bricks2")
+//                .resizable()
+//                .scaledToFill()
+//                .ignoresSafeArea()
         }
     }
 }
 
 #Preview {
     HostView(connectionManager: MPCManager(yourName: ""))
+}
+
+private struct Title: View {
+    var text: LocalizedStringKey
+    init(_ text: LocalizedStringKey) { self.text = text }
+
+    var body: some View {
+        Text(text)
+            .font(.custom("ø", size: 32))
+            .foregroundStyle(Color.beigeMain)
+    }
+}
+
+private struct PlayersAndInvites: View {
+    @Environment(\.horizontalSizeClass) private var hSizeClass
+    @Binding var playerNames: [PlayerIdentifier]
+    @ObservedObject var viewModel: HostViewModel
+
+    var body: some View {
+        GeometryReader { proxy in
+            HStack(alignment: .center, spacing: 20) {
+
+                PlayersGridView(players: $playerNames)
+                    .frame(
+                        width: proxy.size.width * playerColumnRatio
+                    )
+                    .offset(y: 12)
+
+                CustomConnectionList(
+                    peers: $viewModel.pendingInvitations,
+                    onAccept: viewModel.acceptInvitation,
+                    onDecline: viewModel.declineInvitation
+                )
+                
+                .frame(
+                    width: proxy.size.width * inviteColumnRatio,
+                    height: proxy.size.height * 0.9
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        }
+        .frame(maxHeight: .infinity)
+    }
+    
+    private var playerColumnRatio: CGFloat { hSizeClass == .regular ? 0.45 : 0.50 }
+    private var inviteColumnRatio: CGFloat { hSizeClass == .regular ? 0.50 : 0.45 }
 }

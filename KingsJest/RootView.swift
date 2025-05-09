@@ -16,6 +16,9 @@ struct RootView: View{
         NavigationStack{
             //EndView(winBool: true)
 //            GameView(connectionManager: MPCManager(yourName: "OI"))
+            
+            
+            
             ContentView()
 //            GameScenesViewControllerRepresentable(sceneType: .phaseTwo, finishGame: {}, onPlayerMove: {_ in })
 //                .ignoresSafeArea()

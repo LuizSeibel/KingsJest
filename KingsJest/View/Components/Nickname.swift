@@ -15,7 +15,7 @@ struct Nickname: View {
     var body: some View {
         HStack {
             RoundedRectangle(cornerRadius: 8)
-                .foregroundStyle(Color(.gray1))
+                .foregroundStyle(Color(.beigeMain))
                 .frame(width: 25, height: 25)
                 .overlay(
                     Image("touca")
@@ -33,7 +33,7 @@ struct Nickname: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color("UIBackground1"))
+                .fill(Color.grayDark)
         )
         .frame(maxWidth: .infinity, maxHeight: 5)
     }
@@ -55,7 +55,7 @@ struct CustomUITextField: UIViewRepresentable {
         textField.delegate = context.coordinator
         textField.text = text
         textField.font = font
-        textField.textColor = UIColor.gray1
+        textField.textColor = UIColor.beigeMain
         textField.autocorrectionType = .no
         textField.adjustsFontForContentSizeCategory = false
         textField.returnKeyType = .done
