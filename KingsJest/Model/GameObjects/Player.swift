@@ -77,7 +77,7 @@ class Player {
         node = SKSpriteNode(texture: texture)
         node.position = position
         node.size = size
-        self.node.color = defineColor()
+        self.node.color = Player.defineColor(color: identifier.color)
         self.node.alpha = 1
         self.node.colorBlendFactor = 1
 
@@ -94,8 +94,8 @@ class Player {
     }
     
     // MARK: Define a cor do player
-    func defineColor() -> UIColor {
-        switch identifier.color {
+    static func defineColor(color: ourColors) -> UIColor {
+        switch color {
         case .yellow:
             return UIColor.systemYellow
         case .blue:
@@ -163,7 +163,7 @@ class Player {
     
     //MARK: Animações de cada Estado do Player
     func startIdleAnimation() {
-        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.09)), withKey: "idle")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.1)), withKey: "idle")
     }
     
     func startRunAnimation() {

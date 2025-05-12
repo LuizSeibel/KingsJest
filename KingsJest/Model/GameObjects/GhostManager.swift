@@ -23,11 +23,11 @@ class GhostManager {
         self.playerName = playerName
     }
     
-    func createGhost(for peerID: String, at position: CGPoint = .zero) {
-        guard peerID != playerName, ghostPlayers[peerID] == nil else { return }
-        let ghost = GhostPlayer(position: position)
+    func createGhost(for identifier: PlayerIdentifier, at position: CGPoint = .zero) {
+        guard identifier.peerName != playerName, ghostPlayers[identifier.peerName] == nil else { return }
+        let ghost = GhostPlayer(position: position, identifier: identifier)
         scene?.addChild(ghost.node)
-        ghostPlayers[peerID] = ghost
+        ghostPlayers[identifier.peerName] = ghost
     }
     
     func update(currentTime: TimeInterval, lastUpdateTime: TimeInterval, player: Player) {

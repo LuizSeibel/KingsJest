@@ -65,7 +65,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             let playerIdentifier = PlayerIdentifier(peerName: AttGameViewModel.shared.PlayerName, color: AttGameViewModel.shared.PlayerColor)
             player = Player(texture: texture, position: scenePlayerNode.position, size: size, playerIdentifier: playerIdentifier)
             scenePlayerNode.removeFromParent()
-            player.node.zPosition = 4
+            player.node.zPosition = 5
             addChild(player.node)
         }
         
@@ -143,7 +143,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
         
         for peerID in AttGameViewModel.shared.players {
-            ghostManager.createGhost(for: peerID.identifier.peerName, at: player.node.position)
+            ghostManager.createGhost(for: peerID.identifier, at: player.node.position)
             //print(peerID.displayName)
         }
     }

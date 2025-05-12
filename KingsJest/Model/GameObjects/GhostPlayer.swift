@@ -11,18 +11,6 @@ import SpriteKit
 class GhostPlayer {
     private var lastState: PlayerAnimationState?
     let node: SKSpriteNode
-    
-    let ghostColors: [UIColor] = [
-        .systemRed,
-        .systemBlue,
-        .systemGreen,
-        .systemYellow,
-        .systemOrange,
-        .systemPurple,
-        .cyan,
-        .magenta
-    ]
-
 
     // MARK: - Animações
     lazy var idleFrames: [SKTexture] = {
@@ -41,16 +29,16 @@ class GhostPlayer {
         return loadFrames(prefix: "death00", count: 7)
     }()
 
-    init(position: CGPoint) {
+    init(position: CGPoint, identifier: PlayerIdentifier) {
         let texture = SKTexture(imageNamed: "idle000")
         self.node = SKSpriteNode(texture: texture, size: CGSize(width: 96, height: 84))
         self.node.position = position
         self.node.zPosition = 4
         
         // Aparência fantasma
-        self.node.color = randomGhostColor()
-        self.node.alpha = 0.6
-        self.node.colorBlendFactor = 0.6
+        self.node.color = Player.defineColor(color: identifier.color)
+        self.node.alpha = 0.8
+        self.node.colorBlendFactor = 0.8
     }
 
     // MARK: - Carregamento de frames
@@ -67,7 +55,7 @@ class GhostPlayer {
     // MARK: - Funções de animação
     func startIdleAnimation() {
         node.removeAllActions()
-        node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.09)), withKey: "idle")
+        node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.1)), withKey: "idle")
     }
     
     func startRunAnimation() {
@@ -110,9 +98,9 @@ class GhostPlayer {
         }
     }
     
-    func randomGhostColor() -> UIColor {
-        ghostColors.randomElement() ?? .white
-    }
+//    func randomGhostColor() -> UIColor {
+//        ghostColors.randomElement() ?? .white
+//    }
 
 
 }
