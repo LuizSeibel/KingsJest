@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GuestView: View {
+    @EnvironmentObject var appViewModel: RootViewModel
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: GuestViewModel
     
@@ -23,7 +24,7 @@ struct GuestView: View {
     let sizeClass = DeviceType.current()
     
     var body: some View {
-        NavigationStack{
+//        NavigationStack{
             ZStack(alignment: .topLeading) {
                 background
                 
@@ -63,14 +64,21 @@ struct GuestView: View {
                 viewModel.onAppear()
             }
             
+            .onChange(of: viewModel.startGame){ value in
+                if value{
+                    appViewModel.path.append(.game(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers))
+                }
+            }
+        
+        
             // MARK: Navigation
-            .navigationDestination(isPresented: $viewModel.startGame, destination: {
-                GameView(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers)
-                    .id(viewModel.gameSessionID)
-            })
+//            .navigationDestination(isPresented: $viewModel.startGame, destination: {
+//                GameView(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers)
+//                    .id(viewModel.gameSessionID)
+//            })
             
-        }
-        .navigationBarBackButtonHidden(true)
+//        }
+//        .navigationBarBackButtonHidden(true)
     }
 }
 

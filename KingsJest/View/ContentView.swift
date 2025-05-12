@@ -65,21 +65,7 @@ struct ContentView: View {
         
         // MARK: Navigation
         // Testar com um arquio de View
-        .navigationDestination(isPresented: $navigateToHost) {
-            if let mpc = appViewModel.manager {
-                HostView(connectionManager: mpc)
-            } else {
-                EmptyView()
-            }
-        }
         
-        .navigationDestination(isPresented: $navigateToGuest) {
-            if let mpc = appViewModel.manager {
-                GuestView(connectionManager: mpc)
-            } else {
-                EmptyView()
-            }
-        }
         .navigationBarBackButtonHidden(true)
     
         
@@ -146,7 +132,7 @@ extension ContentView{
                 } else {
                     Task{
                         appViewModel.createManagerIfNeeded()
-                        navigateToGuest.toggle()
+                        appViewModel.path.append(.joinRoom)
                     }
                 }
             }, label: {
@@ -159,7 +145,7 @@ extension ContentView{
                 } else {
                     Task{
                         appViewModel.createManagerIfNeeded()
-                        navigateToHost.toggle()
+                        appViewModel.path.append(.createRoom)
                     }
                 }
             }, label: {
@@ -209,6 +195,7 @@ extension ContentView{
                 Button(action: {
                     withAnimation {
                         showNicknameAlert = true
+//                        path.append(.settings)
                     }
                 }) {
                     Image("SettingsButton")

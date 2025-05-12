@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EndView: View {
-    
+    @EnvironmentObject var appViewModel: RootViewModel
     @Environment(\.openURL) var openURL
     
     @StateObject private var viewModel: EndViewModel
@@ -17,7 +17,7 @@ struct EndView: View {
     
     var winBool: Bool = false
     var winnerName: String = ""
-    
+    @State var mainMenu = false
     let sizeClass = DeviceType.current()
     
     init(winBool: Bool, winnerName: String){
@@ -39,9 +39,10 @@ struct EndView: View {
         
         
         .navigationBarBackButtonHidden(true)
-        .navigationDestination(isPresented: $viewModel.goToMainMenu, destination: {
-            ContentView()
-        })
+//        .navigationDestination(isPresented: $mainMenu, destination: {
+//            ContentView()
+//                .navigationBarBackButtonHidden()
+//        })
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = false
         }
@@ -76,7 +77,8 @@ extension EndView {
     var buttons: some View {
         HStack(spacing: 12){
             Button(action: {
-                viewModel.toMainMenu()
+//
+                appViewModel.path.removeAll()
             }, label: {
                 Text("Back to Menu")
             })

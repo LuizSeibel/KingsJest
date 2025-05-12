@@ -12,6 +12,7 @@ struct MockPeerID {
 }
 
 struct HostView: View {
+    @EnvironmentObject var appViewModel: RootViewModel
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: HostViewModel
 
@@ -24,62 +25,64 @@ struct HostView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ZStack(alignment: .topLeading) {
-                background
-
-                VStack(spacing: 16) {
-                    Title("Room Overview")
-                    
-                    Spacer()
-                    PlayersAndInvites(playerNames: $viewModel.players, viewModel: viewModel)
-                    Spacer()
-
-                    startButton
-                        .padding(.bottom, 12)
-                        .padding(.horizontal, 12)
+        ZStack(alignment: .topLeading) {
+            background
+            
+            VStack(spacing: 16) {
+                Title("Room Overview")
+                
+                Spacer()
+                PlayersAndInvites(playerNames: $viewModel.players, viewModel: viewModel)
+                Spacer()
+                
+                startButton
+                    .padding(.bottom, 12)
+                    .padding(.horizontal, 12)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(.top, 28)
+            
+            CustomBackButton()
+                .padding(.top, 40)
+                .padding(.horizontal)
+        }
+        
+        
+        .onReceive(removeInvitationsPublisher) { _ in
+            viewModel.removeExpiredInvites()
+        }
+        
+        .onAppear {
+            viewModel.onAppear()
+            playerNames = viewModel.connectedPlayers.map { $0.displayName }
+        }
+        
+        .onChange(of: viewModel.recentlyConnected){ value in
+            if value{
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    viewModel.recentlyConnected = false
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(.top, 28)
-              
-                CustomBackButton()
-                    .padding(.top, 40)
-                    .padding(.horizontal)
-            }
-            
-            
-            .onReceive(removeInvitationsPublisher) { _ in
-                viewModel.removeExpiredInvites()
-            }
-            
-            .onAppear {
-                viewModel.onAppear()
-                playerNames = viewModel.connectedPlayers.map { $0.displayName }
-            }
-            
-            .onChange(of: viewModel.recentlyConnected){ value in
-                if value{
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                        viewModel.recentlyConnected = false
-                    }
-                }
-            }
-            
-            .onChange(of: viewModel.connectedPlayers) { newPeers in
-                playerNames = newPeers.map { $0.displayName }
-            }
-            .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
-                if !isPresented && !viewModel.startGame {
-                    viewModel.disconnect()
-                }
-            }
-            // Navegação para GameView quando o jogo for iniciado.
-            .navigationDestination(isPresented: $viewModel.startGame) {
-                GameView(connectionManager: viewModel.connectionManager, players: viewModel.players)
-                    .id(viewModel.gameSessionID)
             }
         }
-        .navigationBarBackButtonHidden(true)
+        
+        .onChange(of: viewModel.connectedPlayers) { newPeers in
+            playerNames = newPeers.map { $0.displayName }
+        }
+        .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
+            if !isPresented && !viewModel.startGame {
+                viewModel.disconnect()
+            }
+        }
+        // Navegação para GameView quando o jogo for iniciado.
+        .onChange(of: viewModel.startGame){ value in
+            if value{
+                appViewModel.path.append(.game(connectionManager: viewModel.connectionManager, players: viewModel.players))
+            }
+        }
+//        .navigationDestination(isPresented: $viewModel.startGame) {
+//            GameView(connectionManager: viewModel.connectionManager, players: viewModel.players)
+//                .id(viewModel.gameSessionID)
+//        }
     }
 }
 

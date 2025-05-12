@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ourColors: Int, Codable, CaseIterable{
+enum ourColors: Int, Codable, CaseIterable {
     case yellow = 1
     case blue = 2
     case orange = 3
@@ -19,7 +19,7 @@ enum ourColors: Int, Codable, CaseIterable{
     case none = 0
 }
 
-struct PlayerIdentifier: Codable, Equatable {
+struct PlayerIdentifier: Codable, Equatable, Hashable {
     var peerName: String
     var color: ourColors
     

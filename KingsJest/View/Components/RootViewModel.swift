@@ -21,6 +21,9 @@ final class RootViewModel: ObservableObject {
        }
     }
     
+    @Published var path = [Destination]()
+    
+    
     init(){
         name = UserDefaults.standard.string(forKey: "userNickname") ?? ""
 

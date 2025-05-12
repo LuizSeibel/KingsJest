@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct GameView: View {
-    
+    @EnvironmentObject var appViewModel: RootViewModel
     @StateObject private var viewModel: GameViewModel
     
     @State private var showBlackout = false
@@ -50,21 +50,31 @@ struct GameView: View {
             viewModel.onAppear()
         }
         
-        .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
-            if viewModel.isFinishedGame {
-                EndView(winBool: viewModel.winGame, winnerName: viewModel.winnerName ?? "")
-                    .onAppear{
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
-                            viewModel.disconnectRoom()
-                        })
-                    }
+        .onChange(of: viewModel.isFinishedGame){ value in
+            if value{
+                appViewModel.path.append(.end(win: viewModel.winGame, winnerName: viewModel.winnerName ?? ""))
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+                    viewModel.disconnectRoom()
+                })
             }
-            else{
-                EmptyView()
-            }
-            
-            
-        })
+        }
+        
+        
+//        .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
+//            if viewModel.isFinishedGame {
+//                EndView(winBool: viewModel.winGame, winnerName: viewModel.winnerName ?? "")
+//                    .onAppear{
+//                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
+//                            viewModel.disconnectRoom()
+//                        })
+//                    }
+//            }
+//            else{
+//                EmptyView()
+//            }
+//            
+//            
+//        })
         
         .navigationBarBackButtonHidden(true)
     }
