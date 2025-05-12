@@ -5,38 +5,31 @@
 //  Created by Willys Oliveira on 02/05/25.
 //
 
-import AVFoundation
+import SpriteKit
 
 class AudioManager {
     static let shared = AudioManager()
-    
-    private var engine = AVAudioEngine()
-    private var playerNode = AVAudioPlayerNode()
-    private var pitchControl = AVAudioUnitTimePitch()
-    
-    init() {
-        setup()
+
+    private(set) var isSoundEnabled: Bool = true
+
+    private init() {}
+
+    func playSound(named name: String, on node: SKNode, waitForCompletion: Bool = false) {
+        guard isSoundEnabled else { return }
+        
+        let soundAction = SKAction.playSoundFileNamed(name, waitForCompletion: waitForCompletion)
+        node.run(soundAction)
     }
 
-    private func setup() {
-        engine.attach(playerNode)
-        engine.attach(pitchControl)
-        
-        engine.connect(playerNode, to: pitchControl, format: nil)
-        engine.connect(pitchControl, to: engine.mainMixerNode, format: nil)
-        
-        try? engine.start()
+    func toggleSound(enabled: Bool) {
+        isSoundEnabled = enabled
     }
 
-    func playSound(named name: String, withRandomPitchIn range: ClosedRange<Float> = 900...1100) {
-        guard let url = Bundle.main.url(forResource: name, withExtension: nil) else { return }
-        let audioFile = try? AVAudioFile(forReading: url)
-        guard let file = audioFile else { return }
+    func mute() {
+        isSoundEnabled = false
+    }
 
-        pitchControl.pitch = Float.random(in: range)
-
-        playerNode.stop()
-        playerNode.scheduleFile(file, at: nil, completionHandler: nil)
-        playerNode.play()
+    func unmute() {
+        isSoundEnabled = true
     }
 }

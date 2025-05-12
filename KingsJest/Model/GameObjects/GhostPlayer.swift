@@ -26,19 +26,19 @@ class GhostPlayer {
 
     // MARK: - Animações
     lazy var idleFrames: [SKTexture] = {
-        return loadFrames(prefix: "idle00", count: 7)
+        return loadFrames(prefix: "idle00", count: 6)
     }()
     
     lazy var runFrames: [SKTexture] = {
-        return loadFrames(prefix: "RUN00", count: 8)
+        return loadFrames(prefix: "RUN00", count: 7)
     }()
     
     lazy var jumpFrames: [SKTexture] = {
-        return loadFrames(prefix: "jump00", count: 5)
+        return loadFrames(prefix: "RUN00", count: 7)
     }()
     
     lazy var deathFrames: [SKTexture] = {
-        return loadFrames(prefix: "death00", count: 12)
+        return loadFrames(prefix: "death00", count: 7)
     }()
 
     init(position: CGPoint) {
@@ -67,12 +67,12 @@ class GhostPlayer {
     // MARK: - Funções de animação
     func startIdleAnimation() {
         node.removeAllActions()
-        node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.1)), withKey: "idle")
+        node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.09)), withKey: "idle")
     }
     
     func startRunAnimation() {
         node.removeAllActions()
-        node.run(SKAction.repeatForever(SKAction.animate(with: runFrames, timePerFrame: 0.1)), withKey: "run")
+        node.run(SKAction.repeatForever(SKAction.animate(with: runFrames, timePerFrame: 0.06)), withKey: "run")
     }
     
     func startJumpAnimation() {
@@ -83,7 +83,7 @@ class GhostPlayer {
     
     func startDeadAnimation() {
         node.removeAllActions()
-        let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.2)
+        let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
         let holdLastFrame = SKAction.run {
             self.node.texture = self.deathFrames.last
         }

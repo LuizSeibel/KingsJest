@@ -28,6 +28,10 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var didShowCountdownOnce: Bool = false
     
     var isFinishedGame: Bool = false
+    var isDead: Bool = false
+    
+    
+    
 
     private var sendTimer: TimeInterval = 0
     var onPlayerMove: ((MPCEncoder) -> Void)?
@@ -320,6 +324,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
 
     
     private func handlePlayerLavaCollision() {
+        guard !isDead else { return }
+        isDead = true
         
         player.die()
         
@@ -409,6 +415,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         let countdownNumbers = ["3", "2", "1", "GO!"]
         var actions: [SKAction] = []
         
+        AudioManager.shared.playSound(named: "startEffect.wav", on: self.scene!, waitForCompletion: false)
+                
         for (_, number) in countdownNumbers.enumerated() {
             let show = SKAction.run {
                 countdownLabel.text = number

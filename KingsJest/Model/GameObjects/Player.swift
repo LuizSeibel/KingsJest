@@ -30,7 +30,7 @@ class Player {
     var currentVelocityX: CGFloat = 0.0
     
     lazy var idleFrames: [SKTexture] = {
-        return loadFrames(prefix: "RUN00", count: 7)
+        return loadFrames(prefix: "idle00", count: 6)
     }()
     lazy var runFrames: [SKTexture] = {
         loadFrames(prefix: "RUN00", count: 7)
@@ -39,7 +39,7 @@ class Player {
         loadFrames(prefix: "RUN00", count: 7)
     }()
     lazy var deathFrames: [SKTexture] = {
-        loadFrames(prefix: "RUN00", count: 7)
+        loadFrames(prefix: "death00", count: 7)
     }()
     
     var isInDynamicPlataform: SKSpriteNode? = nil
@@ -163,7 +163,7 @@ class Player {
     
     //MARK: Animações de cada Estado do Player
     func startIdleAnimation() {
-        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.06)), withKey: "idle")
+        self.node.run(SKAction.repeatForever(SKAction.animate(with: idleFrames, timePerFrame: 0.09)), withKey: "idle")
     }
     
     func startRunAnimation() {
@@ -175,22 +175,23 @@ class Player {
     }
     
     func startDeadAnimation() {
-            self.node.physicsBody = nil
-            self.node.removeAllActions() // Remove todas as animações anteriores
+        
+        AudioManager.shared.playSound(named: "deathEffect.wav", on: self.node.scene!, waitForCompletion: false)
+        
+        self.node.physicsBody = nil
+        self.node.removeAllActions()
 
-            let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
-            let holdLastFrame = SKAction.run {
-                self.node.texture = self.deathFrames.last // Mantém o último frame
-            }
-            
-            let sequence = SKAction.sequence([deathAnimation, holdLastFrame])
-            self.node.run(sequence, withKey: "dead")
+        let deathAnimation = SKAction.animate(with: deathFrames, timePerFrame: 0.1)
+        let holdLastFrame = SKAction.run {
+            self.node.texture = self.deathFrames.last
+        }
+
+        let sequence = SKAction.sequence([deathAnimation, holdLastFrame])
+        self.node.run(sequence, withKey: "dead")
     }
+
     
     func die() {
-        let deathSound = SKAction.playSoundFileNamed("morteEffect.wav", waitForCompletion: false)
-        node.run(deathSound)
-        
         stateMachine.enter(DeadState.self)
     }
 }
@@ -258,6 +259,11 @@ extension Player {
             isJumping = true
             isJumpButtonHeld = true
             jumpTime = 0
+            
+            // Toca som de pulo
+            AudioManager.shared.playSound(named: "puloEffect.wav", on: self.node, waitForCompletion: false)
+            
+
             // Zera a velocidade vertical para um início consistente.
             self.node.physicsBody?.velocity.dy = 0
             // Impulso inicial (pode ajustar o valor para seu "feeling")
@@ -290,11 +296,11 @@ extension Player {
         // Detectar aterrissagem após uma queda "real"
         if dy == 0 || (dy < 0 && previousDY < 0 && abs(dy) < 0.1) {
             if !hasPlayedLandingSound && previousDY <= minimumFallSpeedToPlaySound {
-                let landingSound = SKAction.playSoundFileNamed("quedasEffect.wav", waitForCompletion: false)
-                node.run(landingSound)
+                AudioManager.shared.playSound(named: "quedasEffect.wav", on: self.node, waitForCompletion: false)
+                
                 hasPlayedLandingSound = true
             }
-
+            
             isJumping = false
             isJumpButtonHeld = false
             jumpTime = 0
@@ -373,7 +379,7 @@ extension Player {
 extension Player {
     func playStepSound(currentTime: TimeInterval) {
         if currentTime > stepSoundCooldown {
-            AudioManager.shared.playSound(named: "passosEffect.wav", withRandomPitchIn: 850...1150)
+            AudioManager.shared.playSound(named: "passosEffect.wav", on: node)
             stepSoundCooldown = currentTime + stepSoundInterval
         }
     }
