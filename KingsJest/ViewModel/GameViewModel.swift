@@ -8,12 +8,22 @@
 import Foundation
 import MultipeerConnectivity
 
+struct GamePlayer{
+    var peerID: MCPeerID
+    var identifier: PlayerIdentifier
+}
+
 // Singleton: Instanciar na GameView
 class AttGameViewModel: ObservableObject {
     static var shared = AttGameViewModel()
     @Published var PlayerName: String = ""
+    @Published var PlayerColor: ourColors = .none
+    
+    // Array dos players connectados
+    @Published var players: [GamePlayer] = []
+    
+    // Logica para o envio do local
     @Published var snapshots: [String: [PlayerSnapshot]] = [:]
-    @Published var players: [MCPeerID] = []
 }
 
 struct MessageEnvelopeHeader: Codable {
@@ -28,11 +38,26 @@ class GameViewModel: ObservableObject {
     
     var connectionManager: MPCManager
 
-    init(connectionManager: MPCManager){
+    init(connectionManager: MPCManager, players: [PlayerIdentifier]){
         self.connectionManager = connectionManager
         self.connectionManager.onRecieveData = onReceiveMessage
-        AttGameViewModel.shared.players = connectionManager.session.connectedPeers
-        AttGameViewModel.shared.PlayerName = connectionManager.session.myPeerID.displayName
+        AttGameViewModel.shared.players = appendPlayers(MPCArray: connectionManager.session.connectedPeers, players: players)
+        AttGameViewModel.shared.PlayerName = players[0].peerName
+        AttGameViewModel.shared.PlayerColor = players[0].color
+        
+        //print(AttGameViewModel.shared.PlayerName, AttGameViewModel.shared.PlayerColor)
+    }
+    
+    private func appendPlayers(MPCArray: [MCPeerID], players: [PlayerIdentifier]) -> [GamePlayer]{
+        var array: [GamePlayer] = []
+        
+        for peer in MPCArray {
+            if let player = players.first(where: { $0.peerName == peer.displayName }) {
+                let item = GamePlayer(peerID: peer, identifier: PlayerIdentifier(peerName: player.peerName, color: player.color))
+                array.append(item)
+            }
+        }
+        return array
     }
     
 }

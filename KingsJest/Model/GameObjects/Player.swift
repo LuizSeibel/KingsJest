@@ -22,6 +22,8 @@ class Player {
     
     let node: SKSpriteNode!
     
+    let identifier: PlayerIdentifier!
+    
     var stateMachine: GKStateMachine!
     
     // Movement Var
@@ -68,12 +70,14 @@ class Player {
     let minimumFallSpeedToPlaySound: CGFloat = -100
     
     
-    init(texture: SKTexture, position: CGPoint, size: CGSize) {
+    init(texture: SKTexture, position: CGPoint, size: CGSize, playerIdentifier: PlayerIdentifier) {
+        
+        identifier = playerIdentifier
         
         node = SKSpriteNode(texture: texture)
         node.position = position
         node.size = size
-        self.node.color = .green
+        self.node.color = defineColor()
         self.node.alpha = 1
         self.node.colorBlendFactor = 1
 
@@ -87,6 +91,30 @@ class Player {
         ])
         stateMachine.enter(IdleState.self)
         
+    }
+    
+    // MARK: Define a cor do player
+    func defineColor() -> UIColor {
+        switch identifier.color {
+        case .yellow:
+            return UIColor.systemYellow
+        case .blue:
+            return UIColor.systemBlue
+        case .orange:
+            return UIColor.systemOrange
+        case .black:
+            return UIColor.black
+        case .pink:
+            return UIColor.systemPink
+        case .purple:
+            return UIColor.systemPurple
+        case .red:
+            return UIColor.systemRed
+        case .green:
+            return UIColor.systemGreen
+        case .none:
+            return UIColor.gray
+        }
     }
     
     //MARK: Fisicas do Player

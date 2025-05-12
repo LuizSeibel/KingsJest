@@ -13,8 +13,8 @@ struct GameView: View {
     
     @State private var showBlackout = false
     
-    init(connectionManager: MPCManager){
-        _viewModel = StateObject(wrappedValue: GameViewModel(connectionManager: connectionManager))
+    init(connectionManager: MPCManager, players: [PlayerIdentifier]){
+        _viewModel = StateObject(wrappedValue: GameViewModel(connectionManager: connectionManager, players: players))
     }
     
     var body: some View {
@@ -69,7 +69,7 @@ struct GameView: View {
         .navigationBarBackButtonHidden(true)
     }
 }
-
-#Preview {
-    GameView(connectionManager: MPCManager(yourName: ""))
-}
+//
+//#Preview {
+//    GameView(connectionManager: MPCManager(yourName: ""), players: <#[PlayerIdentifier]#>)
+//}

@@ -65,7 +65,7 @@ struct GuestView: View {
             
             // MARK: Navigation
             .navigationDestination(isPresented: $viewModel.startGame, destination: {
-                GameView(connectionManager: viewModel.connectionManager)
+                GameView(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers)
                     .id(viewModel.gameSessionID)
             })
             

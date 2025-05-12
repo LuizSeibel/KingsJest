@@ -27,11 +27,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var isGameStarted: Bool = false
     var didShowCountdownOnce: Bool = false
     
-    
     var isFinishedGame: Bool = false
-    
-    
-    
 
     private var sendTimer: TimeInterval = 0
     var onPlayerMove: ((MPCEncoder) -> Void)?
@@ -62,7 +58,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         if let scenePlayerNode = self.childNode(withName: "player") {
             let texture = SKTexture(imageNamed: "RUN000")
             let size = CGSize(width: 94, height: 78)
-            player = Player(texture: texture, position: scenePlayerNode.position, size: size)
+            let playerIdentifier = PlayerIdentifier(peerName: AttGameViewModel.shared.PlayerName, color: AttGameViewModel.shared.PlayerColor)
+            player = Player(texture: texture, position: scenePlayerNode.position, size: size, playerIdentifier: playerIdentifier)
             scenePlayerNode.removeFromParent()
             player.node.zPosition = 4
             addChild(player.node)
@@ -142,7 +139,7 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
         }
         
         for peerID in AttGameViewModel.shared.players {
-            ghostManager.createGhost(for: peerID.displayName, at: player.node.position)
+            ghostManager.createGhost(for: peerID.identifier.peerName, at: player.node.position)
             //print(peerID.displayName)
         }
     }

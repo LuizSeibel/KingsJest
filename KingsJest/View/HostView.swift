@@ -75,7 +75,7 @@ struct HostView: View {
             }
             // Navegação para GameView quando o jogo for iniciado.
             .navigationDestination(isPresented: $viewModel.startGame) {
-                GameView(connectionManager: viewModel.connectionManager)
+                GameView(connectionManager: viewModel.connectionManager, players: viewModel.players)
                     .id(viewModel.gameSessionID)
             }
         }

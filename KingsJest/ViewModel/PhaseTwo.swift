@@ -66,7 +66,7 @@ extension PhaseTwoController{
         if let scenePlayerNode = self.childNode(withName: "player") {
             let texture = SKTexture(imageNamed: "RUN000")
             let size = CGSize(width: 82, height: 68)
-            player = Player(texture: texture, position: scenePlayerNode.position, size: size)
+            player = Player(texture: texture, position: scenePlayerNode.position, size: size, playerIdentifier: PlayerIdentifier(peerName: "", color: .black))
             scenePlayerNode.removeFromParent()
             player.node.zPosition = 4
             addChild(player.node)
