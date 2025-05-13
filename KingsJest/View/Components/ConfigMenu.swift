@@ -26,7 +26,9 @@ struct ConfigMenu: View {
             
             HStack {
                 Button {
-                    showNicknameAlert = true
+                    withAnimation{
+                        showNicknameAlert = true
+                    }
                     print(showNicknameAlert)
                 } label: {
                     Text("Change Nickname")

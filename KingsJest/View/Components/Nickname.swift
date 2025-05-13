@@ -33,7 +33,7 @@ struct Nickname: View {
         .padding(.vertical, 8)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.grayDark)
+                .fill(Color.redDark)
         )
         .frame(maxWidth: .infinity, maxHeight: 5)
     }

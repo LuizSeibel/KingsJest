@@ -37,7 +37,7 @@ struct ContentView: View {
                     .hideKeyboardWhenTapped()
             }
             if showConfigMenu {
-                ConfigMenu(showNicknameAlert: $showNicknameAlert)
+                menu
             }
             
             if showNicknameAlert {
@@ -173,6 +173,27 @@ extension ContentView{
         .buttonStyle(CustomUIButtonStyle())
     }
     
+    var menu: some View{
+        ZStack{
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .onTapGesture {
+                    withAnimation{
+                        showConfigMenu = false
+                    }
+                    
+                    print("cliquei")
+                }
+            
+            ConfigMenu(showNicknameAlert: $showNicknameAlert)
+            .transition(.scale.combined(with: .opacity))
+        }
+        .animation(.easeInOut(duration: 0.2), value: showConfigMenu)
+        .zIndex(2)
+    }
+
+    
     var nicknameAlert: some View{
         ZStack{
             Color.black.opacity(0.3)
@@ -186,6 +207,7 @@ extension ContentView{
                     }
                     showNicknameAlert = false
                     indexNicknameLabel = 1
+                    showConfigMenu = true
                 }
             })
             
@@ -199,10 +221,15 @@ extension ContentView{
                     return 500
                 }
             }())
+            .onAppear{
+                withAnimation{
+                    showConfigMenu = false
+                }
+            }
             .transition(.scale.combined(with: .opacity))
         }
         .animation(.easeInOut(duration: 0.2), value: showNicknameAlert)
-        .zIndex(2)
+        .zIndex(3)
     }
     
     var configButton: some View {
@@ -219,7 +246,7 @@ extension ContentView{
                 }
                 .padding(.trailing, sizeClass == .iPhone ? 72 : 42)
                 .padding(.top, sizeClass == .iPhone ? 28 : 42)
-                .opacity(showNicknameAlert ? 0 : 1)
+                .opacity(showConfigMenu || showNicknameAlert ? 0 : 1)
             }
 
             Spacer()

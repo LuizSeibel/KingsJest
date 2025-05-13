@@ -23,7 +23,7 @@ struct NicknameAlert: View {
         VStack(spacing: 20){
             Text(label)
                 .font(.custom(appFonts.Libra.rawValue, size: 26))
-                .foregroundStyle(Color.white1)
+                .foregroundStyle(Color("beige_main"))
                 .padding(.bottom)
             
             Nickname(text: $text, placeholder: placeholder)
@@ -36,14 +36,19 @@ struct NicknameAlert: View {
             }, label: {
                 Text("Done")
             })
-            .buttonStyle(CustomUIButtonStyle())
-            .frame(width: 80)
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color("beige_main"), textColor: Color("red_light"), fontSize: 15, maxWidth: 135, maxHeight: 47))
             .padding(.top)
         }
-        .padding(.vertical, 32)
+        .frame(width: 400, height: 200)
         .background{
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.grayLight)
+                .fill(Color.redMain)
+                .overlay(
+                    ZStack {
+                        Image("SubtractHorizontalRed")
+                    }
+                )
+
         }
         
     }
