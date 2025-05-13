@@ -147,15 +147,13 @@ extension ContentView{
                     }
                 }
             }, label: {
-                Text("Join Room")
-            })
-            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
-            .overlay(
                 ZStack {
+                    Text("Join Room")
                     Image("SubtractMainRedDark")
                         .foregroundStyle(Color.black)
                 }
-            )
+            })
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
 
             
             Button(action: {
@@ -168,16 +166,13 @@ extension ContentView{
                     }
                 }
             }, label: {
-                Text("New Room")
-            })
-            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redDark, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
-            .overlay(
                 ZStack {
+                    Text("New Room")
+
                     Image("SubtractSecondaryRedDark")
                 }
-            )
-
-
+            })
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redDark, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
         }
     }
     
@@ -192,7 +187,7 @@ extension ContentView{
                     }
                 }
             
-            ConfigMenu(showNicknameAlert: $showNicknameAlert)
+            ConfigMenu(showNicknameAlert: $showNicknameAlert, showConfigMenu: $showConfigMenu)
                 .transition(.scale.combined(with: .opacity))
         }
         .animation(.easeInOut(duration: 0.2), value: showConfigMenu)
