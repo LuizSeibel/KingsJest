@@ -14,6 +14,7 @@ struct ContentView: View {
     
     @State private var showAlert = false
     @State private var showNicknameAlert = false
+    @State private var showConfigMenu = false
     @State private var navigateToHost = false
     @State private var navigateToGuest = false
     
@@ -35,7 +36,10 @@ struct ContentView: View {
                 hud
                     .hideKeyboardWhenTapped()
             }
-
+            if showConfigMenu {
+                menu
+            }
+            
             if showNicknameAlert {
                 nicknameAlert
             }
@@ -97,18 +101,11 @@ extension ContentView{
                 buttons
                 Spacer()
             }
-                
-        }
-            .padding(.vertical)
+            .opacity(showConfigMenu || showNicknameAlert ? 0 : 1)
+
             
-//            HStack{
-//                Spacer()
-//                VStack{
-//                    Spacer()
-//                    SendFeedbackButton()
-//                }
-//            }
-        
+        }
+        .padding(.vertical)
     }
     
     var background: some View {
@@ -136,8 +133,14 @@ extension ContentView{
                     }
                 }
             }, label: {
-                Text("Join Room")
+                ZStack {
+                    Text("Join Room")
+                    Image("SubtractMainRedDark")
+                        .foregroundStyle(Color.black)
+                }
             })
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
+
             
             Button(action: {
                 if appViewModel.name.isEmpty {
@@ -149,11 +152,34 @@ extension ContentView{
                     }
                 }
             }, label: {
-                Text("New Room")
+                ZStack {
+                    Text("New Room")
+
+                    Image("SubtractSecondaryRedDark")
+                }
             })
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redDark, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
         }
-        .buttonStyle(CustomUIButtonStyle())
     }
+    
+    var menu: some View{
+        ZStack{
+            Color.black.opacity(0.3)
+                .ignoresSafeArea()
+                .transition(.opacity)
+                .onTapGesture {
+                    withAnimation{
+                        showConfigMenu = false
+                    }
+                }
+            
+            ConfigMenu(showNicknameAlert: $showNicknameAlert, showConfigMenu: $showConfigMenu)
+                .transition(.scale.combined(with: .opacity))
+        }
+        .animation(.easeInOut(duration: 0.2), value: showConfigMenu)
+        .zIndex(2)
+    }
+
     
     var nicknameAlert: some View{
         ZStack{
@@ -168,6 +194,7 @@ extension ContentView{
                     }
                     showNicknameAlert = false
                     indexNicknameLabel = 1
+                    showConfigMenu = true
                 }
             })
             
@@ -181,10 +208,15 @@ extension ContentView{
                     return 500
                 }
             }())
+            .onAppear{
+                withAnimation{
+                    showConfigMenu = false
+                }
+            }
             .transition(.scale.combined(with: .opacity))
         }
         .animation(.easeInOut(duration: 0.2), value: showNicknameAlert)
-        .zIndex(2)
+        .zIndex(3)
     }
     
     var configButton: some View {
@@ -194,15 +226,14 @@ extension ContentView{
 
                 Button(action: {
                     withAnimation {
-                        showNicknameAlert = true
-//                        path.append(.settings)
+                        showConfigMenu = true
                     }
                 }) {
                     Image("SettingsButton")
                 }
                 .padding(.trailing, sizeClass == .iPhone ? 72 : 42)
                 .padding(.top, sizeClass == .iPhone ? 28 : 42)
-                .opacity(showNicknameAlert ? 0 : 1)
+                .opacity(showConfigMenu || showNicknameAlert ? 0 : 1)
             }
 
             Spacer()
