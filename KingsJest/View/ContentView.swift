@@ -115,9 +115,11 @@ extension ContentView{
                 buttons
                 Spacer()
             }
-                
+            .opacity(showConfigMenu || showNicknameAlert ? 0 : 1)
+
+            
         }
-            .padding(.vertical)
+        .padding(.vertical)
     }
     
     var background: some View {

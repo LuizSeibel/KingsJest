@@ -21,7 +21,7 @@ struct ConfigMenu: View {
         VStack(spacing: 20){
             Text("Settings")
                 .font(.custom(appFonts.Libra.rawValue, size: 26))
-                .foregroundStyle(Color.white1)
+                .foregroundStyle(Color.beigeMain)
                 .padding(.top, 24)
             
             HStack {
@@ -33,12 +33,12 @@ struct ConfigMenu: View {
                 } label: {
                     Text("Change Nickname")
                         .font(.custom(appFonts.Song.rawValue, size: 15))
-                        .foregroundStyle(Color.white1)
+                        .foregroundStyle(Color.beigeMain)
                     
                     Spacer()
                     
                     Image(systemName: "chevron.right")
-                        .foregroundColor(Color.white)
+                        .foregroundColor(Color.beigeMain)
 
                 }
             }
@@ -47,12 +47,12 @@ struct ConfigMenu: View {
             HStack {
                 Text("Sound Effects")
                     .font(.custom(appFonts.Song.rawValue, size: 15))
-                    .foregroundStyle(Color.white1)
+                    .foregroundStyle(Color.beigeMain)
                 
                 Spacer()
                 
                 Toggle("", isOn: $isSoundOn)
-                    .tint(Color("red_light"))
+                    .tint(Color.redLight)
                     .onChange(of: isSoundOn) { newValue in
                         AudioManager.shared.toggleSound(enabled: newValue)
                     }
@@ -71,8 +71,8 @@ struct ConfigMenu: View {
                 }
                 .buttonStyle(CustomUIButtonStyle(
                     isDarkMode: true,
-                    backgroundColor: Color("gray_config_menu"),
-                    textColor: Color("red_light"),
+                    backgroundColor: Color.beigeDark,
+                    textColor: Color.redLight,
                     fontSize: 15,
                     maxWidth: 165,
                     maxHeight: 31
@@ -88,7 +88,7 @@ struct ConfigMenu: View {
                 }
                 .buttonStyle(CustomUIButtonStyle(
                     isDarkMode: true,
-                    backgroundColor: Color("gray_config_menu"),
+                    backgroundColor: Color.beigeDark,
                     textColor: Color("red_light"),
                     fontSize: 15,
                     maxWidth: 165,
@@ -101,13 +101,14 @@ struct ConfigMenu: View {
             
             Spacer()
         }
-        .frame(width: 400, height: 260)
+        .frame(width: 400, height: 278)
         .background{
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.grayLight)
+                .fill(Color.secondaryRedDark)
                 .overlay(
                     ZStack {
                         Image("SubtractHorizontal")
+                            .foregroundStyle(Color.redDark)
                     }
                 )
         }
