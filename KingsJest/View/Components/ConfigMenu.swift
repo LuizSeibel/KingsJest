@@ -115,7 +115,9 @@ struct ConfigMenu: View {
                     )
             }
             Button {
-                showConfigMenu = false
+                withAnimation{
+                    showConfigMenu = false
+                }
             } label: {
                 Image(systemName: "xmark")
                     .foregroundStyle(Color.beigeMain)
