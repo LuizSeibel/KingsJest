@@ -14,6 +14,7 @@ struct ContentView: View {
     
     @State private var showAlert = false
     @State private var showNicknameAlert = false
+    @State private var showConfigMenu = false
     @State private var navigateToHost = false
     @State private var navigateToGuest = false
     
@@ -35,7 +36,10 @@ struct ContentView: View {
                 hud
                     .hideKeyboardWhenTapped()
             }
-
+            if showConfigMenu {
+                ConfigMenu(showNicknameAlert: $showNicknameAlert)
+            }
+            
             if showNicknameAlert {
                 nicknameAlert
             }
@@ -208,7 +212,7 @@ extension ContentView{
 
                 Button(action: {
                     withAnimation {
-                        showNicknameAlert = true
+                        showConfigMenu = true
                     }
                 }) {
                     Image("SettingsButton")
