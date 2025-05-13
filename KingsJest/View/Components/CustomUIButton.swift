@@ -9,20 +9,34 @@ import SwiftUI
 
 struct CustomUIButtonStyle: ButtonStyle {
     var isDarkMode: Bool = false
+    var backgroundColor: Color?
+    var textColor: Color?
+    var fontSize: CGFloat = 20
+    var maxWidth: CGFloat = 180
+    var maxHeight: CGFloat = 50
+
     func makeBody(configuration: Configuration) -> some View {
+        let bgColor = backgroundColor ??
+            (isDarkMode ? Color(.uiBackground1) : Color(.beigeMain))
+        let fgColor = textColor ??
+            (isDarkMode ? .white : Color("BackgroundColor"))
+
         configuration.label
             .padding(8)
-            .font(.custom("STSongti-TC-Bold", size: 20))
-            .frame(maxWidth: 180)
-            .background(configuration.isPressed ?
-                        (isDarkMode ? Color(.uiBackground1).opacity(0.7) : Color(.beigeMain)).opacity(0.7) :
-                        (isDarkMode ? Color(.uiBackground1) : Color(.beigeMain)))
-            .foregroundColor(isDarkMode ? .white : Color("BackgroundColor"))
+            .font(.custom("STSongti-TC-Bold", size: fontSize))
+            .frame(maxWidth: maxWidth, maxHeight: maxHeight)
+            .background(
+                configuration.isPressed
+                ? bgColor.opacity(0.7)
+                : bgColor
+            )
+            .foregroundColor(fgColor)
             .cornerRadius(12)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.2), value: configuration.isPressed)
     }
 }
+
 #Preview {
     Button(action: {
         print("Botão clicado")
