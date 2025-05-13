@@ -11,6 +11,7 @@ import SpriteKit
 class GhostPlayer {
     private var lastState: PlayerAnimationState?
     let node: SKSpriteNode
+    let identifier: PlayerIdentifier
 
     // MARK: - Animações
     lazy var idleFrames: [SKTexture] = {
@@ -30,22 +31,27 @@ class GhostPlayer {
     }()
 
     init(position: CGPoint, identifier: PlayerIdentifier) {
+        self.identifier = identifier
+        
         let texture = SKTexture(imageNamed: "idle000")
         self.node = SKSpriteNode(texture: texture, size: CGSize(width: 96, height: 84))
         self.node.position = position
         self.node.zPosition = 4
         
         // Aparência fantasma
-        self.node.color = Player.defineColor(color: identifier.color)
         self.node.alpha = 0.8
-        self.node.colorBlendFactor = 0.8
     }
+    
+    
 
     // MARK: - Carregamento de frames
     func loadFrames(prefix: String, count: Int) -> [SKTexture] {
         var frames: [SKTexture] = []
         for i in 0..<count {
-            let texture = SKTexture(imageNamed: "\(prefix)\(i)")
+            let colors = ourColors.returnColors(color: identifier.color)
+            let image: UIImage = UIImage(named: "\(prefix)\(i)")!
+                .gradientMapImage(from: colors)!
+            let texture = SKTexture(image: image)
             texture.filteringMode = .nearest
             frames.append(texture)
         }

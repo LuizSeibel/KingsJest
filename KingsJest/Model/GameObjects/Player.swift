@@ -17,33 +17,6 @@ extension UInt32 {
     static let ground: UInt32 = 0x1 << 5
 }
 
-let gradientShader = SKShader(source: """
-void main() {
-    float t = v_tex_coord.y;
-
-    vec3 color1 = vec3(130.0/255.0, 1.0/255.0, 0.0/255.0);  // #820100
-    vec3 color2 = vec3(59.0/255.0, 0.0/255.0, 0.0/255.0);   // #3B0000
-    vec3 color3 = vec3(255.0/255.0, 26.0/255.0, 26.0/255.0); // #FF1A1A
-    vec3 color4 = vec3(255.0/255.0, 77.0/255.0, 77.0/255.0); // #FF4D4D
-    vec3 color5 = vec3(255.0/255.0, 128.0/255.0, 128.0/255.0); // #FF8080
-
-    vec3 gradientColor;
-
-    if (t < 0.25) {
-        gradientColor = mix(color1, color2, t * 4.0);
-    } else if (t < 0.5) {
-        gradientColor = mix(color2, color3, (t - 0.25) * 4.0);
-    } else if (t < 0.75) {
-        gradientColor = mix(color3, color4, (t - 0.5) * 4.0);
-    } else {
-        gradientColor = mix(color4, color5, (t - 0.75) * 4.0);
-    }
-
-    gl_FragColor = vec4(gradientColor, 1.0);
-}
-""")
-
-
 class Player {
     
     let node: SKSpriteNode!
@@ -103,14 +76,6 @@ class Player {
         node = SKSpriteNode(texture: texture)
         node.position = position
         node.size = size
-        
-        
-//        // Nó que aplicará o gradientex
-        
-        
-//        self.node.color = Player.defineColor(color: identifier.color)
-//        self.node.alpha = 1
-//        self.node.colorBlendFactor = 1
 
         setupPhysics()
         
@@ -123,31 +88,6 @@ class Player {
         stateMachine.enter(IdleState.self)
         
     }
-    
-    // MARK: Define a cor do player
-    static func defineColor(color: ourColors) -> UIColor {
-        switch color {
-        case .yellow:
-            return UIColor.systemYellow
-        case .blue:
-            return UIColor.systemBlue
-        case .orange:
-            return UIColor.systemOrange
-        case .black:
-            return UIColor.black
-        case .pink:
-            return UIColor.systemPink
-        case .purple:
-            return UIColor.systemPurple
-        case .red:
-            return UIColor.systemRed
-        case .green:
-            return UIColor.systemGreen
-        case .none:
-            return UIColor.gray
-        }
-    }
-    // cor do vermelho mapa de gradiente: #820100, #3B0000, #FF1A1A, #FF4D4D, #FF8080
     
     //MARK: Fisicas do Player
     func setupPhysics() {
@@ -184,15 +124,10 @@ class Player {
         var frames: [SKTexture] = []
         
         for i in 0..<count {
-            // intGrayImage(with: UIColor(red: 1, green: 0.5, blue: 0.5, alpha: 1))!
+            let colors = ourColors.returnColors(color: identifier.color)
             let image: UIImage = UIImage(named: "\(prefix)\(i)")!
-                .gradientMapImage(from:
-                    UIColor(hex: "#831a11"),
-                    UIColor(hex: "#ea4338"),
-                    UIColor(hex:"#ff3321"),
-                    UIColor(hex: "#ee8783"),
-                    UIColor(hex: "#ee8783")
-                )!
+                .gradientMapImage(from: colors)!
+                
                                                                                     
             let texture = SKTexture(image: image)
             texture.filteringMode = .nearest

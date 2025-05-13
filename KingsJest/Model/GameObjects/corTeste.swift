@@ -79,4 +79,21 @@ extension UIImage{
 
         return UIImage(cgImage: cgOutput, scale: self.scale, orientation: self.imageOrientation)
     }
+    
+    func gradientMapImage(from colors: [UIColor]) -> UIImage? {
+        switch colors.count {
+        case 5:
+            return gradientMapImage(from: colors[0], colors[1], colors[2], colors[3], colors[4])
+        case 4:
+            return gradientMapImage(from: colors[0], colors[1], colors[2], colors[3])
+        case 3:
+            return gradientMapImage(from: colors[0], colors[1], colors[2])
+        case 2:
+            return gradientMapImage(from: colors[0], colors[1])
+        case 1:
+            return gradientMapImage(from: colors[0])
+        default:
+            return nil
+        }
+    }
 }
