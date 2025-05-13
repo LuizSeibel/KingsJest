@@ -118,15 +118,6 @@ extension ContentView{
                 
         }
             .padding(.vertical)
-            
-//            HStack{
-//                Spacer()
-//                VStack{
-//                    Spacer()
-//                    SendFeedbackButton()
-//                }
-//            }
-        
     }
     
     var background: some View {
@@ -156,6 +147,14 @@ extension ContentView{
             }, label: {
                 Text("Join Room")
             })
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
+            .overlay(
+                ZStack {
+                    Image("SubtractMainRedDark")
+                        .foregroundStyle(Color.black)
+                }
+            )
+
             
             Button(action: {
                 if appViewModel.name.isEmpty {
@@ -169,8 +168,15 @@ extension ContentView{
             }, label: {
                 Text("New Room")
             })
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redDark, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
+            .overlay(
+                ZStack {
+                    Image("SubtractSecondaryRedDark")
+                }
+            )
+
+
         }
-        .buttonStyle(CustomUIButtonStyle())
     }
     
     var menu: some View{
@@ -182,12 +188,10 @@ extension ContentView{
                     withAnimation{
                         showConfigMenu = false
                     }
-                    
-                    print("cliquei")
                 }
             
             ConfigMenu(showNicknameAlert: $showNicknameAlert)
-            .transition(.scale.combined(with: .opacity))
+                .transition(.scale.combined(with: .opacity))
         }
         .animation(.easeInOut(duration: 0.2), value: showConfigMenu)
         .zIndex(2)
