@@ -20,48 +20,53 @@ struct ConfigMenu: View {
     
     var body: some View {
         ZStack (alignment: .topTrailing) {
-            VStack(spacing: 20){
+            VStack{
+                
+                Spacer()
+
                 Text("Settings")
                     .font(.custom(appFonts.Libra.rawValue, size: 26))
                     .foregroundStyle(Color.beigeMain)
-                    .padding(.top, 24)
                 
-                HStack {
-                    Button {
-                        withAnimation{
-                            showNicknameAlert = true
+                Spacer()
+                
+                VStack (spacing: 16){
+                    HStack {
+                        Button {
+                            withAnimation{
+                                showNicknameAlert = true
+                            }
+                            print(showNicknameAlert)
+                        } label: {
+                            Text("Change Nickname")
+                                .font(.system(size: 15, weight: .semibold, design: .serif))
+                                .foregroundStyle(Color.beigeMain)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(Color.beigeMain)
+                            
                         }
-                        print(showNicknameAlert)
-                    } label: {
-                        Text("Change Nickname")
-                            .font(.custom("SF Pro", size: 15))
+                    }
+                    
+                    HStack {
+                        Text("Sound Effects")
+                            .font(.system(size: 15, weight: .semibold, design: .serif))
                             .foregroundStyle(Color.beigeMain)
                         
                         Spacer()
                         
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(Color.beigeMain)
+                        Toggle("", isOn: $isSoundOn)
+                            .tint(Color.redLight)
+                            .onChange(of: isSoundOn) { newValue in
+                                AudioManager.shared.toggleSound(enabled: newValue)
+                            }
                         
                     }
                 }
-                .padding(.horizontal, 24)
                 
-                HStack {
-                    Text("Sound Effects")
-                        .font(.custom("SF Pro", size: 15))
-                        .foregroundStyle(Color.beigeMain)
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $isSoundOn)
-                        .tint(Color.redLight)
-                        .onChange(of: isSoundOn) { newValue in
-                            AudioManager.shared.toggleSound(enabled: newValue)
-                        }
-                    
-                }
-                .padding(.horizontal, 24)
-                
+                Spacer()
                 
                 HStack {
                     Button {
@@ -98,11 +103,10 @@ struct ConfigMenu: View {
                     ))
                     
                 }
-                .padding(.horizontal, 24)
-                .padding(.vertical)
                 
                 Spacer()
             }
+            .padding(.horizontal, 24)
             .frame(width: 400, height: 278)
             .background{
                 RoundedRectangle(cornerRadius: 12)
@@ -114,6 +118,7 @@ struct ConfigMenu: View {
                         }
                     )
             }
+            
             Button {
                 showConfigMenu = false
             } label: {
@@ -121,7 +126,7 @@ struct ConfigMenu: View {
                     .foregroundStyle(Color.beigeMain)
                     .fontWeight(.bold)
                     .opacity(0.7)
-                    .padding(.top, 32)
+                    .padding(.top, 46)
                     .padding(.trailing, 24)
             }
         }
