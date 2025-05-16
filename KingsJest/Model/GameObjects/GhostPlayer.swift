@@ -22,7 +22,7 @@ class GhostPlayer {
     }()
     
     lazy var jumpFrames: [SKTexture] = {
-        return loadFrames(prefix: "RUN00", count: 7)
+        return loadFrames(prefix: "jump00", count: 6)
     }()
     
     lazy var deathFrames: [SKTexture] = {

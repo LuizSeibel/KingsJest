@@ -33,11 +33,13 @@ struct HostView: View {
                     
                     Spacer()
                     PlayersAndInvites(playerNames: $viewModel.players, viewModel: viewModel)
-                    Spacer()
 
                     startButton
-                        .padding(.bottom, 12)
+                        .padding(.bottom, 16)
                         .padding(.horizontal, 12)
+                    
+                    Spacer()
+                    
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.top, 28)
@@ -91,13 +93,16 @@ extension HostView {
                 viewModel.startRoom()
 //                    PhaseOneController.didShowCountdownOnce = false
             }, label: {
-                Text(
-                    viewModel.isConnected
-                                ? "Start Match"
-                                : (viewModel.recentlyConnected ? "Connecting" : "Play Solo")
-                )
+                ZStack {
+                    Image("SubtractMainRedDark")
+                    Text(
+                        viewModel.isConnected
+                        ? "Start Match"
+                        : (viewModel.recentlyConnected ? "Connecting" : "Play Solo")
+                    )
+                }
             })
-            .buttonStyle(CustomUIButtonStyle())
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 200, maxHeight: 47))
             .disabled(viewModel.recentlyConnected)
         }
     }
@@ -136,13 +141,13 @@ private struct PlayersAndInvites: View {
 
     var body: some View {
         GeometryReader { proxy in
-            HStack(alignment: .center, spacing: 20) {
+            HStack(alignment: .top, spacing: 20) {
 
                 PlayersGridView(players: $playerNames)
                     .frame(
                         width: proxy.size.width * playerColumnRatio
                     )
-                    .offset(y: 12)
+//                    .offset(y: 12)
 
                 CustomConnectionList(
                     peers: $viewModel.pendingInvitations,
@@ -152,7 +157,7 @@ private struct PlayersAndInvites: View {
                 
                 .frame(
                     width: proxy.size.width * inviteColumnRatio,
-                    height: proxy.size.height * 0.9
+                    height: proxy.size.height * 1
                 )
                 .clipShape(RoundedRectangle(cornerRadius: 20))
             }

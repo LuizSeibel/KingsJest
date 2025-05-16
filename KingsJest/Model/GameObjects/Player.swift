@@ -36,7 +36,7 @@ class Player {
         loadFrames(prefix: "RUN00", count: 7)
     }()
     lazy var jumpFrames: [SKTexture] = {
-        loadFrames(prefix: "RUN00", count: 7)
+        loadFrames(prefix: "jump00", count: 6)
     }()
     lazy var deathFrames: [SKTexture] = {
         loadFrames(prefix: "death00", count: 7)

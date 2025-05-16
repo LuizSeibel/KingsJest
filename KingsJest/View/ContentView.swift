@@ -94,7 +94,7 @@ struct ContentView: View {
 extension ContentView{
     var hud: some View {
         ZStack{
-            VStack{
+            VStack (spacing: 0){
                 GeometryReader { geometry in
                     Image("GameName")
                         .resizable()
