@@ -136,7 +136,7 @@ extension ContentView{
     }
     
     var buttons: some View {
-        VStack{
+        VStack (spacing: 16){
             Button(action: {
                 if appViewModel.name.isEmpty {
                     showAlert = true
@@ -148,9 +148,8 @@ extension ContentView{
                 }
             }, label: {
                 ZStack {
-                    Text("Join Room")
                     Image("SubtractMainRedDark")
-                        .foregroundStyle(Color.black)
+                    Text("Join Room")
                 }
             })
             .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
@@ -167,9 +166,8 @@ extension ContentView{
                 }
             }, label: {
                 ZStack {
-                    Text("New Room")
-
                     Image("SubtractSecondaryRedDark")
+                    Text("Create Room")
                 }
             })
             .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redDark, textColor: Color.beigeMain, fontSize: 30, maxWidth: 220, maxHeight: 52))
@@ -204,11 +202,13 @@ extension ContentView{
             NicknameAlert(label: nicknameLabels[indexNicknameLabel].title, placeholder: nicknameLabels[indexNicknameLabel].placeholder, text: $appViewModel.name, onDismiss: {
                 withAnimation {
                     if appViewModel.isFirstLaunch {
+                        showConfigMenu = false
                         appViewModel.isFirstLaunch = false
+                    } else {
+                        showConfigMenu = true
                     }
                     showNicknameAlert = false
                     indexNicknameLabel = 1
-                    showConfigMenu = true
                 }
             })
             
