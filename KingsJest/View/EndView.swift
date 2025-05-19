@@ -80,9 +80,12 @@ extension EndView {
 //
                 appViewModel.path.removeAll()
             }, label: {
-                Text("Back to Menu")
+                ZStack {
+                    Image("SubtractMainRedDark")
+                    Text("Back to Menu")
+                }
             })
-            .buttonStyle(CustomUIButtonStyle())
+            .buttonStyle(CustomUIButtonStyle(isDarkMode: true, backgroundColor: Color.redLight, textColor: Color.beigeMain, fontSize: 30, maxWidth: 200, maxHeight: 47))
         }
     }
     
