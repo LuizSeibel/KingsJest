@@ -33,11 +33,12 @@ struct HostView: View {
                 
                 Spacer()
                 PlayersAndInvites(playerNames: $viewModel.players, viewModel: viewModel)
-                Spacer()
                 
                 startButton
-                    .padding(.bottom, 12)
+                    .padding(.bottom, 16)
                     .padding(.horizontal, 12)
+                
+                Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.top, 28)
