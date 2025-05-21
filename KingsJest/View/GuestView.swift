@@ -24,61 +24,53 @@ struct GuestView: View {
     let sizeClass = DeviceType.current()
     
     var body: some View {
-//        NavigationStack{
-            ZStack(alignment: .topLeading) {
-                background
-                
-                ZStack {
-                    if viewModel.isConnected{
-                        playersHud
+        //        NavigationStack{
+        ZStack(alignment: .topLeading) {
+            background
+            
+            ZStack {
+                if viewModel.isConnected{
+                    playersHud
+                }
+                else {
+                    hud
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            
+            CustomBackButton()
+                .padding(.top, 40)
+                .padding(.horizontal)
+        }
+        
+        .onChange(of: viewModel.startDelay){ value in
+            if value{
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: {
+                    withAnimation(.easeInOut){
+                        viewModel.startDelay.toggle()
                     }
-                    else{
-                        hud
-                    }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                
-                CustomBackButton()
-                    .padding(.top, 40)
-                    .padding(.horizontal)
+                })
             }
-            
-            .onChange(of: viewModel.startDelay){ value in
-                if value{
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: {
-                        withAnimation(.easeInOut){
-                            viewModel.startDelay.toggle()
-                        }
-                    })
-                }
+        }
+        
+        // MARK: View States
+        .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
+            if !isPresented && !viewModel.startGame{
+                viewModel.disconnect()
             }
-            
-            // MARK: View States
-            .onChange(of: presentationMode.wrappedValue.isPresented) { isPresented in
-                if !isPresented && !viewModel.startGame{
-                    viewModel.disconnect()
-                }
+        }
+        
+        .onAppear{
+            viewModel.onAppear()
+        }
+        
+        .onChange(of: viewModel.startGame){ value in
+            if value{
+                appViewModel.path.append(.game(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers))
             }
-            
-            .onAppear{
-                viewModel.onAppear()
-            }
-            
-            .onChange(of: viewModel.startGame){ value in
-                if value{
-                    appViewModel.path.append(.game(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers))
-                }
-            }
+        }
         
         
-            // MARK: Navigation
-//            .navigationDestination(isPresented: $viewModel.startGame, destination: {
-//                GameView(connectionManager: viewModel.connectionManager, players: viewModel.roomPlayers)
-//                    .id(viewModel.gameSessionID)
-//            })
-            
-//        }
-//        .navigationBarBackButtonHidden(true)
     }
 }
 
@@ -96,26 +88,40 @@ extension GuestView {
             .foregroundStyle(Color(.beigeMain))
     }
     
-
     var list: some View{
-        ZStack{
-            ScrollView(.horizontal){
-                HStack(spacing: -16){
-                    ForEach(viewModel.availableRooms, id: \.self){ peer in
-                        CustomRoomCard(
-                            roomName: peer.displayName,
-                            playersCount: 1,
-                            frontCardAction: { viewModel.sendInvite(peer: peer) },
-                            backCardAction: { viewModel.cancelInvite(peer: peer) }
-                        )
-                        .offset(y: 16)
-                        
+        ZStack {
+            if viewModel.availableRooms.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack (spacing: -16){
+                        ForEach(0..<3, id: \.self) { index in
+                            RoomPlaceholderCard(isFirst: index == 0)
+                                .offset(y: 16)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .scrollDisabled(true)
+                .allowsHitTesting(false) // impede interação com o scroll
+            } else {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: -16) {
+                        ForEach(viewModel.availableRooms, id: \.self) { peer in
+                            CustomRoomCard(
+                                roomName: peer.displayName,
+                                playersCount: 1,
+                                frontCardAction: { viewModel.sendInvite(peer: peer) },
+                                backCardAction: { viewModel.cancelInvite(peer: peer) }
+                            )
+                            .offset(y: 16)
+                        }
                     }
                 }
             }
         }
+
     }
     
+    // View que mostra os cards de cada sala criada para entrar
     var hud: some View {
         VStack(alignment: .center){
             title
@@ -126,6 +132,7 @@ extension GuestView {
         }
     }
     
+    // View de espera até o host aceitar
     var waitingView: some View {
         VStack {
             Image("coroa")
@@ -139,7 +146,7 @@ extension GuestView {
     }
     
     
-    
+    // View de espera pelo start do host (com os players na sala)
     var playersHud: some View{
         VStack{
             Text("Waiting Room")
