@@ -73,6 +73,6 @@ struct CustomConnectionList: View {
 }
 
 
-//#Preview {
-//    CustomConnectionList(peers: .constant([MCPeerID(displayName: "Flavio"), MCPeerID(displayName: "Rafaerl")]))
-//}
+#Preview {
+    CustomConnectionList(peers: .constant([MCPeerID(displayName: "Flavio")]), onAccept: {_ in }, onDecline: {_ in })
+}
