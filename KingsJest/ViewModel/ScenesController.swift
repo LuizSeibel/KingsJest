@@ -11,13 +11,28 @@ import SpriteKit
 enum GameSceneType: String {
     case phaseOne = "PhaseOne"
     case phaseTwo = "PhaseTwo"
-
-    func getScene() -> SKScene? {
+    
+    var scaleMode: SKSceneScaleMode {
         switch self {
         case .phaseOne:
-            return PhaseOneController(fileNamed: self.rawValue)
+            return .resizeFill
         case .phaseTwo:
-            return PhaseTwoController(fileNamed: self.rawValue)
+            return .aspectFill
+        }
+    }
+
+    func getScene(finishGame: (() -> Void)? = nil, onPlayerMove: ((MPCEncoder) -> Void)? = nil) -> SKScene? {
+        switch self {
+        case .phaseOne:
+            let scene = PhaseOneController(fileNamed: self.rawValue)
+            scene?.scaleMode = self.scaleMode
+            scene?.finishGame = finishGame
+            scene?.onPlayerMove = onPlayerMove
+            return scene
+        case .phaseTwo:
+            let scene = PhaseTwoController(fileNamed: self.rawValue)
+            scene?.scaleMode = self.scaleMode
+            return scene
         }
     }
 }
@@ -34,16 +49,10 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
         let skView = SKView(frame: UIScreen.main.bounds)
         viewController.view = skView
         
-        if let scene = sceneType.getScene() {
-            scene.scaleMode = .resizeFill
-            
-            //TODO: Retirar do codigo
-//            skView.showsPhysics = true
-
-            
-            (scene as? PhaseOneController)?.finishGame = finishGame
-            (scene as? PhaseOneController)?.onPlayerMove = onPlayerMove
-            
+        if let scene = sceneType.getScene(
+            finishGame: finishGame,
+            onPlayerMove: onPlayerMove
+        ) {
             skView.presentScene(scene)
         }
 

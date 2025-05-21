@@ -16,17 +16,22 @@ class PhaseTwoController: SKScene{
     var lastSpawnTime: TimeInterval = 0
     let spawnInterval: TimeInterval = 2.0
     
+    
+    
+    
     override func didMove(to view: SKView) {
+        
+        self.physicsWorld.contactDelegate = self
         
         setupPlayer()
         
         setupSpawner()
+        
+        GameHelpers.applyNearestFiltering(node: self)
     }
     
     override func update(_ currentTime: TimeInterval) {
-        // Chamado antes de cada frame ser renderizado
-        
-        
+
         if lastSpawnTime == 0 {
             lastSpawnTime = currentTime
         }
@@ -60,6 +65,11 @@ extension PhaseTwoController {
     }
 }
 
+
+extension PhaseTwoController: SKPhysicsContactDelegate{
+    
+}
+
 // MARK: - Usefull Functions
 extension PhaseTwoController{
     func setupPlayer(){
@@ -78,6 +88,8 @@ extension PhaseTwoController{
             spawner = Spawner(scene: self.scene!, node: newSpawner)
         }
     }
+    
+    
 }
 
 // MARK: Player Movement
