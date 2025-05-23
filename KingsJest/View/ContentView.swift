@@ -10,6 +10,9 @@ import SwiftUI
 
 
 struct ContentView: View {
+    
+    @Namespace private var animation
+    
     @EnvironmentObject var appViewModel: RootViewModel
     
     @State private var showAlert = false
@@ -19,6 +22,9 @@ struct ContentView: View {
     @State private var navigateToGuest = false
     
     @State private var backgroundColor = Color("gray_light")
+    
+    @State private var warningBool = true
+    @State private var animationWarningBool = true
     
     private let nicknameLabels: [nicknameLabel] =
     [
@@ -32,24 +38,55 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            VStack {
-                hud
-                    .hideKeyboardWhenTapped()
+            WarningView()
+                .opacity(animationWarningBool ? 1.0 : 0.0)
+            
+            if showNicknameAlert && !warningBool{
+                nicknameAlert
             }
-            if showConfigMenu {
+            
+            if showConfigMenu && !warningBool{
                 menu
             }
             
-            if showNicknameAlert {
-                nicknameAlert
+            VStack{
+                if !warningBool{
+                    // esse vem da direita para a esquerda
+                    VStack{
+                        hud
+                            .hideKeyboardWhenTapped()
+                        
+                        
+                        
+                    }
+                }
             }
-
-            configButton
+            
+            if !warningBool{
+                configButton
+            }
+            
         }
+        .frame(width: UIScreen.main.bounds.width,
+               height: UIScreen.main.bounds.height)
         .onAppear {
-            if appViewModel.isFirstLaunch {
-                showNicknameAlert = true
-                indexNicknameLabel = 0
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.0){
+                Task{
+                    withAnimation{
+                        animationWarningBool.toggle()
+                    }
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                        withAnimation{
+                            warningBool.toggle()
+                        }
+                    }
+                    if appViewModel.isFirstLaunch {
+                        showNicknameAlert = true
+                        indexNicknameLabel = 0
+                    }
+                }
+                
             }
         }
         .background {
@@ -116,6 +153,11 @@ extension ContentView{
                 Image("homeIlustration")
                     .resizable()
                     .scaledToFit()
+            }
+            
+            if warningBool{
+                Color.black.opacity(0.4)
+                    .opacity(animationWarningBool ? 1.0 : 0.0)
             }
         }
         .ignoresSafeArea()

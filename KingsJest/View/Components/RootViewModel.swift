@@ -16,10 +16,10 @@ final class RootViewModel: ObservableObject {
     }
     
     @Published var isFirstLaunch: Bool = true {
-       didSet {
-           UserDefaults.standard.set(isFirstLaunch, forKey: "isFirstLaunch")
-       }
-    }
+        didSet {
+            UserDefaults.standard.set(isFirstLaunch, forKey: "isFirstLaunch")
+        }
+     }
     
     @Published var path = [Destination]()
     

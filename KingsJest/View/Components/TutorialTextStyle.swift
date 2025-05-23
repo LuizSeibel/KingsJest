@@ -23,7 +23,7 @@ struct TutorialTextStyle: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .font(.system(size: 24, weight: .bold))
+            .font(.custom(appFonts.Libra.rawValue, size: 18))
             .foregroundColor(color == .main ? .beigeDark : .redLight)
             .shadow(radius: 2)
     }

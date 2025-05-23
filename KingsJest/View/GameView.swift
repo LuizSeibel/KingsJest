@@ -15,6 +15,8 @@ struct GameView: View {
     
     @State private var showTutorial = true
     
+    @State private var firstApper = true
+    
     init(connectionManager: MPCManager, players: [PlayerIdentifier]){
         _viewModel = StateObject(wrappedValue: GameViewModel(connectionManager: connectionManager, players: players))
     }
