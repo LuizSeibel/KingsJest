@@ -10,26 +10,39 @@ import SwiftUI
 struct PlayerItemView: View {
     /// `nil` quando o slot está vazio.
     let player: PlayerIdentifier?
+    let index: Int
 
     var body: some View {
         VStack {
             RoundedRectangle(cornerRadius: 8)
-                .fill(player == nil ? Color.gray.opacity(0.5) : Color.clear)
-                .overlay{
-                    if let p = player{
+                .stroke(index == 0 ? Color.beigeMain : Color.clear, lineWidth: 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(backgroundColor)
+                )
+                .overlay {
+                    if let p = player {
                         Image("J_\(p.color.rawValue)")
                             .resizable()
                             .scaledToFill()
                     }
                 }
                 .frame(width: 55, height: 75)
-            
+
 
             Text(player?.peerName ?? "")
                 .font(.caption)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
+        }
+    }
+    
+    private var backgroundColor: Color {
+        if player == nil {
+            return Color.gray.opacity(0.5)
+        } else {
+            return index == 0 ? Color.beigeDark : Color.grayLight
         }
     }
 }
@@ -50,7 +63,7 @@ struct PlayersGridView: View {
     var body: some View {
         LazyVGrid(columns: columns, spacing: 16) {
             ForEach(0..<maxPlayers, id: \.self) { index in
-                PlayerItemView(player: paddedPlayers[index])
+                PlayerItemView(player: paddedPlayers[index], index: index)
             }
         }
     }
