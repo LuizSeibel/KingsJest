@@ -12,6 +12,8 @@ struct GuestView: View {
     @Environment(\.presentationMode) var presentationMode
     @StateObject private var viewModel: GuestViewModel
     
+    @Namespace private var animation
+    
     // Animation vars
     @State private var dotCount: Int = 0
     let maxDots = 3
@@ -88,24 +90,22 @@ extension GuestView {
             .foregroundStyle(Color(.beigeMain))
     }
     
-    var list: some View{
+    var list: some View {
         ZStack {
             if viewModel.availableRooms.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack (spacing: -16){
+                    HStack(spacing: -16) {
                         ForEach(0..<3, id: \.self) { index in
                             RoomPlaceholderCard(isFirst: index == 0)
                                 .offset(y: 16)
+                                .matchedGeometryEffect(id: "roomCard\(index)", in: animation)
                         }
                     }
-                    .padding(.horizontal)
                 }
-                .scrollDisabled(true)
-                .allowsHitTesting(false) // impede interação com o scroll
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: -16) {
-                        ForEach(viewModel.availableRooms, id: \.self) { peer in
+                        ForEach(Array(viewModel.availableRooms.enumerated()), id: \.element) { index, peer in
                             CustomRoomCard(
                                 roomName: peer.displayName,
                                 playersCount: 1,
@@ -113,13 +113,15 @@ extension GuestView {
                                 backCardAction: { viewModel.cancelInvite(peer: peer) }
                             )
                             .offset(y: 16)
+                            .matchedGeometryEffect(id: "roomCard\(index)", in: animation)
                         }
                     }
                 }
             }
         }
-
     }
+    
+    
     
     // View que mostra os cards de cada sala criada para entrar
     var hud: some View {

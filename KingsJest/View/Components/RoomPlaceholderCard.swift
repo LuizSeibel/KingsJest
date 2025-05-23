@@ -10,6 +10,20 @@ import SwiftUI
 struct RoomPlaceholderCard: View {
     let isFirst: Bool
     
+    var body: some View{
+        VStack{
+            container(isFirst: isFirst)
+//                .compositingGroup()
+                .aspectRatio(264/232, contentMode: .fit)
+                .scaleEffect(0.85)
+        }
+    }
+
+}
+
+struct container: View {
+    let isFirst: Bool
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 20)
@@ -23,8 +37,7 @@ struct RoomPlaceholderCard: View {
                         .frame(height: 80)
                         .padding(.bottom, 24)
                     
-                    Text("No rooms near you at")
-                    Text("the moment!")
+                    Text("No rooms near you at\nthe moment! Try\ncreating a new room")
                 }
                 .font(.title3)
                 .fontWeight(.semibold)
@@ -32,9 +45,9 @@ struct RoomPlaceholderCard: View {
                 .multilineTextAlignment(.center)
             }
         }
-        .aspectRatio(264/232, contentMode: .fit)
-        .scaleEffect(0.85)
+        .aspectRatio(1, contentMode: .fit)
     }
+    
 }
 
 #Preview {
