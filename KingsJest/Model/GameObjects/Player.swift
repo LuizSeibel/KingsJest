@@ -15,6 +15,7 @@ extension UInt32 {
     static let trigger: UInt32 = 0x1 << 3
     static let flag: UInt32 = 0x1 << 4
     static let ground: UInt32 = 0x1 << 5
+    static let tomato: UInt32 = 0x1 << 6
 }
 
 class Player {
@@ -76,6 +77,9 @@ class Player {
         node = SKSpriteNode(texture: texture)
         node.position = position
         node.size = size
+        
+        // Ponto de ancora para a base dos pés
+        //node.anchorPoint = CGPoint(x: 0.5, y: 0.0)
 
         setupPhysics()
         
@@ -117,6 +121,32 @@ class Player {
         self.node.physicsBody?.categoryBitMask = .player
         self.node.physicsBody?.contactTestBitMask = .plataform | .lava
         self.node.physicsBody?.collisionBitMask = .plataform | .ground
+    }
+    
+    func setupBasicPhysics() {
+        // Calcula o deslocamento causado pelo anchor
+        let dx = (node.anchorPoint.x - 0.5) * node.size.width
+        let dy = (node.anchorPoint.y - 0.5) * node.size.height + 15
+
+        // Calcula o tamanho real da textura com o scale aplicado
+        let width = 20 * node.xScale
+        let height = 50 * node.yScale
+
+        let center = CGPoint(x: -dx, y: -dy)
+
+        let physics = SKPhysicsBody(rectangleOf: CGSize(width: width, height: height),
+                                     center: center)
+
+        physics.affectedByGravity = true
+        physics.isDynamic = true
+        physics.allowsRotation = false
+        physics.restitution = 0
+        physics.friction = 0
+        physics.categoryBitMask = .player
+        physics.contactTestBitMask = .plataform | .lava
+        physics.collisionBitMask = .plataform | .ground
+
+        self.node.physicsBody = physics
     }
     
     //MARK: Animações do Player
@@ -184,6 +214,46 @@ extension Player {
 //        return (Float(self.node.position.x), Float(self.node.position.y))
 //    }
     
+    //
+    func tiltMove(xAcceleration: CGFloat, deltaTime: CGFloat, windForce: CGFloat = 0) -> CGFloat {
+        // ----- Configurações básicas -----
+        let maxTiltAngle: CGFloat = .pi / 2        // Ângulo máximo (90 °)
+        let angularSpeed: CGFloat = maxTiltAngle   // Velocidade angular p/ netForce = ±1 (rad/s)
+        let sensitivity: CGFloat = 1.0             // Quanto o input compensa o vento
+        
+        // ----- Força resultante -----
+        // netForce > 0 empurra para a direita, < 0 para a esquerda
+        let netForce = windForce - (xAcceleration * sensitivity)
+        
+        // ----- Incremento desta frame (progressivo) -----
+        var newRotation = node.zRotation + netForce * angularSpeed * deltaTime
+        
+        // ----- Se não houver vento, personagem tende a voltar ao centro -----
+        if abs(windForce) < 0.001 {
+            let returnSpeed: CGFloat = maxTiltAngle * 0.5        // quão rápido volta ao centro
+            let direction: CGFloat = newRotation >= 0 ? -1 : 1   // força para o lado oposto
+            let autoCenterDelta = direction * returnSpeed * deltaTime
+            
+            // Evita cruzar o zero invertendo o sinal
+            if (newRotation + autoCenterDelta).sign != newRotation.sign {
+                newRotation = 0
+            } else {
+                newRotation += autoCenterDelta
+            }
+        }
+        
+        // ----- Clampeamento -----
+        newRotation = max(-maxTiltAngle, min(maxTiltAngle, newRotation))
+        node.zRotation = newRotation
+        
+        let angleInDegrees = abs(newRotation) * 180 / .pi
+        return angleInDegrees
+    }
+    
+    func restartAngle(){
+        node.zRotation = 0
+    }
+    
     // Movimentação do Player com CoreMotion
     func move(xAcceleration: CGFloat, deltaTime: CGFloat) {
         let maxSpeed: CGFloat = 300
@@ -227,6 +297,22 @@ extension Player {
                 stateMachine.enter(IdleState.self)
             }
         }
+    }
+    
+    func setAnchorPreservingPhysics(to newAnchor: CGPoint){
+        // guarda o anchor antigo
+        let oldAnchor = self.node.anchorPoint
+        
+        // calcula deslocamento em pontos
+        let dx = (newAnchor.x - oldAnchor.x) * node.size.width
+        let dy = (newAnchor.y - oldAnchor.y) * node.size.height
+        
+        // aplica o novo anchor
+        self.node.anchorPoint = newAnchor
+        
+        // compensa a posição para que a textura/physicsBody não “andem”
+        self.node.position.x += dx
+        self.node.position.y += dy
     }
     
     //MARK: Pulo do Player

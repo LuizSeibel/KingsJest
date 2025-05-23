@@ -24,6 +24,9 @@ class AttGameViewModel: ObservableObject {
     
     // Logica para o envio do local
     @Published var snapshots: [String: [PlayerSnapshot]] = [:]
+    
+    
+    
 }
 
 struct MessageEnvelopeHeader: Codable {
@@ -67,7 +70,13 @@ extension GameViewModel: P2PMessaging {
         do {
             let envelope = MessageEnvelope(type: type, content: message)
             let finalData = try JSONEncoder().encode(envelope)
-            connectionManager.send(data: finalData)
+            
+            if let peerS = peer{
+                connectionManager.send(data: finalData, peer: peerS)
+            }
+            else{
+                connectionManager.send(data: finalData)
+            }
         } catch {
             print("Erro ao enviar mensagem do tipo \(type): \(error)")
         }
@@ -95,6 +104,11 @@ extension GameViewModel: P2PMessaging {
                 )
                 let snapshot = envelope.content.snapshot
                 updatePosition(peerID: peerID, snapshot: snapshot)
+                
+            case .sabotage:
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name("sabotageReceived"), object: nil)
+                }
                 
             default:
                 break
@@ -128,6 +142,12 @@ extension GameViewModel {
     @MainActor
     func disconnectRoom() {
         connectionManager.disconnect()
+    }
+    
+    func updateSabotage() {
+        DispatchQueue.main.async{
+            
+        }
     }
     
     func updatePosition(peerID: MCPeerID, snapshot: PlayerSnapshot) {

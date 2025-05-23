@@ -35,6 +35,10 @@ struct LobbyPlayersEncoder: MPCEncoder{
     var players: [PlayerIdentifier]
 }
 
+struct SabotageEncoder: MPCEncoder {
+    var peerName: String
+}
+
 
 
 

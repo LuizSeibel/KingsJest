@@ -10,6 +10,7 @@ import SwiftUI
 import CoreMotion
 import UIKit
 import AVFoundation
+import MultipeerConnectivity
 
 class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     
@@ -30,11 +31,8 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
     var isFinishedGame: Bool = false
     var isDead: Bool = false
     
-    
-    
-
+    var onPlayerMove: ((MPCEncoder, MessageType, String?) -> Void)?
     private var sendTimer: TimeInterval = 0
-    var onPlayerMove: ((MPCEncoder) -> Void)?
     
     var lastLava: Bool = false
     var lavaTriggerPosition: CGPoint?
@@ -136,10 +134,9 @@ class PhaseOneController: SKScene, SKPhysicsContactDelegate {
             print("Erro ao configurar sessão de áudio: \(error)")
         }
 
-        
         ghostManager = GhostManager(scene: self, playerName: AttGameViewModel.shared.PlayerName)
-        ghostManager.onPlayerMove = { [weak self] snapshot in
-            self?.onPlayerMove?(snapshot)
+        ghostManager.onPlayerMove = { [weak self] snapshot, type, peerName in
+            self?.onPlayerMove?(snapshot, type, peerName)
         }
         
         for peerID in AttGameViewModel.shared.players {

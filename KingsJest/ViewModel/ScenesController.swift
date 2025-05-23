@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SpriteKit
+import MultipeerConnectivity
 
 enum GameSceneType: String {
     case phaseOne = "PhaseOne"
@@ -21,7 +22,7 @@ enum GameSceneType: String {
         }
     }
 
-    func getScene(finishGame: (() -> Void)? = nil, onPlayerMove: ((MPCEncoder) -> Void)? = nil) -> SKScene? {
+    func getScene(finishGame: (() -> Void)? = nil, onPlayerMove: ((MPCEncoder, MessageType, String?) -> Void)? = nil) -> SKScene? {
         switch self {
         case .phaseOne:
             let scene = PhaseOneController(fileNamed: self.rawValue)
@@ -32,17 +33,17 @@ enum GameSceneType: String {
         case .phaseTwo:
             let scene = PhaseTwoController(fileNamed: self.rawValue)
             scene?.scaleMode = self.scaleMode
+            scene?.onPlayerMove = onPlayerMove
             return scene
         }
     }
 }
 
-
 struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
     
     let sceneType: GameSceneType
     let finishGame: () -> Void
-    let onPlayerMove: (MPCEncoder) -> Void
+    let onPlayerMove: (MPCEncoder, MessageType, String?) -> Void
     
     func makeUIViewController(context: Context) -> UIViewController {
         let viewController = UIViewController()
@@ -59,6 +60,7 @@ struct GameScenesViewControllerRepresentable: UIViewControllerRepresentable {
         skView.ignoresSiblingOrder = false
         skView.showsFPS = false
         skView.showsNodeCount = false
+        skView.showsPhysics = false
         
         return viewController
     }

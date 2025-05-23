@@ -26,10 +26,10 @@ struct RootView: View{
             //EndView(winBool: true)
 //            GameView(connectionManager: MPCManager(yourName: "OI"))
             
-            GameScenesViewControllerRepresentable(sceneType: .phaseTwo, finishGame: {}, onPlayerMove: {_ in })
-                .ignoresSafeArea()
-            
-//            ContentView()
+//            GameScenesViewControllerRepresentable(sceneType: .phaseTwo, finishGame: {}, onPlayerMove: {_,_,_  in })
+//                .ignoresSafeArea()
+//            
+            ContentView()
                 .navigationBarBackButtonHidden()
                 .navigationDestination(for: Destination.self) { destination in
                     Group {

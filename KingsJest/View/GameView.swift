@@ -13,6 +13,8 @@ struct GameView: View {
     
     @State private var showBlackout = false
     
+    @State private var showTutorial = true
+    
     init(connectionManager: MPCManager, players: [PlayerIdentifier]){
         _viewModel = StateObject(wrappedValue: GameViewModel(connectionManager: connectionManager, players: players))
     }
@@ -23,7 +25,22 @@ struct GameView: View {
     
     private func gameViewBody() -> some View {
         ZStack {
-            if !viewModel.isFinishedGame {
+            Color(.grayMain)
+                .ignoresSafeArea()
+            
+            if showTutorial{
+                TutorialView(sceneType: .phaseOne)
+                    .onAppear{
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0){
+                            withAnimation{
+                                showTutorial = false
+                            }
+                        }
+                    }
+            }
+            
+            
+            if !viewModel.isFinishedGame && !showTutorial {
                 GameScenesViewControllerRepresentable(sceneType: .phaseOne, finishGame: {
                     withAnimation(.easeIn(duration: 0.5)) {
                         showBlackout = true
@@ -33,8 +50,12 @@ struct GameView: View {
                         viewModel.finishGame()
                     }
                     
-                }, onPlayerMove: { snapshot in
-                    viewModel.send(snapshot, type: .position, peer: nil)
+                }, onPlayerMove: { (snapshot, type, peerName) in
+                    let peer = AttGameViewModel.shared.players.first {
+                        $0.identifier.peerName == peerName
+                    }?.peerID
+                    
+                    viewModel.send(snapshot, type: type, peer: peer)
                 })
                 .edgesIgnoringSafeArea(.all)
             }
@@ -44,6 +65,7 @@ struct GameView: View {
                     .ignoresSafeArea()
                     .transition(.opacity)
             }
+            
         }
         .onAppear {
             showBlackout = false
@@ -72,13 +94,15 @@ struct GameView: View {
 //            else{
 //                EmptyView()
 //            }
-//            
-//            
+//
+//
 //        })
         
         .navigationBarBackButtonHidden(true)
     }
 }
+
+
 //
 //#Preview {
 //    GameView(connectionManager: MPCManager(yourName: ""), players: <#[PlayerIdentifier]#>)

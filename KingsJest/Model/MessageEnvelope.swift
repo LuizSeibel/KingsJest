@@ -12,6 +12,7 @@ enum MessageType: String, Codable {
     case stopGame
     case position
     case players
+    case sabotage
 }
 
 struct MessageEnvelope<T: Codable>: Codable {

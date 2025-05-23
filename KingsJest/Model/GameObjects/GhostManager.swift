@@ -16,7 +16,7 @@ class GhostManager {
     private var playerName: String = ""
     private var isRunning: Bool = true
     
-    var onPlayerMove: ((MPCEncoder) -> Void)?
+    var onPlayerMove: ((MPCEncoder, MessageType, String?) -> Void)?
 
     init(scene: SKScene, playerName: String) {
         self.scene = scene
@@ -58,7 +58,7 @@ class GhostManager {
             )
 
             let encoder = PlayerPositionEncoder(peerName: playerName, snapshot: snapshot)
-            onPlayerMove?(encoder)
+            onPlayerMove?(encoder, .position, nil)
         }
 
         // Atualização dos fantasmas
