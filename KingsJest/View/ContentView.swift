@@ -23,8 +23,8 @@ struct ContentView: View {
     
     @State private var backgroundColor = Color("gray_light")
     
-    @State private var warningBool = true
-    @State private var animationWarningBool = true
+    @Binding var warningBool: Bool
+    @Binding var animationWarningBool: Bool
     
     private let nicknameLabels: [nicknameLabel] =
     [
@@ -72,13 +72,15 @@ struct ContentView: View {
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5.0){
                 Task{
-                    withAnimation{
-                        animationWarningBool.toggle()
-                    }
-                    
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                    if animationWarningBool{
                         withAnimation{
-                            warningBool.toggle()
+                            animationWarningBool = false
+                        }
+                        
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2){
+                            withAnimation{
+                                warningBool = false
+                            }
                         }
                     }
                     if appViewModel.isFirstLaunch {
@@ -108,8 +110,6 @@ struct ContentView: View {
         // Testar com um arquio de View
         
         .navigationBarBackButtonHidden(true)
-    
-        
     }
 }
 
@@ -285,7 +285,7 @@ extension ContentView{
 
 #Preview {
     NavigationStack{
-        ContentView()
+        ContentView(warningBool: .constant(true), animationWarningBool: .constant(true))
             .environmentObject(RootViewModel())
     }
 }

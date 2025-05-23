@@ -19,6 +19,9 @@ enum Destination: Hashable {
 struct RootView: View{
     
     @StateObject var appViewModel = RootViewModel()
+    
+    @State var warningBool: Bool = true
+    @State var animationWarningBool: Bool = true
 
     var body: some View{
         
@@ -29,7 +32,7 @@ struct RootView: View{
 //            GameScenesViewControllerRepresentable(sceneType: .phaseTwo, finishGame: {}, onPlayerMove: {_,_,_  in })
 //                .ignoresSafeArea()
 //            
-            ContentView()
+            ContentView(warningBool: $warningBool, animationWarningBool: $animationWarningBool)
                 .navigationBarBackButtonHidden()
                 .navigationDestination(for: Destination.self) { destination in
                     Group {
