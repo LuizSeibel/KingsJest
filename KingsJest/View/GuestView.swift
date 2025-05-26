@@ -137,7 +137,9 @@ extension GuestView {
     // View de espera até o host aceitar
     var waitingView: some View {
         VStack {
-            Image("coroa")
+            
+            JesterLoadingRun()
+
             Text("Waiting for connection \(String(repeating: ".", count: dotCount))")
                 .foregroundStyle(.gray)
                 .font(.custom("ø", size: 26))

@@ -71,7 +71,7 @@ struct TutorialView: View{
                     HStack(spacing: 0) {
                         Text("Tilt your phone ")
                             .tutorialTextStyle()
-                        Text("left or right to move the character")
+                        Text("left or right to move the jester")
                             .tutorialTextStyle(color: .secondary)
                     }
                     
