@@ -22,6 +22,11 @@ struct WarningView: View{
                            height: UIScreen.main.bounds.height * 0.11)
                 warningText
             }
+            
+            JesterLoadingRun()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .padding(.trailing, 48)
+                .padding(.bottom, 32)
         }
     }
     
