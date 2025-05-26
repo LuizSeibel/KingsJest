@@ -83,23 +83,6 @@ struct GameView: View {
             }
         }
         
-        
-//        .navigationDestination(isPresented: $viewModel.isFinishedGame, destination: {
-//            if viewModel.isFinishedGame {
-//                EndView(winBool: viewModel.winGame, winnerName: viewModel.winnerName ?? "")
-//                    .onAppear{
-//                        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
-//                            viewModel.disconnectRoom()
-//                        })
-//                    }
-//            }
-//            else{
-//                EmptyView()
-//            }
-//
-//
-//        })
-        
         .navigationBarBackButtonHidden(true)
     }
 }
