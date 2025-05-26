@@ -13,7 +13,6 @@ struct RoomPlaceholderCard: View {
     var body: some View{
         VStack{
             container(isFirst: isFirst)
-//                .compositingGroup()
                 .aspectRatio(264/232, contentMode: .fit)
                 .scaleEffect(0.85)
         }
@@ -34,6 +33,7 @@ struct container: View {
                     Image("tower")
                         .resizable()
                         .scaledToFit()
+                        .foregroundStyle(Color.grayConfigMenu)
                         .frame(height: 80)
                         .padding(.bottom, 24)
                     
@@ -41,7 +41,7 @@ struct container: View {
                 }
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color.grayMain)
+                .foregroundStyle(Color.grayPlaceholderText)
                 .multilineTextAlignment(.center)
             }
         }

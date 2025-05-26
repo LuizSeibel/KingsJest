@@ -22,10 +22,12 @@ struct CustomConnectionList: View {
             if peers.isEmpty {
                 VStack(spacing: 16){
                     Image("tower")
+                        .foregroundStyle(Color.grayConfigMenu)
+
                     
                     Text("No jesters at the door yet...")
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color.grayDark)
+                        .foregroundStyle(Color.grayPlaceholderText)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .multilineTextAlignment(.center)
