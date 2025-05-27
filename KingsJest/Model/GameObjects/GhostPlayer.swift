@@ -39,7 +39,7 @@ class GhostPlayer {
         self.node.zPosition = 4
         
         // Aparência fantasma
-        self.node.alpha = 0.8
+        self.node.alpha = 0.6
     }
     
     
