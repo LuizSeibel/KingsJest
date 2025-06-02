@@ -27,7 +27,7 @@ struct CustomConnectionList: View {
                     
                     Text("No jesters at the door yet...")
                         .fontWeight(.semibold)
-                        .foregroundStyle(Color.grayPlaceholderText)
+                        .foregroundStyle(Color.grayConfigMenu)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .multilineTextAlignment(.center)

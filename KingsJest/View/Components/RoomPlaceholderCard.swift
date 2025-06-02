@@ -41,7 +41,7 @@ struct container: View {
                 }
                 .font(.title3)
                 .fontWeight(.semibold)
-                .foregroundStyle(Color.grayPlaceholderText)
+                .foregroundStyle(Color.grayConfigMenu)
                 .multilineTextAlignment(.center)
             }
         }
