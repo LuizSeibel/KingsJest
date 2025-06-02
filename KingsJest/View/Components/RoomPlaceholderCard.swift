@@ -13,8 +13,6 @@ struct RoomPlaceholderCard: View {
     var body: some View{
         VStack{
             container(isFirst: isFirst)
-                .aspectRatio(264/232, contentMode: .fit)
-                .scaleEffect(0.85)
         }
     }
 
@@ -25,8 +23,7 @@ struct container: View {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 20)
-                .foregroundStyle(isFirst ? Color.grayLight : Color.grayLight.opacity(0.4))
+            
             
             if isFirst {
                 VStack {
@@ -44,6 +41,12 @@ struct container: View {
                 .foregroundStyle(Color.grayConfigMenu)
                 .multilineTextAlignment(.center)
             }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 20)
+                .foregroundStyle(isFirst ? Color.grayLight : Color.grayLight.opacity(0.4))
+                
         }
         .aspectRatio(1, contentMode: .fit)
     }

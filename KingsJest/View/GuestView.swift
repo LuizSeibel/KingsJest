@@ -94,11 +94,10 @@ extension GuestView {
         ZStack {
             if viewModel.availableRooms.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: -48) {
+                    HStack (spacing: 0) {
                         ForEach(0..<4, id: \.self) { index in
                             RoomPlaceholderCard(isFirst: index == 0)
-                                .offset(y: 16)
-                                .matchedGeometryEffect(id: "roomCard\(index)", in: animation)
+                                .padding()
                         }
                     }
                 }
@@ -113,7 +112,6 @@ extension GuestView {
                                 backCardAction: { viewModel.cancelInvite(peer: peer) }
                             )
                             .offset(y: 16)
-                            .matchedGeometryEffect(id: "roomCard\(index)", in: animation)
                         }
                     }
                 }
